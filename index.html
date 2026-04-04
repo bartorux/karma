@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Co dziś w misce?</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green-deep:#2d4a2d;--green-mid:#4a7c4a;--green-pale:#b8d4aa;--green-mist:#e8f2e0;
+  --brown-dark:#5c3d1e;--brown-mid:#8b5e3c;--brown-pale:#e8d5b7;
+  --cream:#faf6ee;--text-dark:#1e2e1e;--text-mid:#3d5c3d;
+  --shadow:0 4px 24px rgba(45,74,45,.12);--shadow-lg:0 12px 48px rgba(45,74,45,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;
+  background-image:radial-gradient(ellipse at 10% 20%,rgba(122,173,106,.12) 0%,transparent 50%),radial-gradient(ellipse at 90% 80%,rgba(196,149,106,.10) 0%,transparent 50%);}
+.container{max-width:680px;margin:0 auto;padding:24px 16px 52px}
+
+header{text-align:center;margin-bottom:28px}
+.logo{font-size:36px;display:inline-block;animation:sway 3s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+h1{font-family:‘Playfair Display’,serif;font-size:1.85rem;color:var(–green-deep);margin-bottom:4px}
+.subtitle{color:var(–brown-mid);font-size:.83rem;font-weight:300;letter-spacing:.04em}
+
+.card{background:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4)}
+.card-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);margin-bottom:16px;display:flex;align-items:center;gap:7px}
+label{font-size:.73rem;font-weight:700;color:var(–text-mid);text-transform:uppercase;letter-spacing:.06em}
+input[type=“number”]{width:100%;padding:11px 14px;border:1.5px solid var(–green-pale);border-radius:10px;font-family:‘Lato’,sans-serif;font-size:1.05rem;color:var(–text-dark);background:var(–green-mist);transition:border-color .2s,box-shadow .2s;outline:none;-moz-appearance:textfield}
+input[type=“number”]::-webkit-outer-spin-button,input[type=“number”]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=“number”]:focus{border-color:var(–green-mid);box-shadow:0 0 0 3px rgba(74,124,74,.15);background:white}
+.hint{font-size:.74rem;color:var(–text-mid);opacity:.7;margin-top:7px;line-height:1.4}
+
+/* MEAL CARDS */
+.meal-card{background:white;border-radius:20px;padding:20px 22px;margin-bottom:14px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4);transition:border-color .3s}
+.meal-card.fed{border-color:var(–green-mid);background:linear-gradient(135deg,#f0f8ea,white)}
+.meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px}
+.meal-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);display:flex;align-items:center;gap:7px;flex:1}
+.meal-badges{display:flex;align-items:center;gap:7px}
+.meal-total-badge{font-size:.8rem;font-weight:700;background:var(–green-mist);color:var(–green-deep);border:1.5px solid var(–green-pale);border-radius:20px;padding:3px 12px;white-space:nowrap}
+
+/* FED BUTTON */
+.fed-btn{
+padding:5px 13px;border-radius:20px;border:2px solid var(–green-pale);
+background:white;color:var(–text-mid);font-family:‘Lato’,sans-serif;
+font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.fed-btn:hover{border-color:var(–green-mid);color:var(–green-mid)}
+.fed-btn.done{background:var(–green-mid);border-color:var(–green-mid);color:white}
+.fed-time{font-size:.72rem;color:var(–green-mid);font-weight:400;margin-left:2px;opacity:.85}
+
+/* SLIDER */
+.split-labels{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.split-badge{padding:4px 11px;border-radius:20px;font-size:.82rem;font-weight:700}
+.split-badge.wet{background:rgba(74,124,74,.15);color:var(–green-deep)}
+.split-badge.dry{background:rgba(139,94,60,.15);color:var(–brown-dark)}
+.cslider-wrap{position:relative;width:100%;height:40px;display:flex;align-items:center;touch-action:none;user-select:none}
+.cslider-track{width:100%;height:9px;border-radius:999px;position:relative}
+.cslider-bg{position:absolute;inset:0;border-radius:999px;background:linear-gradient(to right,var(–green-pale),var(–brown-pale))}
+.cslider-fill{position:absolute;top:0;left:0;height:100%;border-radius:999px;background:var(–green-mid);pointer-events:none}
+.cslider-handle{position:absolute;top:50%;transform:translate(-50%,-50%);width:28px;height:28px;background:white;border:3px solid var(–green-mid);border-radius:50%;box-shadow:0 2px 8px rgba(45,74,45,.28);cursor:grab;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(–green-mid);z-index:3}
+.cslider-handle.dragging{cursor:grabbing;box-shadow:0 4px 18px rgba(45,74,45,.38);transform:translate(-50%,-50%) scale(1.12)}
+.slider-ends{display:flex;justify-content:space-between;font-size:.68rem;color:var(–text-mid);opacity:.55;padding:0 3px;margin-top:1px}
+
+/* MEAL RESULT */
+.meal-result-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.meal-result-block{border-radius:12px;padding:10px 12px;text-align:center}
+.meal-result-block.wet-b{background:rgba(74,124,74,.1);border:1px solid rgba(74,124,74,.25)}
+.meal-result-block.dry-b{background:rgba(139,94,60,.1);border:1px solid rgba(139,94,60,.25)}
+.mrb-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;opacity:.65;margin-bottom:3px}
+.mrb-value{font-family:‘Playfair Display’,serif;font-size:1.5rem;font-weight:700;line-height:1}
+.mrb-value.wv{color:var(–green-mid)}.mrb-value.dv{color:var(–brown-mid)}
+.mrb-unit{font-size:.7rem;opacity:.6;margin-top:2px}
+
+/* DAILY TRACKER BANNER */
+.day-tracker{
+background:linear-gradient(135deg,var(–green-deep),#3a5c3a);
+color:white;border-radius:20px;padding:20px 22px;margin-bottom:16px;
+box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
+}
+.day-tracker::before{content:’’;position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.dt-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.dt-title{font-family:‘Playfair Display’,serif;font-size:1rem;opacity:.9}
+.dt-date{font-size:.75rem;opacity:.6;letter-spacing:.03em}
+.dt-meals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.dt-meal{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 8px;text-align:center;border:1px solid rgba(255,255,255,.1);transition:all .3s}
+.dt-meal.fed{background:rgba(122,173,106,.25);border-color:rgba(122,173,106,.5)}
+.dt-meal-name{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:5px}
+.dt-meal-icon{font-size:1.3rem;margin-bottom:4px}
+.dt-meal-time{font-size:.7rem;opacity:.75;margin-top:3px;min-height:16px}
+.dt-meal-grams{font-size:.78rem;font-weight:700;opacity:.9;margin-top:2px;min-height:15px}
+.dt-divider{height:1px;background:rgba(255,255,255,.15);margin:12px 0}
+.dt-totals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dt-total-block{background:rgba(255,255,255,.08);border-radius:10px;padding:9px 12px;text-align:center}
+.dt-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;opacity:.65;margin-bottom:3px}
+.dt-value{font-family:‘Playfair Display’,serif;font-size:1.4rem;font-weight:700;line-height:1}
+.dt-value.wv{color:#b8d4aa}.dt-value.dv{color:#e8d5b7}
+.dt-unit{font-size:.7rem;opacity:.6;margin-top:2px}
+.dt-progress{margin-top:12px}
+.dt-prog-label{display:flex;justify-content:space-between;font-size:.75rem;opacity:.75;margin-bottom:5px}
+.dt-prog-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden}
+.dt-prog-fill{height:100%;border-radius:999px;background:linear-gradient(to right,#7aad6a,#b8d4aa);transition:width .4s ease}
+.dt-midnight{font-size:.7rem;opacity:.5;text-align:center;margin-top:10px}
+
+/* SUMMARY CARD */
+.summary-card{background:linear-gradient(135deg,var(–green-deep) 0%,#3a5c3a 100%);color:white;border-radius:20px;padding:24px;box-shadow:var(–shadow-lg);margin-bottom:16px;position:relative;overflow:hidden}
+.summary-card::before{content:’’;position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.summary-title{font-family:‘Playfair Display’,serif;font-size:1.05rem;margin-bottom:16px;opacity:.9}
+.summary-main{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sum-block{background:rgba(255,255,255,.1);border-radius:14px;padding:14px;text-align:center}
+.sum-block.wb{border:1px solid rgba(122,173,106,.4)}.sum-block.db{border:1px solid rgba(196,149,106,.4)}
+.sb-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.65;margin-bottom:4px}
+.sb-value{font-family:‘Playfair Display’,serif;font-size:1.9rem;font-weight:700;line-height:1}
+.sb-value.wv{color:#b8d4aa}.sb-value.dv{color:#e8d5b7}
+.sb-unit{font-size:.72rem;opacity:.6;margin-top:2px}
+.summary-divider{height:1px;background:rgba(255,255,255,.15);margin:12px 0}
+.sum-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px;opacity:.85}
+.sum-row .sl{opacity:.7}.sum-row .sv{font-weight:700}
+.sum-total{display:flex;justify-content:space-between;align-items:baseline;padding-top:10px;border-top:1px solid rgba(255,255,255,.2);margin-top:6px}
+.st-label{font-family:‘Playfair Display’,serif;font-size:.95rem;opacity:.9}
+.st-value{font-family:‘Playfair Display’,serif;font-size:1.3rem;font-weight:700}
+.note-box{background:rgba(255,255,255,.08);border-radius:10px;padding:9px 13px;font-size:.76rem;opacity:.78;margin-top:10px;line-height:1.5}
+.no-calc{text-align:center;padding:18px;opacity:.55;font-style:italic;font-size:.88rem}
+
+/* REF TABLES */
+.ref-card{background:white;border-radius:20px;padding:20px 22px;margin-bottom:16px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4)}
+.ref-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+.ref-title{font-family:‘Playfair Display’,serif;font-size:.95rem;color:var(–green-deep);display:flex;align-items:center;gap:7px}
+.ref-arrow{font-size:.75rem;opacity:.5;transition:transform .25s;margin-left:4px}
+.ref-arrow.open{transform:rotate(180deg)}
+.ref-body{overflow:hidden;max-height:0;transition:max-height .35s ease}
+.ref-body.open{max-height:700px}
+.ref-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.8rem}
+.ref-table th{background:var(–green-deep);color:white;padding:7px 4px;text-align:center;font-weight:700;font-size:.7rem;letter-spacing:.03em}
+.ref-table th:first-child{border-radius:7px 0 0 0}.ref-table th:last-child{border-radius:0 7px 0 0}
+.ref-table td{padding:6px 4px;text-align:center;border-bottom:1px solid rgba(184,212,170,.3)}
+.ref-table tr:nth-child(even) td{background:var(–green-mist)}
+.ref-table.wet-tbl th{background:var(–brown-dark)}
+
+.reset-btn{width:100%;padding:10px;background:transparent;color:var(–brown-mid);border:1.5px solid var(–brown-pale);border-radius:12px;font-family:‘Lato’,sans-serif;font-size:.84rem;cursor:pointer;transition:all .2s}
+.reset-btn:hover{background:var(–brown-pale);color:var(–brown-dark)}
+.saved{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;color:var(–green-mid);opacity:0;transition:opacity .3s;margin-top:6px}
+.saved.show{opacity:1}
+
+@media(max-width:460px){.summary-main,.meal-result-row,.dt-totals{grid-template-columns:1fr}h1{font-size:1.5rem}.dt-meals{gap:5px}}
+</style>
+
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">🐾</div>
+  <h1>Co dziś w misce?</h1>
+  <p class="subtitle">3 posiłki dziennie · dawki z tabel Brit VD</p>
+</header>
+
+<!-- WAGA -->
+
+<div class="card">
+  <div class="card-title">🐶 Waga psa</div>
+  <label>Waga psa (kg)</label>
+  <input type="number" id="weight" placeholder="np. 12" min="0.5" max="90" step="0.5" style="margin-top:6px" oninput="onWeightChange()">
+  <div class="hint">Sucha: tabela Brit VD 2–80 kg &nbsp;·&nbsp; Mokra: tabela Brit VD 5–60 kg (puszka 400 g)</div>
+</div>
+
+<!-- POSIŁKI -->
+
+<div id="meal-1" class="meal-card">
+  <div class="meal-header">
+    <div class="meal-title">🌅 Rano</div>
+    <div class="meal-badges">
+      <div class="meal-total-badge" id="badge-1">— g</div>
+      <button class="fed-btn" id="fedbtn-1" onclick="markFed(1)">✓ Podano</button>
+    </div>
+  </div>
+  <div class="split-labels">
+    <span class="split-badge wet">💧 <strong id="wp1">50</strong>%</span>
+    <span class="split-badge dry">🌾 <strong id="dp1">50</strong>%</span>
+  </div>
+  <div class="cslider-wrap" data-meal="1">
+    <div class="cslider-track">
+      <div class="cslider-bg"></div>
+      <div class="cslider-fill" id="fill-1"></div>
+      <div class="cslider-handle" id="handle-1">⟷</div>
+    </div>
+  </div>
+  <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
+  <div class="meal-result-row" id="mres-1" style="display:none">
+    <div class="meal-result-block wet-b"><div class="mrb-label">💧 Mokra</div><div class="mrb-value wv" id="mwet-1">0</div><div class="mrb-unit">g</div></div>
+    <div class="meal-result-block dry-b"><div class="mrb-label">🌾 Sucha</div><div class="mrb-value dv" id="mdry-1">0</div><div class="mrb-unit">g</div></div>
+  </div>
+</div>
+
+<div id="meal-2" class="meal-card">
+  <div class="meal-header">
+    <div class="meal-title">☀️ Południe</div>
+    <div class="meal-badges">
+      <div class="meal-total-badge" id="badge-2">— g</div>
+      <button class="fed-btn" id="fedbtn-2" onclick="markFed(2)">✓ Podano</button>
+    </div>
+  </div>
+  <div class="split-labels">
+    <span class="split-badge wet">💧 <strong id="wp2">50</strong>%</span>
+    <span class="split-badge dry">🌾 <strong id="dp2">50</strong>%</span>
+  </div>
+  <div class="cslider-wrap" data-meal="2">
+    <div class="cslider-track">
+      <div class="cslider-bg"></div>
+      <div class="cslider-fill" id="fill-2"></div>
+      <div class="cslider-handle" id="handle-2">⟷</div>
+    </div>
+  </div>
+  <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
+  <div class="meal-result-row" id="mres-2" style="display:none">
+    <div class="meal-result-block wet-b"><div class="mrb-label">💧 Mokra</div><div class="mrb-value wv" id="mwet-2">0</div><div class="mrb-unit">g</div></div>
+    <div class="meal-result-block dry-b"><div class="mrb-label">🌾 Sucha</div><div class="mrb-value dv" id="mdry-2">0</div><div class="mrb-unit">g</div></div>
+  </div>
+</div>
+
+<div id="meal-3" class="meal-card">
+  <div class="meal-header">
+    <div class="meal-title">🌙 Wieczór</div>
+    <div class="meal-badges">
+      <div class="meal-total-badge" id="badge-3">— g</div>
+      <button class="fed-btn" id="fedbtn-3" onclick="markFed(3)">✓ Podano</button>
+    </div>
+  </div>
+  <div class="split-labels">
+    <span class="split-badge wet">💧 <strong id="wp3">50</strong>%</span>
+    <span class="split-badge dry">🌾 <strong id="dp3">50</strong>%</span>
+  </div>
+  <div class="cslider-wrap" data-meal="3">
+    <div class="cslider-track">
+      <div class="cslider-bg"></div>
+      <div class="cslider-fill" id="fill-3"></div>
+      <div class="cslider-handle" id="handle-3">⟷</div>
+    </div>
+  </div>
+  <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
+  <div class="meal-result-row" id="mres-3" style="display:none">
+    <div class="meal-result-block wet-b"><div class="mrb-label">💧 Mokra</div><div class="mrb-value wv" id="mwet-3">0</div><div class="mrb-unit">g</div></div>
+    <div class="meal-result-block dry-b"><div class="mrb-label">🌾 Sucha</div><div class="mrb-value dv" id="mdry-3">0</div><div class="mrb-unit">g</div></div>
+  </div>
+</div>
+
+<!-- DZIENNY TRACKER -->
+
+<div class="day-tracker" id="day-tracker" style="display:none">
+  <div class="dt-header">
+    <div class="dt-title">📅 Dzień dzisiejszy</div>
+    <div class="dt-date" id="dt-date"></div>
+  </div>
+  <div class="dt-meals">
+    <div class="dt-meal" id="dt-m1">
+      <div class="dt-meal-icon">🌅</div>
+      <div class="dt-meal-name">Rano</div>
+      <div class="dt-meal-time" id="dt-t1"></div>
+      <div class="dt-meal-grams" id="dt-g1"></div>
+    </div>
+    <div class="dt-meal" id="dt-m2">
+      <div class="dt-meal-icon">☀️</div>
+      <div class="dt-meal-name">Południe</div>
+      <div class="dt-meal-time" id="dt-t2"></div>
+      <div class="dt-meal-grams" id="dt-g2"></div>
+    </div>
+    <div class="dt-meal" id="dt-m3">
+      <div class="dt-meal-icon">🌙</div>
+      <div class="dt-meal-name">Wieczór</div>
+      <div class="dt-meal-time" id="dt-t3"></div>
+      <div class="dt-meal-grams" id="dt-g3"></div>
+    </div>
+  </div>
+  <div class="dt-divider"></div>
+  <div class="dt-totals">
+    <div class="dt-total-block">
+      <div class="dt-label">💧 Mokra podana</div>
+      <div class="dt-value wv" id="dt-wet">0</div>
+      <div class="dt-unit">g dziś</div>
+    </div>
+    <div class="dt-total-block">
+      <div class="dt-label">🌾 Sucha podana</div>
+      <div class="dt-value dv" id="dt-dry">0</div>
+      <div class="dt-unit">g dziś</div>
+    </div>
+  </div>
+  <div class="dt-progress">
+    <div class="dt-prog-label">
+      <span>Postęp dnia</span>
+      <span id="dt-prog-txt">0 / 3 posiłków</span>
+    </div>
+    <div class="dt-prog-bar"><div class="dt-prog-fill" id="dt-prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="dt-midnight">🕛 Reset automatyczny o północy</div>
+</div>
+
+<!-- PODSUMOWANIE -->
+
+<div class="summary-card">
+  <div class="summary-title">📊 Dawka dzienna (plan)</div>
+  <div id="summary-content"><div class="no-calc">Podaj wagę psa — wyniki pojawią się automatycznie 🐾</div></div>
+</div>
+
+<!-- TABELKI -->
+
+<div class="ref-card">
+  <div class="ref-toggle" onclick="toggleRef('dry')">
+    <div class="ref-title">🌾 Tabela suchej karmy Brit VD</div>
+    <span class="ref-arrow" id="arrow-dry">▼</span>
+  </div>
+  <div class="ref-body" id="refbody-dry">
+    <table class="ref-table" id="dry-ref-table">
+      <thead><tr>
+        <th>kg</th><th>2</th><th>5</th><th>10</th><th>15</th><th>20</th>
+        <th>25</th><th>30</th><th>40</th><th>50</th><th>60</th><th>70</th><th>80</th>
+      </tr></thead>
+      <tbody><tr>
+        <td>g/dz</td>
+        <td>30</td><td>70</td><td>120</td><td>160</td><td>200</td>
+        <td>240</td><td>270</td><td>340</td><td>400</td><td>460</td><td>510</td><td>570</td>
+      </tr></tbody>
+    </table>
+    <div style="font-size:.72rem;color:var(--text-mid);opacity:.65;margin-top:8px;line-height:1.4">Brit VD Dog Grain Free Gastrointestinal (sucha). Dla wag pośrednich — interpolacja.</div>
+  </div>
+</div>
+
+<div class="ref-card">
+  <div class="ref-toggle" onclick="toggleRef('wet')">
+    <div class="ref-title">💧 Tabela mokrej karmy Brit VD</div>
+    <span class="ref-arrow" id="arrow-wet">▼</span>
+  </div>
+  <div class="ref-body" id="refbody-wet">
+    <table class="ref-table wet-tbl">
+      <thead><tr><th>Waga psa</th><th>5–10 kg</th><th>10–30 kg</th><th>30–60 kg</th></tr></thead>
+      <tbody><tr><td>g / dzień</td><td>360–605</td><td>605–1380</td><td>1380–2320</td></tr></tbody>
+    </table>
+    <div style="font-size:.72rem;color:var(--text-mid);opacity:.65;margin-top:8px;line-height:1.4">Brit VD puszka 400 g. Aplikacja używa środka zakresu interpolowanego liniowo po wadze.</div>
+  </div>
+</div>
+
+<button class="reset-btn" onclick="resetAll()">↺ Wyczyść ustawienia</button>
+
+<div class="saved" id="saved">✓ Zapisano</div>
+</div>
+
+<script>
+// ===== TABELE BRIT VD =====
+var DRY = [[2,30],[5,70],[10,120],[15,160],[20,200],[25,240],[30,270],[40,340],[50,400],[60,460],[70,510],[80,570]];
+var WET = [[5,10,360,605],[10,30,605,1380],[30,60,1380,2320]];
+
+function interpDry(kg) {
+  if (kg<=DRY[0][0]) return DRY[0][1];
+  if (kg>=DRY[DRY.length-1][0]) return DRY[DRY.length-1][1];
+  for (var i=0;i<DRY.length-1;i++) {
+    if (kg>=DRY[i][0]&&kg<=DRY[i+1][0]) return DRY[i][1]+(DRY[i+1][1]-DRY[i][1])*(kg-DRY[i][0])/(DRY[i+1][0]-DRY[i][0]);
+  }
+}
+function interpWet(kg) {
+  if (kg<5||kg>60) return null;
+  for (var i=0;i<WET.length;i++) {
+    if (kg>=WET[i][0]&&kg<=WET[i][1]) return WET[i][2]+(WET[i][3]-WET[i][2])*(kg-WET[i][0])/(WET[i][1]-WET[i][0]);
+  }
+  return null;
+}
+function wetRangeStr(kg) {
+  for (var i=0;i<WET.length;i++) if (kg>=WET[i][0]&&kg<=WET[i][1]) return WET[i][2]+'–'+WET[i][3];
+  return null;
+}
+function dryRangeStr(kg) {
+  if (kg<=DRY[0][0]) return DRY[0][1]+' g';
+  if (kg>=DRY[DRY.length-1][0]) return DRY[DRY.length-1][1]+' g';
+  for (var i=0;i<DRY.length-1;i++) if (kg>=DRY[i][0]&&kg<=DRY[i+1][0]) return DRY[i][1]+'–'+DRY[i+1][1];
+  return null;
+}
+
+// ===== STAN =====
+var wetPct = [50,50,50];
+var calcDone = false;
+var lastKg = 0;
+// Pamięć dobowa: {date:'2024-01-01', meals:[{fed:false,time:null,wetG:0,dryG:0}, ...]}
+var dayData = {date:'', meals:[{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0}]};
+
+// ===== SUWAKI =====
+function setupSlider(meal) {
+  var wrap = document.querySelector('.cslider-wrap[data-meal="'+meal+'"]');
+  var handle = document.getElementById('handle-'+meal);
+  var dragging = false;
+  function getPct(cx) { var r=wrap.getBoundingClientRect(); return Math.round(Math.min(100,Math.max(0,(cx-r.left)/r.width*100))); }
+  function onMove(cx) { wetPct[meal-1]=getPct(cx); updateSliderUI(meal); if(calcDone&&lastKg>0) recalc(); }
+  handle.addEventListener('mousedown',function(e){dragging=true;handle.classList.add('dragging');e.preventDefault()});
+  document.addEventListener('mousemove',function(e){if(dragging)onMove(e.clientX)});
+  document.addEventListener('mouseup',function(){if(dragging){dragging=false;handle.classList.remove('dragging');saveSettings()}});
+  handle.addEventListener('touchstart',function(e){dragging=true;handle.classList.add('dragging');e.preventDefault()},{passive:false});
+  document.addEventListener('touchmove',function(e){if(dragging){onMove(e.touches[0].clientX);e.preventDefault()}},{passive:false});
+  document.addEventListener('touchend',function(){if(dragging){dragging=false;handle.classList.remove('dragging');saveSettings()}});
+  wrap.querySelector('.cslider-bg').addEventListener('click',function(e){onMove(e.clientX);saveSettings()});
+}
+function updateSliderUI(meal) {
+  var p=wetPct[meal-1];
+  document.getElementById('fill-'+meal).style.width=p+'%';
+  document.getElementById('handle-'+meal).style.left=p+'%';
+  document.getElementById('wp'+meal).textContent=p;
+  document.getElementById('dp'+meal).textContent=100-p;
+}
+
+// ===== OBLICZENIA =====
+var mealWetG=[0,0,0], mealDryG=[0,0,0];
+
+function onWeightChange() {
+  var kg=parseFloat(document.getElementById('weight').value);
+  if(!kg||kg<=0){resetDisplay();return;}
+  lastKg=kg; calcDone=true; recalc(); saveSettings();
+}
+
+function recalc() {
+  var kg=lastKg;
+  var dryDay=interpDry(kg);
+  var wetDay=interpWet(kg);
+  var dryMeal=dryDay/3;
+  var wetMeal=wetDay?wetDay/3:null;
+  var totalWet=0,totalDry=0;
+  for (var m=1;m<=3;m++) {
+    var wp=wetPct[m-1], dp=100-wp;
+    var dryG=Math.round(dryMeal*dp/100);
+    var wetG=wetMeal!==null?Math.round(wetMeal*wp/100):Math.round(dryMeal*wp/100);
+    mealWetG[m-1]=wetG; mealDryG[m-1]=dryG;
+    var tot=dryG+wetG;
+    document.getElementById('badge-'+m).textContent=tot+' g';
+    document.getElementById('mwet-'+m).textContent=wetG;
+    document.getElementById('mdry-'+m).textContent=dryG;
+    document.getElementById('mres-'+m).style.display='grid';
+    totalWet+=wetG; totalDry+=dryG;
+  }
+  // podsumowanie
+  var wetRange=wetRangeStr(kg), dryRange=dryRangeStr(kg), noWet=wetDay===null;
+  var html='<div class="summary-main">'
+    +'<div class="sum-block wb"><div class="sb-label">💧 Mokra / dzień</div><div class="sb-value wv">'+totalWet+'</div><div class="sb-unit">g</div></div>'
+    +'<div class="sum-block db"><div class="sb-label">🌾 Sucha / dzień</div><div class="sb-value dv">'+totalDry+'</div><div class="sb-unit">g</div></div>'
+    +'</div><div class="summary-divider"></div>'
+    +'<div class="sum-row"><span class="sl">Dawka sucha (100%)</span><span class="sv">'+Math.round(dryDay)+' g</span></div>'
+    +(dryRange?'<div class="sum-row"><span class="sl">Zakres suchej (tabelka)</span><span class="sv">'+dryRange+' g</span></div>':'')
+    +(wetDay?'<div class="sum-row"><span class="sl">Dawka mokra (100%)</span><span class="sv">'+Math.round(wetDay)+' g</span></div>':'')
+    +(wetRange?'<div class="sum-row"><span class="sl">Zakres mokrej (tabelka)</span><span class="sv">'+wetRange+' g</span></div>':'')
+    +'<div class="sum-total"><span class="st-label">Razem w miskach</span><span class="st-value">~'+(totalWet+totalDry)+' g</span></div>'
+    +(noWet?'<div class="note-box">⚠️ Waga poza tabelą mokrej (5–60 kg) — mokra szacowana proporcjonalnie z dawki suchej.</div>':'')
+    +'<div class="note-box">📋 Każdy posiłek = 1/3 dawki dziennej. Dane z tabel Brit VD, skalowane wg suwaka. Skonsultuj z weterynarzem.</div>';
+  document.getElementById('summary-content').innerHTML=html;
+  document.getElementById('day-tracker').style.display='block';
+  updateTrackerUI();
+}
+
+function resetDisplay() {
+  calcDone=false; lastKg=0;
+  for (var m=1;m<=3;m++) {
+    document.getElementById('badge-'+m).textContent='— g';
+    document.getElementById('mres-'+m).style.display='none';
+  }
+  document.getElementById('summary-content').innerHTML='<div class="no-calc">Podaj wagę psa — wyniki pojawią się automatycznie 🐾</div>';
+  document.getElementById('day-tracker').style.display='none';
+}
+
+// ===== PAMIĘĆ DOBOWA =====
+function todayStr() {
+  var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+function nowTimeStr() {
+  var d=new Date();
+  var h=d.getHours(), m=d.getMinutes();
+  return (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+}
+
+function checkDayReset() {
+  var today=todayStr();
+  if (dayData.date!==today) {
+    // nowy dzień — reset posiłków
+    dayData.date=today;
+    dayData.meals=[{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0}];
+    // zaktualizuj UI przycisków
+    for (var m=1;m<=3;m++) resetFedBtn(m);
+    saveDayData();
+  }
+}
+
+function markFed(meal) {
+  checkDayReset();
+  var idx=meal-1;
+  if (dayData.meals[idx].fed) {
+    // cofnij
+    dayData.meals[idx].fed=false;
+    dayData.meals[idx].time=null;
+    dayData.meals[idx].wetG=0;
+    dayData.meals[idx].dryG=0;
+  } else {
+    dayData.meals[idx].fed=true;
+    dayData.meals[idx].time=nowTimeStr();
+    dayData.meals[idx].wetG=mealWetG[idx];
+    dayData.meals[idx].dryG=mealDryG[idx];
+  }
+  saveDayData();
+  updateTrackerUI();
+  updateFedButtons();
+}
+
+function resetFedBtn(meal) {
+  var btn=document.getElementById('fedbtn-'+meal);
+  var card=document.getElementById('meal-'+meal);
+  btn.classList.remove('done');
+  btn.textContent='✓ Podano';
+  card.classList.remove('fed');
+}
+
+function updateFedButtons() {
+  for (var m=1;m<=3;m++) {
+    var idx=m-1;
+    var btn=document.getElementById('fedbtn-'+m);
+    var card=document.getElementById('meal-'+m);
+    if (dayData.meals[idx].fed) {
+      btn.classList.add('done');
+      btn.innerHTML='✓ Podano <span class="fed-time">'+dayData.meals[idx].time+'</span>';
+      card.classList.add('fed');
+    } else {
+      btn.classList.remove('done');
+      btn.textContent='✓ Podano';
+      card.classList.remove('fed');
+    }
+  }
+}
+
+function updateTrackerUI() {
+  checkDayReset();
+  var d=new Date();
+  var dni=['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota'];
+  var mies=['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+  document.getElementById('dt-date').textContent=dni[d.getDay()]+', '+d.getDate()+' '+mies[d.getMonth()];
+
+  var totalWet=0,totalDry=0,fedCount=0;
+  for (var m=1;m<=3;m++) {
+    var idx=m-1;
+    var meal=dayData.meals[idx];
+    var mCard=document.getElementById('dt-m'+(idx+1));
+    var tEl=document.getElementById('dt-t'+(idx+1));
+    var gEl=document.getElementById('dt-g'+(idx+1));
+    if (meal.fed) {
+      mCard.classList.add('fed');
+      tEl.textContent=meal.time;
+      gEl.textContent=(meal.wetG+meal.dryG)+' g';
+      totalWet+=meal.wetG; totalDry+=meal.dryG; fedCount++;
+    } else {
+      mCard.classList.remove('fed');
+      tEl.textContent='';
+      gEl.textContent='—';
+    }
+  }
+  document.getElementById('dt-wet').textContent=totalWet;
+  document.getElementById('dt-dry').textContent=totalDry;
+  document.getElementById('dt-prog-txt').textContent=fedCount+' / 3 posiłków';
+  document.getElementById('dt-prog-fill').style.width=Math.round(fedCount/3*100)+'%';
+}
+
+// ===== MIDNIGHT RESET =====
+function scheduleNextMidnight() {
+  var now=new Date();
+  var midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,0);
+  var ms=midnight-now;
+  setTimeout(function() {
+    checkDayReset();
+    updateTrackerUI();
+    updateFedButtons();
+    scheduleNextMidnight();
+  }, ms);
+}
+
+// ===== REF TABLES =====
+function toggleRef(which) {
+  var body=document.getElementById('refbody-'+which);
+  var arrow=document.getElementById('arrow-'+which);
+  var open=body.classList.toggle('open');
+  arrow.classList.toggle('open',open);
+}
+
+// ===== LOCALSTORAGE =====
+var LS='brit_v4', LS_DAY='brit_day_v1';
+
+function saveSettings() {
+  try {
+    localStorage.setItem(LS,JSON.stringify({weight:document.getElementById('weight').value,wetPct:wetPct}));
+    var el=document.getElementById('saved'); el.classList.add('show');
+    setTimeout(function(){el.classList.remove('show')},1600);
+  } catch(e){}
+}
+function saveDayData() {
+  try { localStorage.setItem(LS_DAY,JSON.stringify(dayData)); } catch(e){}
+}
+function loadDayData() {
+  try {
+    var d=JSON.parse(localStorage.getItem(LS_DAY));
+    if (!d) return;
+    // sprawdź czy to dzisiejsze dane
+    if (d.date===todayStr()) { dayData=d; }
+    // jeśli nie — zostają puste (checkDayReset zadba o reset)
+  } catch(e){}
+}
+function loadSettings() {
+  try {
+    var d=JSON.parse(localStorage.getItem(LS));
+    if (!d) return;
+    if (d.weight) { document.getElementById('weight').value=d.weight; lastKg=parseFloat(d.weight); }
+    if (d.wetPct&&d.wetPct.length===3) wetPct=d.wetPct;
+    for (var m=1;m<=3;m++) updateSliderUI(m);
+    if (lastKg>0) { calcDone=true; recalc(); }
+  } catch(e){}
+}
+function resetAll() {
+  if (!confirm('Wyczyścić ustawienia i historię dnia?')) return;
+  localStorage.removeItem(LS); localStorage.removeItem(LS_DAY);
+  document.getElementById('weight').value='';
+  wetPct=[50,50,50];
+  for (var m=1;m<=3;m++){updateSliderUI(m);resetFedBtn(m);}
+  dayData={date:todayStr(),meals:[{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0}]};
+  resetDisplay();
+}
+
+// ===== INIT =====
+setupSlider(1); setupSlider(2); setupSlider(3);
+for (var m=1;m<=3;m++) updateSliderUI(m);
+loadDayData();
+checkDayReset();
+loadSettings();
+updateFedButtons();
+scheduleNextMidnight();
+</script>
+
+</body>
+</html>
