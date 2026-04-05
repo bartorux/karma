@@ -35,16 +35,18 @@ input[type=“number”]:focus{border-color:var(–green-mid);box-shadow:0 0 0 3
 /* MEAL CARDS */
 .meal-card{background:white;border-radius:20px;padding:20px 22px;margin-bottom:14px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4);transition:border-color .3s}
 .meal-card.fed{border-color:var(–green-mid);background:linear-gradient(135deg,#f0f8ea,white)}
-.meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px}
-.meal-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);display:flex;align-items:center;gap:7px;flex:1}
-.meal-badges{display:flex;align-items:center;gap:7px}
-.meal-total-badge{font-size:.8rem;font-weight:700;background:var(–green-mist);color:var(–green-deep);border:1.5px solid var(–green-pale);border-radius:20px;padding:3px 12px;white-space:nowrap}
+.meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:nowrap}
+.meal-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);display:flex;align-items:center;gap:7px;flex:1;min-width:0}
+.meal-badges{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.meal-total-badge{font-size:.8rem;font-weight:700;background:var(–green-mist);color:var(–green-deep);border:1.5px solid var(–green-pale);border-radius:20px;padding:3px 10px;white-space:nowrap}
 
 /* FED BUTTON */
 .fed-btn{
 padding:5px 13px;border-radius:20px;border:2px solid var(–green-pale);
 background:white;color:var(–text-mid);font-family:‘Lato’,sans-serif;
 font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;
+-webkit-appearance:none;appearance:none;text-decoration:none;display:inline-block;
+line-height:1.4;
 }
 .fed-btn:hover{border-color:var(–green-mid);color:var(–green-mid)}
 .fed-btn.done{background:var(–green-mid);border-color:var(–green-mid);color:white}
@@ -59,9 +61,28 @@ font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:no
 .cslider-track{width:100%;height:9px;border-radius:999px;position:relative}
 .cslider-bg{position:absolute;inset:0;border-radius:999px;background:linear-gradient(to right,var(–green-pale),var(–brown-pale))}
 .cslider-fill{position:absolute;top:0;left:0;height:100%;border-radius:999px;background:var(–green-mid);pointer-events:none}
-.cslider-handle{position:absolute;top:50%;transform:translate(-50%,-50%);width:28px;height:28px;background:white;border:3px solid var(–green-mid);border-radius:50%;box-shadow:0 2px 8px rgba(45,74,45,.28);cursor:grab;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(–green-mid);z-index:3}
-.cslider-handle.dragging{cursor:grabbing;box-shadow:0 4px 18px rgba(45,74,45,.38);transform:translate(-50%,-50%) scale(1.12)}
-.slider-ends{display:flex;justify-content:space-between;font-size:.68rem;color:var(–text-mid);opacity:.55;padding:0 3px;margin-top:1px}
+/* SLIDER — natywny input range, działa na iOS */
+.slider-wrap{padding:6px 0 2px}
+.split-range{
+-webkit-appearance:none;appearance:none;
+width:100%;height:10px;border-radius:999px;outline:none;cursor:pointer;
+background:linear-gradient(to right,var(–green-mid) 0%,var(–green-mid) 50%,var(–brown-pale) 50%,var(–brown-pale) 100%);
+border:none;margin:0;display:block;
+}
+.split-range::-webkit-slider-thumb{
+-webkit-appearance:none;appearance:none;
+width:30px;height:30px;border-radius:50%;
+background:white;border:3px solid var(–green-mid);
+box-shadow:0 2px 8px rgba(45,74,45,.3);cursor:grab;
+}
+.split-range::-moz-range-thumb{
+width:30px;height:30px;border-radius:50%;
+background:white;border:3px solid var(–green-mid);
+box-shadow:0 2px 8px rgba(45,74,45,.3);cursor:grab;
+}
+.split-range:active::-webkit-slider-thumb{cursor:grabbing;box-shadow:0 4px 16px rgba(45,74,45,.4)}
+.split-range:active::-moz-range-thumb{cursor:grabbing}
+.slider-ends{display:flex;justify-content:space-between;font-size:.68rem;color:var(–text-mid);opacity:.55;padding:0 3px;margin-top:3px}
 
 /* MEAL RESULT */
 .meal-result-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
@@ -179,12 +200,8 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
     <span class="split-badge wet">💧 <strong id="wp1">50</strong>%</span>
     <span class="split-badge dry">🌾 <strong id="dp1">50</strong>%</span>
   </div>
-  <div class="cslider-wrap" data-meal="1">
-    <div class="cslider-track">
-      <div class="cslider-bg"></div>
-      <div class="cslider-fill" id="fill-1"></div>
-      <div class="cslider-handle" id="handle-1">⟷</div>
-    </div>
+  <div class="slider-wrap">
+    <input type="range" class="split-range" id="range-1" min="0" max="100" value="50" oninput="onSlider(1)">
   </div>
   <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
   <div class="meal-result-row" id="mres-1" style="display:none">
@@ -205,12 +222,8 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
     <span class="split-badge wet">💧 <strong id="wp2">50</strong>%</span>
     <span class="split-badge dry">🌾 <strong id="dp2">50</strong>%</span>
   </div>
-  <div class="cslider-wrap" data-meal="2">
-    <div class="cslider-track">
-      <div class="cslider-bg"></div>
-      <div class="cslider-fill" id="fill-2"></div>
-      <div class="cslider-handle" id="handle-2">⟷</div>
-    </div>
+  <div class="slider-wrap">
+    <input type="range" class="split-range" id="range-2" min="0" max="100" value="50" oninput="onSlider(2)">
   </div>
   <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
   <div class="meal-result-row" id="mres-2" style="display:none">
@@ -231,12 +244,8 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
     <span class="split-badge wet">💧 <strong id="wp3">50</strong>%</span>
     <span class="split-badge dry">🌾 <strong id="dp3">50</strong>%</span>
   </div>
-  <div class="cslider-wrap" data-meal="3">
-    <div class="cslider-track">
-      <div class="cslider-bg"></div>
-      <div class="cslider-fill" id="fill-3"></div>
-      <div class="cslider-handle" id="handle-3">⟷</div>
-    </div>
+  <div class="slider-wrap">
+    <input type="range" class="split-range" id="range-3" min="0" max="100" value="50" oninput="onSlider(3)">
   </div>
   <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
   <div class="meal-result-row" id="mres-3" style="display:none">
@@ -331,7 +340,7 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
     <span class="ref-arrow" id="arrow-wet">▼</span>
   </div>
   <div class="ref-body" id="refbody-wet">
-    <table class="ref-table wet-tbl">
+    <table class="ref-table wet-tbl" id="wet-ref-table">
       <thead><tr><th>Waga psa</th><th>5–10 kg</th><th>10–30 kg</th><th>30–60 kg</th></tr></thead>
       <tbody><tr><td>g / dzień</td><td>360–605</td><td>605–1380</td><td>1380–2320</td></tr></tbody>
     </table>
@@ -381,27 +390,29 @@ var lastKg = 0;
 // Pamięć dobowa: {date:'2024-01-01', meals:[{fed:false,time:null,wetG:0,dryG:0}, ...]}
 var dayData = {date:'', meals:[{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0}]};
 
-// ===== SUWAKI =====
-function setupSlider(meal) {
-  var wrap = document.querySelector('.cslider-wrap[data-meal="'+meal+'"]');
-  var handle = document.getElementById('handle-'+meal);
-  var dragging = false;
-  function getPct(cx) { var r=wrap.getBoundingClientRect(); return Math.round(Math.min(100,Math.max(0,(cx-r.left)/r.width*100))); }
-  function onMove(cx) { wetPct[meal-1]=getPct(cx); updateSliderUI(meal); if(calcDone&&lastKg>0) recalc(); }
-  handle.addEventListener('mousedown',function(e){dragging=true;handle.classList.add('dragging');e.preventDefault()});
-  document.addEventListener('mousemove',function(e){if(dragging)onMove(e.clientX)});
-  document.addEventListener('mouseup',function(){if(dragging){dragging=false;handle.classList.remove('dragging');saveSettings()}});
-  handle.addEventListener('touchstart',function(e){dragging=true;handle.classList.add('dragging');e.preventDefault()},{passive:false});
-  document.addEventListener('touchmove',function(e){if(dragging){onMove(e.touches[0].clientX);e.preventDefault()}},{passive:false});
-  document.addEventListener('touchend',function(){if(dragging){dragging=false;handle.classList.remove('dragging');saveSettings()}});
-  wrap.querySelector('.cslider-bg').addEventListener('click',function(e){onMove(e.clientX);saveSettings()});
+// ===== SUWAKI (natywny input range) =====
+function onSlider(meal) {
+  var val = parseInt(document.getElementById('range-'+meal).value);
+  wetPct[meal-1] = val;
+  updateSliderUI(meal);
+  if (calcDone && lastKg > 0) recalc();
+  saveSettings();
 }
+
 function updateSliderUI(meal) {
-  var p=wetPct[meal-1];
-  document.getElementById('fill-'+meal).style.width=p+'%';
-  document.getElementById('handle-'+meal).style.left=p+'%';
-  document.getElementById('wp'+meal).textContent=p;
-  document.getElementById('dp'+meal).textContent=100-p;
+  var p = wetPct[meal-1];
+  var el = document.getElementById('range-'+meal);
+  if (el) el.value = p;
+  document.getElementById('wp'+meal).textContent = p;
+  document.getElementById('dp'+meal).textContent = 100-p;
+  // aktualizuj gradient tła suwaka
+  updateRangeGradient(meal, p);
+}
+
+function updateRangeGradient(meal, p) {
+  var el = document.getElementById('range-'+meal);
+  if (!el) return;
+  el.style.background = 'linear-gradient(to right,var(--green-mid) 0%,var(--green-mid) '+p+'%,var(--brown-pale) '+p+'%,var(--brown-pale) 100%)';
 }
 
 // ===== OBLICZENIA =====
@@ -448,6 +459,7 @@ function recalc() {
   document.getElementById('summary-content').innerHTML=html;
   document.getElementById('day-tracker').style.display='block';
   updateTrackerUI();
+  highlightTables(kg);
 }
 
 function resetDisplay() {
@@ -579,6 +591,50 @@ function toggleRef(which) {
   arrow.classList.toggle('open',open);
 }
 
+// ===== PODŚWIETLANIE TABELEK =====
+var DRY_KGS = [2,5,10,15,20,25,30,40,50,60,70,80];
+
+function highlightTables(kg) {
+  // --- SUCHA: podświetl dwie sąsiednie kolumny ---
+  var dryHeaders = document.querySelectorAll('#dry-ref-table thead tr th');
+  var dryCells   = document.querySelectorAll('#dry-ref-table tbody tr td');
+  for (var i=0;i<dryHeaders.length;i++) dryHeaders[i].style.background='';
+  for (var i=0;i<dryCells.length;i++)   dryCells[i].style.background='';
+
+  for (var i=0;i<DRY_KGS.length;i++) {
+    if (kg===DRY_KGS[i]) {
+      // trafił dokładnie w punkt
+      if (dryHeaders[i+1]) dryHeaders[i+1].style.background='rgba(122,173,106,.55)';
+      if (dryCells[i+1])   dryCells[i+1].style.background='rgba(74,124,74,.2)';
+      break;
+    }
+    if (i<DRY_KGS.length-1 && kg>DRY_KGS[i] && kg<DRY_KGS[i+1]) {
+      // między dwoma punktami — podświetl oba
+      if (dryHeaders[i+1]) dryHeaders[i+1].style.background='rgba(122,173,106,.45)';
+      if (dryHeaders[i+2]) dryHeaders[i+2].style.background='rgba(122,173,106,.45)';
+      if (dryCells[i+1])   dryCells[i+1].style.background='rgba(74,124,74,.18)';
+      if (dryCells[i+2])   dryCells[i+2].style.background='rgba(74,124,74,.18)';
+      break;
+    }
+  }
+
+  // --- MOKRA: podświetl właściwy zakres ---
+  var wetHeaders = document.querySelectorAll('#wet-ref-table thead tr th');
+  var wetCells   = document.querySelectorAll('#wet-ref-table tbody tr td');
+  for (var i=0;i<wetHeaders.length;i++) wetHeaders[i].style.background='';
+  for (var i=0;i<wetCells.length;i++)   wetCells[i].style.background='';
+
+  var wetIdx = -1;
+  if (kg>=5  && kg<=10) wetIdx=1;
+  else if (kg>10 && kg<=30) wetIdx=2;
+  else if (kg>30 && kg<=60) wetIdx=3;
+
+  if (wetIdx>0) {
+    if (wetHeaders[wetIdx]) wetHeaders[wetIdx].style.background='rgba(139,94,60,.45)';
+    if (wetCells[wetIdx])   wetCells[wetIdx].style.background='rgba(139,94,60,.18)';
+  }
+}
+
 // ===== LOCALSTORAGE =====
 var LS='brit_v4', LS_DAY='brit_day_v1';
 
@@ -596,16 +652,17 @@ function loadDayData() {
   try {
     var d=JSON.parse(localStorage.getItem(LS_DAY));
     if (!d) return;
-    // sprawdź czy to dzisiejsze dane
     if (d.date===todayStr()) { dayData=d; }
-    // jeśli nie — zostają puste (checkDayReset zadba o reset)
   } catch(e){}
 }
 function loadSettings() {
   try {
     var d=JSON.parse(localStorage.getItem(LS));
     if (!d) return;
-    if (d.weight) { document.getElementById('weight').value=d.weight; lastKg=parseFloat(d.weight); }
+    if (d.weight) {
+      document.getElementById('weight').value=d.weight;
+      lastKg=parseFloat(d.weight);
+    }
     if (d.wetPct&&d.wetPct.length===3) wetPct=d.wetPct;
     for (var m=1;m<=3;m++) updateSliderUI(m);
     if (lastKg>0) { calcDone=true; recalc(); }
@@ -622,7 +679,6 @@ function resetAll() {
 }
 
 // ===== INIT =====
-setupSlider(1); setupSlider(2); setupSlider(3);
 for (var m=1;m<=3;m++) updateSliderUI(m);
 loadDayData();
 checkDayReset();
