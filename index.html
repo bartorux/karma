@@ -27,35 +27,34 @@ h1{font-family:‘Playfair Display’,serif;font-size:1.85rem;color:var(–green
 .card{background:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4)}
 .card-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);margin-bottom:16px;display:flex;align-items:center;gap:7px}
 label{font-size:.73rem;font-weight:700;color:var(–text-mid);text-transform:uppercase;letter-spacing:.06em}
-input[type=“number”]{
+input[type=“number”],input[type=“text”]{
 width:100% !important;
 padding:11px 14px;
 border:1.5px solid var(–green-pale) !important;
-border-radius:10px;
+border-radius:10px !important;
+-webkit-border-radius:10px !important;
 font-family:‘Lato’,sans-serif;
 font-size:1.05rem;
 color:var(–text-dark) !important;
 background:var(–green-mist) !important;
-background-color:var(–green-mist) !important;
--webkit-appearance:none;
+background-color:#e8f2e0 !important;
+-webkit-appearance:none !important;
 -moz-appearance:textfield;
-appearance:none;
+appearance:none !important;
 outline:none;
 box-sizing:border-box;
 display:block;
 margin-top:6px;
-transition:border-color .2s,box-shadow .2s;
-border-radius:10px !important;
--webkit-border-radius:10px !important;
-box-shadow:none;
+box-shadow:none !important;
+-webkit-text-fill-color:var(–text-dark);
 }
 input[type=“number”]::-webkit-outer-spin-button,
 input[type=“number”]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;display:none}
-input[type=“number”]:focus{
+input[type=“number”]:focus,input[type=“text”]:focus{
 border-color:var(–green-mid) !important;
-box-shadow:0 0 0 3px rgba(74,124,74,.15);
-background:white !important;
-background-color:white !important;
+outline:none !important;
+background:#e8f2e0 !important;
+background-color:#e8f2e0 !important;
 }
 .hint{font-size:.74rem;color:var(–text-mid);opacity:.7;margin-top:7px;line-height:1.4}
 
@@ -70,13 +69,13 @@ background-color:white !important;
 /* FED BUTTON */
 .fed-btn{
 padding:5px 13px;border-radius:20px;border:2px solid var(–green-pale);
-background:white;color:var(–text-mid) !important;font-family:‘Lato’,sans-serif;
-font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;
--webkit-appearance:none;appearance:none;text-decoration:none !important;display:inline-block;
-line-height:1.4;-webkit-tap-highlight-color:transparent;
+background:white;color:var(–text-dark);font-family:‘Lato’,sans-serif;
+font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;
+display:inline-block;line-height:1.4;
+-webkit-tap-highlight-color:transparent;
+user-select:none;-webkit-user-select:none;
 }
-.fed-btn:hover,.fed-btn:active,.fed-btn:visited{color:var(–text-mid) !important;text-decoration:none !important}
-.fed-btn.done{background:var(–green-mid) !important;border-color:var(–green-mid);color:white !important}
+.fed-btn.done{background:var(–green-mid);border-color:var(–green-mid);color:white}
 .fed-time{font-size:.72rem;color:var(–green-mid);font-weight:400;margin-left:2px;opacity:.85}
 
 /* SLIDER */
@@ -209,7 +208,7 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
 <div class="card">
   <div class="card-title">🐶 Waga psa</div>
   <label>Waga psa (kg)</label>
-  <input type="number" id="weight" placeholder="np. 12" min="0.5" max="90" step="0.5" oninput="onWeightChange()">
+  <input type="text" inputmode="decimal" id="weight" placeholder="np. 12" oninput="onWeightChange()">
   <div class="hint">Sucha: tabela Brit VD 2–80 kg &nbsp;·&nbsp; Mokra: tabela Brit VD 5–60 kg (puszka 400 g)</div>
 </div>
 
@@ -220,7 +219,7 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
     <div class="meal-title">🌅 Rano</div>
     <div class="meal-badges">
       <div class="meal-total-badge" id="badge-1">— g</div>
-      <button class="fed-btn" id="fedbtn-1" onclick="markFed(1)">✓ Podano</button>
+      <div class="fed-btn" id="fedbtn-1" role="button" onclick="markFed(1)">✓ Podano</div>
     </div>
   </div>
   <div class="split-labels">
@@ -242,7 +241,7 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
     <div class="meal-title">☀️ Południe</div>
     <div class="meal-badges">
       <div class="meal-total-badge" id="badge-2">— g</div>
-      <button class="fed-btn" id="fedbtn-2" onclick="markFed(2)">✓ Podano</button>
+      <div class="fed-btn" id="fedbtn-2" role="button" onclick="markFed(2)">✓ Podano</div>
     </div>
   </div>
   <div class="split-labels">
@@ -264,7 +263,7 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
     <div class="meal-title">🌙 Wieczór</div>
     <div class="meal-badges">
       <div class="meal-total-badge" id="badge-3">— g</div>
-      <button class="fed-btn" id="fedbtn-3" onclick="markFed(3)">✓ Podano</button>
+      <div class="fed-btn" id="fedbtn-3" role="button" onclick="markFed(3)">✓ Podano</div>
     </div>
   </div>
   <div class="split-labels">
