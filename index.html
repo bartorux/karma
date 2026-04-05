@@ -27,9 +27,36 @@ h1{font-family:‘Playfair Display’,serif;font-size:1.85rem;color:var(–green
 .card{background:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4)}
 .card-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);margin-bottom:16px;display:flex;align-items:center;gap:7px}
 label{font-size:.73rem;font-weight:700;color:var(–text-mid);text-transform:uppercase;letter-spacing:.06em}
-input[type=“number”]{width:100%;padding:11px 14px;border:1.5px solid var(–green-pale);border-radius:10px;font-family:‘Lato’,sans-serif;font-size:1.05rem;color:var(–text-dark);background:var(–green-mist);transition:border-color .2s,box-shadow .2s;outline:none;-moz-appearance:textfield}
-input[type=“number”]::-webkit-outer-spin-button,input[type=“number”]::-webkit-inner-spin-button{-webkit-appearance:none}
-input[type=“number”]:focus{border-color:var(–green-mid);box-shadow:0 0 0 3px rgba(74,124,74,.15);background:white}
+input[type=“number”]{
+width:100% !important;
+padding:11px 14px;
+border:1.5px solid var(–green-pale) !important;
+border-radius:10px;
+font-family:‘Lato’,sans-serif;
+font-size:1.05rem;
+color:var(–text-dark) !important;
+background:var(–green-mist) !important;
+background-color:var(–green-mist) !important;
+-webkit-appearance:none;
+-moz-appearance:textfield;
+appearance:none;
+outline:none;
+box-sizing:border-box;
+display:block;
+margin-top:6px;
+transition:border-color .2s,box-shadow .2s;
+border-radius:10px !important;
+-webkit-border-radius:10px !important;
+box-shadow:none;
+}
+input[type=“number”]::-webkit-outer-spin-button,
+input[type=“number”]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;display:none}
+input[type=“number”]:focus{
+border-color:var(–green-mid) !important;
+box-shadow:0 0 0 3px rgba(74,124,74,.15);
+background:white !important;
+background-color:white !important;
+}
 .hint{font-size:.74rem;color:var(–text-mid);opacity:.7;margin-top:7px;line-height:1.4}
 
 /* MEAL CARDS */
@@ -43,13 +70,13 @@ input[type=“number”]:focus{border-color:var(–green-mid);box-shadow:0 0 0 3
 /* FED BUTTON */
 .fed-btn{
 padding:5px 13px;border-radius:20px;border:2px solid var(–green-pale);
-background:white;color:var(–text-mid);font-family:‘Lato’,sans-serif;
+background:white;color:var(–text-mid) !important;font-family:‘Lato’,sans-serif;
 font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;
--webkit-appearance:none;appearance:none;text-decoration:none;display:inline-block;
-line-height:1.4;
+-webkit-appearance:none;appearance:none;text-decoration:none !important;display:inline-block;
+line-height:1.4;-webkit-tap-highlight-color:transparent;
 }
-.fed-btn:hover{border-color:var(–green-mid);color:var(–green-mid)}
-.fed-btn.done{background:var(–green-mid);border-color:var(–green-mid);color:white}
+.fed-btn:hover,.fed-btn:active,.fed-btn:visited{color:var(–text-mid) !important;text-decoration:none !important}
+.fed-btn.done{background:var(–green-mid) !important;border-color:var(–green-mid);color:white !important}
 .fed-time{font-size:.72rem;color:var(–green-mid);font-weight:400;margin-left:2px;opacity:.85}
 
 /* SLIDER */
@@ -84,9 +111,9 @@ box-shadow:0 2px 8px rgba(45,74,45,.3);cursor:grab;
 .split-range:active::-moz-range-thumb{cursor:grabbing}
 .slider-ends{display:flex;justify-content:space-between;font-size:.68rem;color:var(–text-mid);opacity:.55;padding:0 3px;margin-top:3px}
 
-/* MEAL RESULT */
+/* MEAL RESULT — zawsze obok siebie */
 .meal-result-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.meal-result-block{border-radius:12px;padding:10px 12px;text-align:center}
+.meal-result-block{border-radius:12px;padding:10px 12px;text-align:center;min-width:0}
 .meal-result-block.wet-b{background:rgba(74,124,74,.1);border:1px solid rgba(74,124,74,.25)}
 .meal-result-block.dry-b{background:rgba(139,94,60,.1);border:1px solid rgba(139,94,60,.25)}
 .mrb-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;opacity:.65;margin-bottom:3px}
@@ -164,7 +191,7 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
 .saved{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;color:var(–green-mid);opacity:0;transition:opacity .3s;margin-top:6px}
 .saved.show{opacity:1}
 
-@media(max-width:460px){.summary-main,.meal-result-row,.dt-totals{grid-template-columns:1fr}h1{font-size:1.5rem}.dt-meals{gap:5px}}
+@media(max-width:460px){.summary-main,.dt-totals{grid-template-columns:1fr}h1{font-size:1.5rem}.dt-meals{gap:5px}}
 </style>
 
 </head>
@@ -182,7 +209,7 @@ box-shadow:var(–shadow-lg);position:relative;overflow:hidden;
 <div class="card">
   <div class="card-title">🐶 Waga psa</div>
   <label>Waga psa (kg)</label>
-  <input type="number" id="weight" placeholder="np. 12" min="0.5" max="90" step="0.5" style="margin-top:6px" oninput="onWeightChange()">
+  <input type="number" id="weight" placeholder="np. 12" min="0.5" max="90" step="0.5" oninput="onWeightChange()">
   <div class="hint">Sucha: tabela Brit VD 2–80 kg &nbsp;·&nbsp; Mokra: tabela Brit VD 5–60 kg (puszka 400 g)</div>
 </div>
 
