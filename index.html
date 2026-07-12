@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
@@ -21,104 +20,98 @@ body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--text-dark
 header{text-align:center;margin-bottom:28px}
 .logo{font-size:36px;display:inline-block;animation:sway 3s ease-in-out infinite}
 @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-h1{font-family:‘Playfair Display’,serif;font-size:1.85rem;color:var(–green-deep);margin-bottom:4px}
-.subtitle{color:var(–brown-mid);font-size:.83rem;font-weight:300;letter-spacing:.04em}
+h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep);margin-bottom:4px}
+.subtitle{color:var(--brown-mid);font-size:.83rem;font-weight:300;letter-spacing:.04em}
 
-.card{background:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4)}
-.card-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);margin-bottom:16px;display:flex;align-items:center;gap:7px}
-.field-label{font-size:.73rem;font-weight:700;color:var(–text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block}
-.hint{font-size:.74rem;color:var(–text-mid);opacity:.7;margin-top:7px;line-height:1.4}
+.card{background:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:var(--shadow);border:1px solid rgba(184,212,170,.4)}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--green-deep);margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.field-label{font-size:.73rem;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block}
+.hint{font-size:.74rem;color:var(--text-mid);opacity:.7;margin-top:7px;line-height:1.4}
 
-/* WEIGHT INPUT — div zamiast input, Safari nie może zepsuć */
-.weight-input-wrap{
-display:flex;align-items:center;
-background:#e8f2e0;
-border:1.5px solid #b8d4aa;
-border-radius:10px;
-padding:11px 14px;
-margin-top:8px;
-cursor:text;
-}
-.weight-input-wrap:focus-within{border-color:#4a7c4a;background:#e8f2e0}
-.weight-display{
-font-family:‘Lato’,sans-serif;font-size:1.05rem;color:#1e2e1e;
-flex:1;min-width:0;outline:none;
-border:none;background:transparent;
-caret-color:#4a7c4a;
-}
-.weight-unit{font-size:.85rem;color:#3d5c3d;opacity:.7;margin-left:6px;flex-shrink:0}
+/* MODE TOGGLE */
+.mode-toggle{display:flex;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:14px;padding:4px;gap:4px}
+.mode-btn{flex:1;text-align:center;padding:10px 8px;border-radius:10px;cursor:pointer;user-select:none;-webkit-user-select:none;color:var(--text-mid);transition:background .2s,color .2s}
+.mode-btn .mb-name{font-weight:700;font-size:.95rem}
+.mode-btn .mb-sub{font-size:.68rem;opacity:.7;margin-top:2px}
+.mode-btn.active{background:var(--green-mid);color:white;box-shadow:0 2px 8px rgba(45,74,45,.25)}
+.mode-btn.active .mb-sub{opacity:.85}
+
+/* WEIGHT INPUT */
+.weight-input-wrap{display:flex;align-items:center;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;padding:11px 14px;margin-top:8px;cursor:text}
+.weight-input-wrap:focus-within{border-color:var(--green-mid)}
+.weight-field{font-family:'Lato',sans-serif;font-size:1.05rem;color:var(--text-dark);flex:1;min-width:0;border:none;outline:none;background:transparent;padding:0;caret-color:var(--green-mid)}
+.weight-unit{font-size:.85rem;color:var(--text-mid);opacity:.7;margin-left:6px;flex-shrink:0}
+
+/* FOOD SELECTS */
+.food-select{width:100%;padding:11px 14px;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;font-family:'Lato',sans-serif;font-size:.95rem;color:var(--text-dark);outline:none;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a7c4a' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.food-select:focus{border-color:var(--green-mid)}
+.food-gap{margin-top:14px}
 
 /* MEAL CARDS */
-.meal-card{background:white;border-radius:20px;padding:20px 22px;margin-bottom:14px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4);transition:border-color .3s,background .3s}
-.meal-card.fed{border-color:#4a7c4a;background:linear-gradient(135deg,#f0f8ea,white)}
+.meal-card{background:white;border-radius:20px;padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid rgba(184,212,170,.4);transition:border-color .3s,background .3s}
+.meal-card.fed{border-color:var(--green-mid);background:linear-gradient(135deg,#f0f8ea,white)}
 .meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px}
-.meal-title{font-family:‘Playfair Display’,serif;font-size:1rem;color:var(–green-deep);display:flex;align-items:center;gap:7px;flex:1;min-width:0}
+.meal-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--green-deep);display:flex;align-items:center;gap:7px;flex:1;min-width:0;flex-wrap:wrap}
+.type-badge{font-family:'Lato',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.05em;border-radius:20px;padding:3px 9px;white-space:nowrap}
+.type-badge.tb-dry{background:rgba(139,94,60,.14);color:var(--brown-dark)}
+.type-badge.tb-wet{background:rgba(74,124,74,.16);color:var(--green-deep)}
 .meal-badges{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.meal-total-badge{font-size:.8rem;font-weight:700;background:#e8f2e0;color:#2d4a2d;border:1.5px solid #b8d4aa;border-radius:20px;padding:4px 12px;white-space:nowrap}
+.meal-total-badge{font-size:.8rem;font-weight:700;background:var(--green-mist);color:var(--green-deep);border:1.5px solid var(--green-pale);border-radius:20px;padding:4px 12px;white-space:nowrap}
+.fed-btn{background:white;color:var(--text-mid);border:1.5px solid var(--green-pale);border-radius:20px;padding:4px 12px;font-family:'Lato',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
+.fed-btn.done{background:var(--green-mid);border-color:var(--green-mid);color:white}
+.fed-btn.disabled{opacity:.45;pointer-events:none}
 
-/* FED BUTTON — czysty div */
-.fed-btn{
-background:white;color:#3d5c3d;
-border:1.5px solid #b8d4aa;border-radius:20px;
-padding:4px 12px;font-family:‘Lato’,sans-serif;
-font-size:.8rem;font-weight:700;cursor:pointer;
-white-space:nowrap;user-select:none;-webkit-user-select:none;
-}
-.fed-btn.done{background:#4a7c4a;border-color:#4a7c4a;color:white}
-
-/* SLIDER */
-.split-labels{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.split-badge{padding:4px 11px;border-radius:20px;font-size:.82rem;font-weight:700}
-.split-badge.wet{background:rgba(74,124,74,.15);color:#2d4a2d}
-.split-badge.dry{background:rgba(139,94,60,.15);color:#5c3d1e}
+/* SHARE SLIDER */
+.share-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.share-pct{font-size:.95rem;font-weight:700;color:var(--green-mid)}
 .slider-wrap{padding:4px 0}
-.split-range{
--webkit-appearance:none;appearance:none;
-width:100%;height:10px;border-radius:999px;
-outline:none;cursor:pointer;border:none;display:block;
-background:linear-gradient(to right,#4a7c4a 50%,#e8d5b7 50%);
-}
-.split-range::-webkit-slider-thumb{
--webkit-appearance:none;width:30px;height:30px;border-radius:50%;
-background:white;border:3px solid #4a7c4a;
-box-shadow:0 2px 8px rgba(45,74,45,.3);cursor:grab;
-}
-.split-range::-moz-range-thumb{
-width:30px;height:30px;border-radius:50%;
-background:white;border:3px solid #4a7c4a;
-box-shadow:0 2px 8px rgba(45,74,45,.3);
-}
-.slider-ends{display:flex;justify-content:space-between;font-size:.68rem;color:var(–text-mid);opacity:.55;margin-top:3px}
+.split-range{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:999px;outline:none;cursor:pointer;border:none;display:block;background:linear-gradient(to right,#4a7c4a 33%,#e8d5b7 33%)}
+.split-range::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--green-mid);box-shadow:0 2px 8px rgba(45,74,45,.3);cursor:grab}
+.split-range::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--green-mid);box-shadow:0 2px 8px rgba(45,74,45,.3)}
+.split-range:disabled{opacity:.45;cursor:default}
+.split-range:disabled::-webkit-slider-thumb{border-color:#9aa89a;cursor:default}
+.split-range:disabled::-moz-range-thumb{border-color:#9aa89a}
+.slider-ends{display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-mid);opacity:.55;margin-top:3px}
+.day-only-note{font-size:.74rem;color:var(--brown-dark);background:rgba(196,149,106,.15);border:1px solid rgba(139,94,60,.25);border-radius:10px;padding:8px 13px;margin:-4px 0 16px;line-height:1.4}
 
-/* MEAL RESULT */
-.meal-result-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.meal-result-block{border-radius:12px;padding:10px 12px;text-align:center;min-width:0}
-.meal-result-block.wet-b{background:rgba(74,124,74,.1);border:1px solid rgba(74,124,74,.25)}
-.meal-result-block.dry-b{background:rgba(139,94,60,.1);border:1px solid rgba(139,94,60,.25)}
-.mrb-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;opacity:.65;margin-bottom:3px}
-.mrb-value{font-family:‘Playfair Display’,serif;font-size:1.5rem;font-weight:700;line-height:1}
-.mrb-value.wv{color:#4a7c4a}.mrb-value.dv{color:#8b5e3c}
-.mrb-unit{font-size:.7rem;opacity:.6;margin-top:2px}
+/* EXTRA MEAL */
+.extra-form{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
+.extra-type-toggle{display:flex;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;padding:3px;gap:3px}
+.extra-type-btn{padding:8px 12px;border-radius:8px;font-size:.8rem;font-weight:700;color:var(--text-mid);cursor:pointer;user-select:none;-webkit-user-select:none;white-space:nowrap}
+.extra-type-btn.active{background:var(--green-mid);color:white}
+.extra-grams-wrap{display:flex;align-items:center;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;padding:0 12px;flex:1;min-width:90px}
+.extra-grams-wrap:focus-within{border-color:var(--green-mid)}
+.extra-grams-wrap input{font-family:'Lato',sans-serif;font-size:.95rem;color:var(--text-dark);width:100%;min-width:0;border:none;outline:none;background:transparent;padding:9px 0}
+.extra-add-btn{background:var(--green-mid);color:white;border-radius:10px;padding:9px 16px;font-size:.85rem;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;display:flex;align-items:center;white-space:nowrap}
+.extra-add-btn.disabled{opacity:.45;pointer-events:none}
+.extra-warn{font-size:.76rem;color:var(--brown-dark);background:rgba(196,149,106,.18);border-radius:8px;padding:7px 11px;margin-top:9px}
+
+/* EXTRA CHIPS */
+.extra-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.extra-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 7px 5px 12px;font-size:.76rem;font-weight:700}
+.chip-x{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.2);font-size:.62rem;cursor:pointer;user-select:none;-webkit-user-select:none}
+.chip-x:hover{background:rgba(255,255,255,.35)}
 
 /* DAY TRACKER */
-.day-tracker{background:linear-gradient(135deg,#2d4a2d,#3a5c3a);color:white;border-radius:20px;padding:20px 22px;margin-bottom:16px;box-shadow:var(–shadow-lg);position:relative;overflow:hidden}
-.day-tracker::before{content:’’;position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.day-tracker{background:linear-gradient(135deg,#2d4a2d,#3a5c3a);color:white;border-radius:20px;padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.day-tracker::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
 .dt-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.dt-title{font-family:‘Playfair Display’,serif;font-size:1rem;opacity:.9}
+.dt-title{font-family:'Playfair Display',serif;font-size:1rem;opacity:.9}
 .dt-date{font-size:.75rem;opacity:.6}
-.dt-meals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
-.dt-meal{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 8px;text-align:center;border:1px solid rgba(255,255,255,.1);transition:all .3s}
+.dt-meals{display:grid;gap:8px;margin-bottom:2px}
+.dt-meal{background:rgba(255,255,255,.1);border-radius:12px;padding:10px 6px;text-align:center;border:1px solid rgba(255,255,255,.1);transition:all .3s;min-width:0}
 .dt-meal.fed{background:rgba(122,173,106,.25);border-color:rgba(122,173,106,.5)}
-.dt-meal-name{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:5px}
-.dt-meal-icon{font-size:1.3rem;margin-bottom:4px}
+.dt-meal-name{font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;opacity:.7;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt-meal-icon{font-size:1.25rem;margin-bottom:4px}
 .dt-meal-time{font-size:.7rem;opacity:.75;margin-top:3px;min-height:16px}
 .dt-meal-grams{font-size:.78rem;font-weight:700;opacity:.9;margin-top:2px;min-height:15px}
 .dt-divider{height:1px;background:rgba(255,255,255,.15);margin:12px 0}
 .dt-totals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .dt-total-block{background:rgba(255,255,255,.08);border-radius:10px;padding:9px 12px;text-align:center}
 .dt-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;opacity:.65;margin-bottom:3px}
-.dt-value{font-family:‘Playfair Display’,serif;font-size:1.4rem;font-weight:700;line-height:1}
-.dt-value.wv{color:#b8d4aa}.dt-value.dv{color:#e8d5b7}
+.dt-value{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;line-height:1}
+.dt-value.wv{color:var(--green-pale)}.dt-value.dv{color:var(--brown-pale)}
 .dt-unit{font-size:.7rem;opacity:.6;margin-top:2px}
 .dt-progress{margin-top:12px}
 .dt-prog-label{display:flex;justify-content:space-between;font-size:.75rem;opacity:.75;margin-bottom:5px}
@@ -127,47 +120,58 @@ box-shadow:0 2px 8px rgba(45,74,45,.3);
 .dt-midnight{font-size:.7rem;opacity:.5;text-align:center;margin-top:10px}
 
 /* SUMMARY */
-.summary-card{background:linear-gradient(135deg,#2d4a2d,#3a5c3a);color:white;border-radius:20px;padding:24px;box-shadow:var(–shadow-lg);margin-bottom:16px;position:relative;overflow:hidden}
-.summary-card::before{content:’’;position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
-.summary-title{font-family:‘Playfair Display’,serif;font-size:1.05rem;margin-bottom:16px;opacity:.9}
+.summary-card{background:linear-gradient(135deg,#2d4a2d,#3a5c3a);color:white;border-radius:20px;padding:24px;box-shadow:var(--shadow-lg);margin-bottom:16px;position:relative;overflow:hidden}
+.summary-card::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.summary-title{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:16px;opacity:.9}
 .summary-main{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.summary-main.single{grid-template-columns:1fr}
 .sum-block{background:rgba(255,255,255,.1);border-radius:14px;padding:14px;text-align:center}
 .sum-block.wb{border:1px solid rgba(122,173,106,.4)}.sum-block.db{border:1px solid rgba(196,149,106,.4)}
 .sb-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.65;margin-bottom:4px}
-.sb-value{font-family:‘Playfair Display’,serif;font-size:1.9rem;font-weight:700;line-height:1}
-.sb-value.wv{color:#b8d4aa}.sb-value.dv{color:#e8d5b7}
+.sb-value{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;line-height:1}
+.sb-value.wv{color:var(--green-pale)}.sb-value.dv{color:var(--brown-pale)}
 .sb-unit{font-size:.72rem;opacity:.6;margin-top:2px}
 .summary-divider{height:1px;background:rgba(255,255,255,.15);margin:12px 0}
-.sum-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px;opacity:.85}
-.sum-row .sl{opacity:.7}.sum-row .sv{font-weight:700}
+.sum-row{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;margin-bottom:4px;opacity:.85}
+.sum-row .sl{opacity:.7}.sum-row .sv{font-weight:700;text-align:right;white-space:nowrap}
 .sum-total{display:flex;justify-content:space-between;align-items:baseline;padding-top:10px;border-top:1px solid rgba(255,255,255,.2);margin-top:6px}
-.st-label{font-family:‘Playfair Display’,serif;font-size:.95rem;opacity:.9}
-.st-value{font-family:‘Playfair Display’,serif;font-size:1.3rem;font-weight:700}
+.st-label{font-family:'Playfair Display',serif;font-size:.95rem;opacity:.9}
+.st-value{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700}
 .note-box{background:rgba(255,255,255,.08);border-radius:10px;padding:9px 13px;font-size:.76rem;opacity:.78;margin-top:10px;line-height:1.5}
+.note-box.warn{background:rgba(230,170,80,.18);border:1px solid rgba(230,170,80,.3);opacity:.95}
 .no-calc{text-align:center;padding:18px;opacity:.55;font-style:italic;font-size:.88rem}
 
 /* REF TABLES */
-.ref-card{background:white;border-radius:20px;padding:20px 22px;margin-bottom:16px;box-shadow:var(–shadow);border:1px solid rgba(184,212,170,.4)}
-.ref-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;-webkit-user-select:none}
-.ref-title{font-family:‘Playfair Display’,serif;font-size:.95rem;color:#2d4a2d;display:flex;align-items:center;gap:7px}
-.ref-arrow{font-size:.75rem;opacity:.5;transition:transform .25s}
+.ref-card{background:white;border-radius:20px;padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow);border:1px solid rgba(184,212,170,.4)}
+.ref-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;-webkit-user-select:none;gap:8px}
+.ref-title{font-family:'Playfair Display',serif;font-size:.92rem;color:var(--green-deep);display:flex;align-items:center;gap:7px;min-width:0}
+.ref-arrow{font-size:.75rem;opacity:.5;transition:transform .25s;flex-shrink:0}
 .ref-arrow.open{transform:rotate(180deg)}
 .ref-body{overflow:hidden;max-height:0;transition:max-height .35s ease}
-.ref-body.open{max-height:700px}
-.ref-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.8rem}
-.ref-table th{background:#2d4a2d;color:white;padding:7px 4px;text-align:center;font-weight:700;font-size:.7rem}
+.ref-body.open{max-height:900px}
+.ref-scroll{overflow-x:auto;margin-top:14px}
+.ref-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.ref-table th{background:var(--green-deep);color:white;padding:7px 5px;text-align:center;font-weight:700;font-size:.68rem;white-space:nowrap}
 .ref-table th:first-child{border-radius:7px 0 0 0}.ref-table th:last-child{border-radius:0 7px 0 0}
-.ref-table td{padding:6px 4px;text-align:center;border-bottom:1px solid rgba(184,212,170,.3)}
-.ref-table tr:nth-child(even) td{background:#e8f2e0}
-.ref-table.wet-tbl th{background:#5c3d1e}
+.ref-table td{padding:6px 5px;text-align:center;border-bottom:1px solid rgba(184,212,170,.3);white-space:nowrap}
+.ref-table.wet-tbl th{background:var(--brown-dark)}
+.ref-table th.hl{background:rgba(122,173,106,.9);color:#1e2e1e}
+.ref-table.wet-tbl th.hl{background:rgba(196,149,106,.9);color:#2e1e0e}
+.ref-table td.hl{background:rgba(74,124,74,.18)}
+.ref-table.wet-tbl td.hl{background:rgba(139,94,60,.15)}
+.ref-note{font-size:.72rem;color:var(--text-mid);opacity:.65;margin-top:8px;line-height:1.4}
 
-.reset-btn{width:100%;padding:11px;background:transparent;color:#8b5e3c;border:1.5px solid #e8d5b7;border-radius:12px;font-family:‘Lato’,sans-serif;font-size:.84rem;cursor:pointer;user-select:none;-webkit-user-select:none}
-.saved{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;color:#4a7c4a;opacity:0;transition:opacity .3s;margin-top:6px}
+.reset-btn{width:100%;padding:11px;background:transparent;color:var(--brown-mid);border:1.5px solid var(--brown-pale);border-radius:12px;font-family:'Lato',sans-serif;font-size:.84rem;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
+.saved{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;color:var(--green-mid);opacity:0;transition:opacity .3s;margin-top:6px}
 .saved.show{opacity:1}
 
-@media(max-width:460px){.summary-main,.dt-totals{grid-template-columns:1fr}h1{font-size:1.5rem}}
+@media(max-width:460px){
+  .summary-main,.dt-totals{grid-template-columns:1fr}
+  .summary-main.single{grid-template-columns:1fr}
+  h1{font-size:1.5rem}
+  .dt-meals{grid-template-columns:repeat(2,1fr)!important}
+}
 </style>
-
 </head>
 <body>
 <div class="container">
@@ -175,104 +179,73 @@ box-shadow:0 2px 8px rgba(45,74,45,.3);
 <header>
   <div class="logo">🐾</div>
   <h1>Co dziś w misce?</h1>
-  <p class="subtitle">3 posiłki dziennie · dawki z tabel Brit VD</p>
+  <p class="subtitle">dawki wg tabel producentów · tryb dom / praca</p>
 </header>
 
-<!-- WAGA -->
+<!-- TRYB DNIA -->
+<div class="card">
+  <div class="card-title">🗓️ Tryb dnia</div>
+  <div class="mode-toggle">
+    <div class="mode-btn" id="mode-btn-dom" onclick="setMode('dom')">
+      <div class="mb-name">🏠 Dom</div><div class="mb-sub">3 posiłki · sucha</div>
+    </div>
+    <div class="mode-btn" id="mode-btn-praca" onclick="setMode('praca')">
+      <div class="mb-name">💼 Praca</div><div class="mb-sub">4 posiłki · 2. mokry</div>
+    </div>
+  </div>
+</div>
 
+<!-- WAGA -->
 <div class="card">
   <div class="card-title">🐶 Waga psa</div>
   <span class="field-label">Waga psa (kg)</span>
   <div class="weight-input-wrap" onclick="document.getElementById('weight-input').focus()">
-    <input id="weight-input" type="text" inputmode="decimal"
-      placeholder="np. 18"
-      style="font-family:'Lato',sans-serif;font-size:1.05rem;color:#1e2e1e;flex:1;border:none;outline:none;background:transparent;min-width:0;padding:0"
-      oninput="onWeightChange(this.value)">
+    <input id="weight-input" class="weight-field" type="text" inputmode="decimal" placeholder="np. 18" oninput="onWeightChange(this.value)">
     <span class="weight-unit">kg</span>
   </div>
-  <div class="hint">Sucha: tabela Brit VD 2–80 kg · Mokra: tabela Brit VD 5–60 kg (puszka 400 g)</div>
+  <div class="hint">Dawki liczone z tabel wybranych karm. Dla wag pośrednich: interpolacja (Brit) lub wartość przedziału (Belcando).</div>
 </div>
 
-<!-- POSIŁKI -->
-
-<div id="meal-1" class="meal-card">
-  <div class="meal-header">
-    <div class="meal-title">🌅 Rano</div>
-    <div class="meal-badges">
-      <div class="meal-total-badge" id="badge-1">— g</div>
-      <div class="fed-btn" id="fedbtn-1" onclick="markFed(1)">✓ Podano</div>
-    </div>
-  </div>
-  <div class="split-labels">
-    <span class="split-badge wet">💧 <strong id="wp1">50</strong>%</span>
-    <span class="split-badge dry">🌾 <strong id="dp1">50</strong>%</span>
-  </div>
-  <div class="slider-wrap">
-    <input type="range" class="split-range" id="range-1" min="0" max="100" value="50" oninput="onSlider(1)">
-  </div>
-  <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
-  <div class="meal-result-row" id="mres-1" style="display:none">
-    <div class="meal-result-block wet-b"><div class="mrb-label">💧 Mokra</div><div class="mrb-value wv" id="mwet-1">0</div><div class="mrb-unit">g</div></div>
-    <div class="meal-result-block dry-b"><div class="mrb-label">🌾 Sucha</div><div class="mrb-value dv" id="mdry-1">0</div><div class="mrb-unit">g</div></div>
-  </div>
+<!-- KARMY -->
+<div class="card">
+  <div class="card-title">🥣 Karmy</div>
+  <span class="field-label">🌾 Sucha karma</span>
+  <select id="dry-select" class="food-select" onchange="onFoodChange('dry',this.value)"></select>
+  <span class="field-label food-gap">💧 Mokra karma</span>
+  <select id="wet-select" class="food-select" onchange="onFoodChange('wet',this.value)"></select>
+  <div class="hint">Wybór zapamiętuje się automatycznie do następnej zmiany.</div>
 </div>
 
-<div id="meal-2" class="meal-card">
-  <div class="meal-header">
-    <div class="meal-title">☀️ Południe</div>
-    <div class="meal-badges">
-      <div class="meal-total-badge" id="badge-2">— g</div>
-      <div class="fed-btn" id="fedbtn-2" onclick="markFed(2)">✓ Podano</div>
-    </div>
-  </div>
-  <div class="split-labels">
-    <span class="split-badge wet">💧 <strong id="wp2">50</strong>%</span>
-    <span class="split-badge dry">🌾 <strong id="dp2">50</strong>%</span>
-  </div>
-  <div class="slider-wrap">
-    <input type="range" class="split-range" id="range-2" min="0" max="100" value="50" oninput="onSlider(2)">
-  </div>
-  <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
-  <div class="meal-result-row" id="mres-2" style="display:none">
-    <div class="meal-result-block wet-b"><div class="mrb-label">💧 Mokra</div><div class="mrb-value wv" id="mwet-2">0</div><div class="mrb-unit">g</div></div>
-    <div class="meal-result-block dry-b"><div class="mrb-label">🌾 Sucha</div><div class="mrb-value dv" id="mdry-2">0</div><div class="mrb-unit">g</div></div>
-  </div>
-</div>
+<!-- POSIŁKI (renderowane dynamicznie) -->
+<div id="meals-container"></div>
+<div class="day-only-note" id="dayonly-note" style="display:none">ℹ️ Aktywne ekstra posiłki — zmiany suwaków obowiązują tylko dziś, nie zmieniają domyślnego podziału.</div>
 
-<div id="meal-3" class="meal-card">
-  <div class="meal-header">
-    <div class="meal-title">🌙 Wieczór</div>
-    <div class="meal-badges">
-      <div class="meal-total-badge" id="badge-3">— g</div>
-      <div class="fed-btn" id="fedbtn-3" onclick="markFed(3)">✓ Podano</div>
+<!-- EKSTRA POSIŁEK -->
+<div class="card">
+  <div class="card-title">🍖 Ekstra posiłek</div>
+  <div class="extra-form">
+    <div class="extra-type-toggle">
+      <div class="extra-type-btn" id="extra-type-mokra" onclick="setExtraType('mokra')">💧 Mokra</div>
+      <div class="extra-type-btn active" id="extra-type-sucha" onclick="setExtraType('sucha')">🌾 Sucha</div>
     </div>
+    <div class="extra-grams-wrap">
+      <input id="extra-grams" type="text" inputmode="decimal" placeholder="np. 50">
+      <span class="weight-unit">g</span>
+    </div>
+    <div class="extra-add-btn" id="extra-add" onclick="addExtra()">+ Dodaj</div>
   </div>
-  <div class="split-labels">
-    <span class="split-badge wet">💧 <strong id="wp3">50</strong>%</span>
-    <span class="split-badge dry">🌾 <strong id="dp3">50</strong>%</span>
-  </div>
-  <div class="slider-wrap">
-    <input type="range" class="split-range" id="range-3" min="0" max="100" value="50" oninput="onSlider(3)">
-  </div>
-  <div class="slider-ends"><span>100% Mokra</span><span>100% Sucha</span></div>
-  <div class="meal-result-row" id="mres-3" style="display:none">
-    <div class="meal-result-block wet-b"><div class="mrb-label">💧 Mokra</div><div class="mrb-value wv" id="mwet-3">0</div><div class="mrb-unit">g</div></div>
-    <div class="meal-result-block dry-b"><div class="mrb-label">🌾 Sucha</div><div class="mrb-value dv" id="mdry-3">0</div><div class="mrb-unit">g</div></div>
-  </div>
+  <div class="hint">Ekstra porcja liczy się jako podana i proporcjonalnie pomniejsza posiłki jeszcze niepodane.</div>
+  <div class="extra-warn" id="extra-warn" style="display:none"></div>
 </div>
 
 <!-- DZIENNY TRACKER -->
-
 <div class="day-tracker" id="day-tracker" style="display:none">
   <div class="dt-header">
     <div class="dt-title">📅 Dzień dzisiejszy</div>
     <div class="dt-date" id="dt-date"></div>
   </div>
-  <div class="dt-meals">
-    <div class="dt-meal" id="dt-m1"><div class="dt-meal-icon">🌅</div><div class="dt-meal-name">Rano</div><div class="dt-meal-time" id="dt-t1"></div><div class="dt-meal-grams" id="dt-g1">—</div></div>
-    <div class="dt-meal" id="dt-m2"><div class="dt-meal-icon">☀️</div><div class="dt-meal-name">Południe</div><div class="dt-meal-time" id="dt-t2"></div><div class="dt-meal-grams" id="dt-g2">—</div></div>
-    <div class="dt-meal" id="dt-m3"><div class="dt-meal-icon">🌙</div><div class="dt-meal-name">Wieczór</div><div class="dt-meal-time" id="dt-t3"></div><div class="dt-meal-grams" id="dt-g3">—</div></div>
-  </div>
+  <div class="dt-meals" id="dt-meals"></div>
+  <div class="extra-chips" id="extra-chips" style="display:none"></div>
   <div class="dt-divider"></div>
   <div class="dt-totals">
     <div class="dt-total-block"><div class="dt-label">💧 Mokra podana</div><div class="dt-value wv" id="dt-wet">0</div><div class="dt-unit">g dziś</div></div>
@@ -286,40 +259,26 @@ box-shadow:0 2px 8px rgba(45,74,45,.3);
 </div>
 
 <!-- PODSUMOWANIE -->
-
 <div class="summary-card">
   <div class="summary-title">📊 Dawka dzienna (plan)</div>
   <div id="summary-content"><div class="no-calc">Podaj wagę psa — wyniki pojawią się automatycznie 🐾</div></div>
 </div>
 
-<!-- TABELKI -->
-
+<!-- TABELKI REFERENCYJNE -->
 <div class="ref-card">
   <div class="ref-toggle" onclick="toggleRef('dry')">
-    <div class="ref-title">🌾 Tabela suchej karmy Brit VD</div>
+    <div class="ref-title">🌾 <span id="ref-dry-name">Tabela suchej karmy</span></div>
     <span class="ref-arrow" id="arrow-dry">▼</span>
   </div>
-  <div class="ref-body" id="refbody-dry">
-    <table class="ref-table" id="dry-ref-table">
-      <thead><tr><th>kg</th><th>2</th><th>5</th><th>10</th><th>15</th><th>20</th><th>25</th><th>30</th><th>40</th><th>50</th><th>60</th><th>70</th><th>80</th></tr></thead>
-      <tbody><tr><td>g/dz</td><td>30</td><td>70</td><td>120</td><td>160</td><td>200</td><td>240</td><td>270</td><td>340</td><td>400</td><td>460</td><td>510</td><td>570</td></tr></tbody>
-    </table>
-    <div style="font-size:.72rem;color:#3d5c3d;opacity:.65;margin-top:8px;line-height:1.4">Brit VD Dog Grain Free Gastrointestinal. Dla wag pośrednich — interpolacja liniowa.</div>
-  </div>
+  <div class="ref-body" id="refbody-dry"><div id="ref-dry-content"></div></div>
 </div>
 
 <div class="ref-card">
   <div class="ref-toggle" onclick="toggleRef('wet')">
-    <div class="ref-title">💧 Tabela mokrej karmy Brit VD</div>
+    <div class="ref-title">💧 <span id="ref-wet-name">Tabela mokrej karmy</span></div>
     <span class="ref-arrow" id="arrow-wet">▼</span>
   </div>
-  <div class="ref-body" id="refbody-wet">
-    <table class="ref-table wet-tbl" id="wet-ref-table">
-      <thead><tr><th>Waga</th><th>5–10 kg</th><th>10–30 kg</th><th>30–60 kg</th></tr></thead>
-      <tbody><tr><td>g/dz</td><td>360–605</td><td>605–1380</td><td>1380–2320</td></tr></tbody>
-    </table>
-    <div style="font-size:.72rem;color:#3d5c3d;opacity:.65;margin-top:8px;line-height:1.4">Brit VD puszka 400 g. Środek zakresu interpolowany liniowo po wadze.</div>
-  </div>
+  <div class="ref-body" id="refbody-wet"><div id="ref-wet-content"></div></div>
 </div>
 
 <div class="reset-btn" onclick="resetAll()">↺ Wyczyść ustawienia</div>
@@ -327,246 +286,787 @@ box-shadow:0 2px 8px rgba(45,74,45,.3);
 </div>
 
 <script>
-var DRY=[[2,30],[5,70],[10,120],[15,160],[20,200],[25,240],[30,270],[40,340],[50,400],[60,460],[70,510],[80,570]];
-var WET=[[5,10,360,605],[10,30,605,1380],[30,60,1380,2320]];
-var DRY_KGS=[2,5,10,15,20,25,30,40,50,60,70,80];
+/* ============================================================
+   MODEL DAWKOWANIA
+   Założenie: dzienna dawka z tabeli każdej karmy pokrywa to samo
+   zapotrzebowanie psa, więc "udział posiłku" = ułamek dziennego
+   zapotrzebowania, a gramy = udział × dawkaDzienna(karmy danego typu).
+   Udziały (floaty, suma 1) są źródłem prawdy; suwaki to tylko ich
+   zaokrąglona projekcja.
+   ============================================================ */
+/*TESTABLE-START*/
+var DRY_FOODS={
+  brit_gastro_dry:{name:'Brit VD GF Gastrointestinal (sucha)',shortName:'Brit VD Gastro',kind:'points-interp',
+    points:[[2,30],[5,70],[10,120],[15,160],[20,200],[25,240],[30,270],[40,340],[50,400],[60,460],[70,510],[80,570]]},
+  belcando_salmon:{name:'Belcando Mastercraft Fresh Salmon (sucha)',shortName:'Belcando Mastercraft',kind:'bracket-step',
+    brackets:[[0,3,60],[3,5,80],[5,10,140],[10,15,190],[15,20,240],[20,25,280],[25,35,360],[35,50,470],[50,65,580],[65,80,680]]}
+};
+var WET_FOODS={
+  brit_gastro_wet:{name:'Brit VD GF Gastrointestinal 400 g (mokra)',shortName:'Brit VD Gastro',kind:'bracket-interp',
+    brackets:[[5,10,360,605],[10,30,605,1380],[30,60,1380,2320]]},
+  brit_gastro_lowfat_wet:{name:'Brit VD GF Gastrointestinal Low Fat 400 g (mokra)',shortName:'Brit VD Low Fat',kind:'bracket-interp',
+    brackets:[[5,10,475,800],[10,30,800,1820],[30,60,1820,3060]]}
+};
 
-function interpDry(kg){
-  if(kg<=DRY[0][0])return DRY[0][1];
-  if(kg>=DRY[DRY.length-1][0])return DRY[DRY.length-1][1];
-  for(var i=0;i<DRY.length-1;i++)
-    if(kg>=DRY[i][0]&&kg<=DRY[i+1][0])return DRY[i][1]+(DRY[i+1][1]-DRY[i][1])*(kg-DRY[i][0])/(DRY[i+1][0]-DRY[i][0]);
-}
-function interpWet(kg){
-  if(kg<5||kg>60)return null;
-  for(var i=0;i<WET.length;i++)
-    if(kg>=WET[i][0]&&kg<=WET[i][1])return WET[i][2]+(WET[i][3]-WET[i][2])*(kg-WET[i][0])/(WET[i][1]-WET[i][0]);
-  return null;
-}
-function wetRangeStr(kg){for(var i=0;i<WET.length;i++)if(kg>=WET[i][0]&&kg<=WET[i][1])return WET[i][2]+'–'+WET[i][3];return null}
-function dryRangeStr(kg){
-  if(kg<=DRY[0][0])return DRY[0][1]+' g';
-  if(kg>=DRY[DRY.length-1][0])return DRY[DRY.length-1][1]+' g';
-  for(var i=0;i<DRY.length-1;i++)if(kg>=DRY[i][0]&&kg<=DRY[i+1][0])return DRY[i][1]+'–'+DRY[i+1][1];
-  return null;
-}
-
-var wetPct=[50,50,50];
-var calcDone=false;
-var lastKg=0;
-var mealWetG=[0,0,0],mealDryG=[0,0,0];
-var dayData={date:'',meals:[{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0}]};
-
-function onSlider(meal){
-  var v=parseInt(document.getElementById('range-'+meal).value);
-  wetPct[meal-1]=v;
-  updateSliderUI(meal);
-  if(calcDone&&lastKg>0)recalc();
-  saveSettings();
-}
-function updateSliderUI(meal){
-  var p=wetPct[meal-1];
-  var el=document.getElementById('range-'+meal);
-  if(el){el.value=p;el.style.background='linear-gradient(to right,#4a7c4a '+p+'%,#e8d5b7 '+p+'%)';}
-  document.getElementById('wp'+meal).textContent=p;
-  document.getElementById('dp'+meal).textContent=100-p;
-}
-
-function onWeightChange(val){
-  val=val.replace(',','.');
-  var kg=parseFloat(val);
-  if(!kg||kg<=0){resetDisplay();return;}
-  lastKg=kg;calcDone=true;recalc();saveSettings();
-}
-
-function recalc(){
-  var kg=lastKg;
-  var dryDay=interpDry(kg);
-  var wetDay=interpWet(kg);
-  var dryMeal=dryDay/3;
-  var wetMeal=wetDay?wetDay/3:null;
-  var totalWet=0,totalDry=0;
-  for(var m=1;m<=3;m++){
-    var wp=wetPct[m-1],dp=100-wp;
-    var dryG=Math.round(dryMeal*dp/100);
-    var wetG=wetMeal!==null?Math.round(wetMeal*wp/100):Math.round(dryMeal*wp/100);
-    mealWetG[m-1]=wetG;mealDryG[m-1]=dryG;
-    document.getElementById('badge-'+m).textContent=(dryG+wetG)+' g';
-    document.getElementById('mwet-'+m).textContent=wetG;
-    document.getElementById('mdry-'+m).textContent=dryG;
-    document.getElementById('mres-'+m).style.display='grid';
-    totalWet+=wetG;totalDry+=dryG;
+/* Dawka dzienna [g] dla karmy i wagi. Zwraca {grams, note, bracket?} lub null.
+   note: null | 'clamped-low' | 'clamped-high' | 'extrapolated' */
+function computeDaily(food,kg){
+  if(!(kg>0)||!isFinite(kg))return null;
+  var i,b;
+  if(food.kind==='points-interp'){
+    var pts=food.points,first=pts[0],last=pts[pts.length-1];
+    if(kg<=first[0])return{grams:first[1],note:kg<first[0]?'clamped-low':null};
+    if(kg>=last[0])return{grams:last[1],note:kg>last[0]?'clamped-high':null};
+    for(i=0;i<pts.length-1;i++){
+      if(kg>=pts[i][0]&&kg<=pts[i+1][0]){
+        return{grams:pts[i][1]+(pts[i+1][1]-pts[i][1])*(kg-pts[i][0])/(pts[i+1][0]-pts[i][0]),note:null};
+      }
+    }
+    return null;
   }
-  var wetRange=wetRangeStr(kg),dryRange=dryRangeStr(kg),noWet=wetDay===null;
-  var html='<div class="summary-main">'
-    +'<div class="sum-block wb"><div class="sb-label">💧 Mokra / dzień</div><div class="sb-value wv">'+totalWet+'</div><div class="sb-unit">g</div></div>'
-    +'<div class="sum-block db"><div class="sb-label">🌾 Sucha / dzień</div><div class="sb-value dv">'+totalDry+'</div><div class="sb-unit">g</div></div>'
-    +'</div><div class="summary-divider"></div>'
-    +'<div class="sum-row"><span class="sl">Dawka sucha (100%)</span><span class="sv">'+Math.round(dryDay)+' g</span></div>'
-    +(dryRange?'<div class="sum-row"><span class="sl">Zakres suchej (tabelka)</span><span class="sv">'+dryRange+' g</span></div>':'')
-    +(wetDay?'<div class="sum-row"><span class="sl">Dawka mokra (100%)</span><span class="sv">'+Math.round(wetDay)+' g</span></div>':'')
-    +(wetRange?'<div class="sum-row"><span class="sl">Zakres mokrej (tabelka)</span><span class="sv">'+wetRange+' g</span></div>':'')
-    +'<div class="sum-total"><span class="st-label">Razem w miskach</span><span class="st-value">~'+(totalWet+totalDry)+' g</span></div>'
-    +(noWet?'<div class="note-box">⚠️ Waga poza tabelą mokrej (5–60 kg).</div>':'')
-    +'<div class="note-box">📋 Każdy posiłek = 1/3 dawki. Dane z tabel Brit VD. Skonsultuj z weterynarzem.</div>';
-  document.getElementById('summary-content').innerHTML=html;
-  document.getElementById('day-tracker').style.display='block';
-  updateTrackerUI();
-  highlightTables(kg);
+  if(food.kind==='bracket-step'){
+    /* konwencja przedziału (lo, hi]: 5 kg -> przedział 3-5, 5.01 kg -> 5-10 */
+    for(i=0;i<food.brackets.length;i++){
+      b=food.brackets[i];
+      if(kg>b[0]&&kg<=b[1])return{grams:b[2],note:null,bracket:[b[0],b[1]]};
+    }
+    b=food.brackets[food.brackets.length-1];
+    if(kg>b[1])return{grams:b[2],note:'clamped-high',bracket:[b[0],b[1]]};
+    return null;
+  }
+  if(food.kind==='bracket-interp'){
+    var br=food.brackets,f=br[0],l=br[br.length-1],slope;
+    if(kg<f[0]){
+      slope=(f[3]-f[2])/(f[1]-f[0]);
+      return{grams:Math.max(0,f[2]-(f[0]-kg)*slope),note:'extrapolated'};
+    }
+    if(kg>l[1]){
+      slope=(l[3]-l[2])/(l[1]-l[0]);
+      return{grams:l[3]+(kg-l[1])*slope,note:'extrapolated'};
+    }
+    for(i=0;i<br.length;i++){
+      b=br[i];
+      if(kg>=b[0]&&kg<=b[1])return{grams:b[2]+(b[3]-b[2])*(kg-b[0])/(b[1]-b[0]),note:null};
+    }
+    return null;
+  }
+  return null;
 }
 
-function resetDisplay(){
-  calcDone=false;lastKg=0;
-  for(var m=1;m<=3;m++){document.getElementById('badge-'+m).textContent='— g';document.getElementById('mres-'+m).style.display='none';}
-  document.getElementById('summary-content').innerHTML='<div class="no-calc">Podaj wagę psa — wyniki pojawią się automatycznie 🐾</div>';
-  document.getElementById('day-tracker').style.display='none';
+/* Bilansowanie suwaka: posiłek k na wartość fRaw, w obrębie niepodanych
+   (unfed, zawiera k). Budżet grupy S = suma udziałów niepodanych jest stały.
+   Zwraca nową mapę udziałów. */
+function rebalanceShares(shares,unfed,k,fRaw){
+  var out={},id,i,S=0;
+  for(id in shares)out[id]=shares[id];
+  if(unfed.indexOf(k)<0)return out;
+  for(i=0;i<unfed.length;i++)S+=shares[unfed[i]];
+  var f=Math.max(0,Math.min(fRaw,S));
+  var others=[];
+  for(i=0;i<unfed.length;i++)if(unfed[i]!==k)others.push(unfed[i]);
+  var R=S-shares[k];
+  if(others.length){
+    if(R>1e-9){
+      var c=(S-f)/R;
+      for(i=0;i<others.length;i++)out[others[i]]=shares[others[i]]*c;
+    }else{
+      var eq=(S-f)/others.length;
+      for(i=0;i<others.length;i++)out[others[i]]=eq;
+    }
+  }
+  out[k]=f;
+  var ns=0;
+  for(i=0;i<unfed.length;i++)ns+=out[unfed[i]];
+  if(ns>1e-9){
+    var norm=S/ns;
+    for(i=0;i<unfed.length;i++)out[unfed[i]]*=norm;
+  }
+  return out;
 }
 
-// PODANO
-function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-function nowTimeStr(){var d=new Date();var h=d.getHours(),m=d.getMinutes();return(h<10?'0':'')+h+':'+(m<10?'0':'')+m}
+/* Ekstra posiłek o udziale e: proporcjonalne odjęcie od niepodanych.
+   Zwraca {shares, deductions:[{mealId,amount}], overshoot}. Dokładne
+   deductions umożliwiają wierne cofnięcie przy usunięciu ekstra. */
+function applyExtra(shares,unfed,e){
+  var out={},id,i,S=0;
+  for(id in shares)out[id]=shares[id];
+  for(i=0;i<unfed.length;i++)S+=shares[unfed[i]];
+  var deductions=[],overshoot=0;
+  if(S>1e-9){
+    var factor=Math.max(0,(S-e)/S);
+    for(i=0;i<unfed.length;i++){
+      var mid=unfed[i],d=shares[mid]*(1-factor);
+      if(d>1e-12){out[mid]=shares[mid]-d;deductions.push({mealId:mid,amount:d});}
+    }
+    overshoot=Math.max(0,e-S);
+  }else{
+    overshoot=e;
+  }
+  return{shares:out,deductions:deductions,overshoot:overshoot};
+}
 
+/* Rozdział gramów metodą największych reszt: suma wyników = round(D * suma udziałów),
+   bez dryfu zaokrągleń między posiłkami. */
+function allocateGrams(fracs,D){
+  var i,raw=[],base=[],tot=0,baseSum=0;
+  for(i=0;i<fracs.length;i++){
+    raw.push(D*fracs[i]);
+    base.push(Math.floor(raw[i]));
+    tot+=fracs[i];baseSum+=base[i];
+  }
+  var target=Math.round(D*tot),rem=target-baseSum;
+  var order=[];
+  for(i=0;i<raw.length;i++)order.push([raw[i]-base[i],i]);
+  order.sort(function(a,b){return b[0]-a[0]});
+  var out=base.slice();
+  for(i=0;i<rem;i++)out[order[i%order.length][1]]++;
+  return out;
+}
+/*TESTABLE-END*/
+
+/* ============================================================
+   TRYBY I STAN
+   ============================================================ */
+var MODES={
+  dom:{mealIds:['rano','poludnie','wieczor'],wetMealId:null},
+  praca:{mealIds:['rano','przedpoludnie','popoludnie','wieczor'],wetMealId:'przedpoludnie'}
+};
+var MEAL_META={
+  rano:{name:'Rano',icon:'🌅'},
+  poludnie:{name:'Południe',icon:'☀️'},
+  przedpoludnie:{name:'Przedpołudnie',icon:'🥫'},
+  popoludnie:{name:'Popołudnie',icon:'🌤️'},
+  wieczor:{name:'Wieczór',icon:'🌙'}
+};
+var LS_SET='karma_settings_v6',LS_DAY='karma_day_v2';
+
+var settings=defaultSettings();
+var day=null;
+var computed=null;
+var extraType='sucha';
+var draggingId=null;
+var savedTimer=null,extraWarnTimer=null;
+
+function defaultSettings(){
+  return{v:6,weight:null,dryFoodId:'brit_gastro_dry',wetFoodId:'brit_gastro_wet',mode:'dom',
+    shares:{dom:[1/3,1/3,1/3],praca:[0.25,0.25,0.25,0.25]}};
+}
+function pad2(n){return(n<10?'0':'')+n}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())}
+function nowTimeStr(){var d=new Date();return pad2(d.getHours())+':'+pad2(d.getMinutes())}
+function genId(){return'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function num(v){return typeof v==='number'&&isFinite(v)?v:0}
+
+function newDay(){
+  var mode=MODES[settings.mode],d={date:todayStr(),mode:settings.mode,shares:{},meals:{},extras:[]};
+  for(var i=0;i<mode.mealIds.length;i++){
+    d.shares[mode.mealIds[i]]=settings.shares[settings.mode][i];
+    d.meals[mode.mealIds[i]]=null;
+  }
+  return d;
+}
+function unfedMealIds(){
+  var ids=MODES[settings.mode].mealIds,out=[];
+  for(var i=0;i<ids.length;i++){
+    var m=day.meals[ids[i]];
+    if(!(m&&m.fed))out.push(ids[i]);
+  }
+  return out;
+}
+
+/* ============================================================
+   PERSYSTENCJA I MIGRACJA
+   ============================================================ */
+function isValidShares(arr,n){
+  if(!Array.isArray(arr)||arr.length!==n)return false;
+  var sum=0;
+  for(var i=0;i<n;i++){
+    var v=arr[i];
+    if(typeof v!=='number'||!isFinite(v)||v<0||v>1)return false;
+    sum+=v;
+  }
+  return Math.abs(sum-1)<0.001;
+}
+function loadSettings(){
+  var s=defaultSettings();
+  try{
+    var d=JSON.parse(localStorage.getItem(LS_SET));
+    if(d&&typeof d==='object'){
+      if(typeof d.weight==='number'&&isFinite(d.weight)&&d.weight>0)s.weight=d.weight;
+      if(DRY_FOODS[d.dryFoodId])s.dryFoodId=d.dryFoodId;
+      if(WET_FOODS[d.wetFoodId])s.wetFoodId=d.wetFoodId;
+      if(MODES[d.mode])s.mode=d.mode;
+      var modes=['dom','praca'];
+      for(var i=0;i<modes.length;i++){
+        var m=modes[i],arr=d.shares&&d.shares[m];
+        if(isValidShares(arr,MODES[m].mealIds.length))s.shares[m]=arr.slice();
+      }
+    }
+  }catch(e){}
+  return s;
+}
+function saveSettings(){try{localStorage.setItem(LS_SET,JSON.stringify(settings))}catch(e){}}
+function saveDay(){try{localStorage.setItem(LS_DAY,JSON.stringify(day))}catch(e){}}
+
+function loadDay(){
+  try{
+    var d=JSON.parse(localStorage.getItem(LS_DAY));
+    if(!d||typeof d!=='object'||d.date!==todayStr()||!MODES[d.mode])return null;
+    var ids=MODES[d.mode].mealIds,i,out={date:d.date,mode:d.mode,shares:{},meals:{},extras:[]};
+    var sum=0;
+    for(i=0;i<ids.length;i++){
+      var v=d.shares&&d.shares[ids[i]];
+      if(typeof v!=='number'||!isFinite(v)||v<0||v>1)return null;
+      out.shares[ids[i]]=v;sum+=v;
+    }
+    if(sum>1.001)return null;
+    for(i=0;i<ids.length;i++){
+      var m=d.meals&&d.meals[ids[i]];
+      out.meals[ids[i]]=(m&&m.fed)?{fed:true,time:String(m.time||''),wetG:Math.max(0,num(m.wetG)),dryG:Math.max(0,num(m.dryG))}:null;
+    }
+    if(Array.isArray(d.extras)){
+      for(i=0;i<d.extras.length;i++){
+        var e=d.extras[i];
+        if(!e||(e.type!=='mokra'&&e.type!=='sucha')||!(num(e.grams)>0))continue;
+        var ded=[];
+        if(Array.isArray(e.deductions)){
+          for(var j=0;j<e.deductions.length;j++){
+            var dd=e.deductions[j];
+            if(dd&&typeof dd.mealId==='string'&&num(dd.amount)>0)ded.push({mealId:dd.mealId,amount:num(dd.amount)});
+          }
+        }
+        out.extras.push({id:typeof e.id==='string'?e.id:genId(),type:e.type,grams:num(e.grams),
+          time:String(e.time||''),share:Math.max(0,num(e.share)),deductions:ded,
+          overshoot:Math.max(0,num(e.overshoot)),label:typeof e.label==='string'?e.label:null});
+      }
+    }
+    return out;
+  }catch(e){return null}
+}
+
+/* Migracja ze starych kluczy v5 (waga + dzisiejszy dziennik 3 posiłków). */
+function migrate(){
+  var mig=null;
+  try{
+    if(!localStorage.getItem(LS_SET)){
+      mig={weight:null,day:null};
+      try{
+        var o=JSON.parse(localStorage.getItem('brit_v5'));
+        if(o&&typeof o.weight==='number'&&isFinite(o.weight)&&o.weight>0)mig.weight=o.weight;
+      }catch(e){}
+      try{
+        var od=JSON.parse(localStorage.getItem('brit_day_v1'));
+        var d=new Date(),oldToday=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+        if(od&&od.date===oldToday&&Array.isArray(od.meals)&&od.meals.length===3)mig.day=od;
+      }catch(e){}
+    }
+    localStorage.removeItem('brit_v5');
+    localStorage.removeItem('brit_day_v1');
+  }catch(e){}
+  return mig;
+}
+
+/* ============================================================
+   WARSTWA OBLICZEŃ (czysta — bez DOM)
+   ============================================================ */
+function compute(){
+  var kg=settings.weight;
+  var mode=MODES[settings.mode];
+  var valid=!!(kg&&kg>0);
+  var dry=valid?computeDaily(DRY_FOODS[settings.dryFoodId],kg):null;
+  var wet=valid?computeDaily(WET_FOODS[settings.wetFoodId],kg):null;
+  var mealTypes={},mealGrams={},dryIds=[],wetIds=[],i,id;
+  for(i=0;i<mode.mealIds.length;i++){
+    id=mode.mealIds[i];
+    mealTypes[id]=(id===mode.wetMealId)?'mokra':'sucha';
+    (mealTypes[id]==='mokra'?wetIds:dryIds).push(id);
+  }
+  if(valid&&dry){
+    var dg=allocateGrams(dryIds.map(function(x){return day.shares[x]||0}),dry.grams);
+    for(i=0;i<dryIds.length;i++)mealGrams[dryIds[i]]=dg[i];
+  }
+  if(valid&&wet&&wetIds.length){
+    var wg=allocateGrams(wetIds.map(function(x){return day.shares[x]||0}),wet.grams);
+    for(i=0;i<wetIds.length;i++)mealGrams[wetIds[i]]=wg[i];
+  }
+  var givenDry=0,givenWet=0,fedCount=0,remDry=0,remWet=0;
+  for(i=0;i<mode.mealIds.length;i++){
+    id=mode.mealIds[i];
+    var m=day.meals[id];
+    if(m&&m.fed){givenDry+=m.dryG;givenWet+=m.wetG;fedCount++;}
+    else if(valid){
+      if(mealTypes[id]==='mokra')remWet+=(mealGrams[id]||0);
+      else remDry+=(mealGrams[id]||0);
+    }
+  }
+  var hasWetExtra=false;
+  for(i=0;i<day.extras.length;i++){
+    var ex=day.extras[i];
+    if(ex.type==='mokra'){givenWet+=ex.grams;hasWetExtra=true;}
+    else givenDry+=ex.grams;
+  }
+  var wetInUse=!!mode.wetMealId||hasWetExtra;
+  var warnings=[];
+  if(valid&&dry&&dry.note)
+    warnings.push('⚠️ Waga poza tabelą suchej karmy — przyjęto wartość skrajną ('+Math.round(dry.grams)+' g/dzień).');
+  if(valid&&wet&&wet.note==='extrapolated'&&wetInUse)
+    warnings.push('⚠️ Waga poza tabelą mokrej karmy (5–60 kg) — dawka mokra jest szacunkowa.');
+  var overshoot=0;
+  for(i=0;i<day.extras.length;i++)overshoot+=num(day.extras[i].overshoot);
+  if(overshoot>0.005)
+    warnings.push('⚠️ Ekstra posiłki przekraczają dzienną dawkę o ~'+Math.round(overshoot*100)+'%.');
+  return{valid:valid,kg:kg,dry:dry,wet:wet,mealTypes:mealTypes,mealGrams:mealGrams,
+    givenDry:Math.round(givenDry),givenWet:Math.round(givenWet),remDry:remDry,remWet:remWet,
+    fedCount:fedCount,N:mode.mealIds.length,wetInUse:wetInUse,warnings:warnings};
+}
+
+/* ============================================================
+   RESET DNIA / PÓŁNOC
+   ============================================================ */
 function checkDayReset(){
-  var today=todayStr();
-  if(dayData.date!==today){
-    dayData={date:today,meals:[{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0}]};
-    for(var m=1;m<=3;m++)resetFedBtn(m);
-    saveDayData();
-  }
-}
-function markFed(meal){
-  checkDayReset();
-  var idx=meal-1;
-  if(dayData.meals[idx].fed){
-    dayData.meals[idx]={fed:false,time:null,wetG:0,dryG:0};
-  } else {
-    dayData.meals[idx]={fed:true,time:nowTimeStr(),wetG:mealWetG[idx],dryG:mealDryG[idx]};
-  }
-  saveDayData();updateTrackerUI();updateFedButtons();
-}
-function resetFedBtn(meal){
-  var btn=document.getElementById('fedbtn-'+meal);
-  var card=document.getElementById('meal-'+meal);
-  btn.classList.remove('done');btn.textContent='✓ Podano';card.classList.remove('fed');
-}
-function updateFedButtons(){
-  for(var m=1;m<=3;m++){
-    var idx=m-1;
-    var btn=document.getElementById('fedbtn-'+m);
-    var card=document.getElementById('meal-'+m);
-    if(dayData.meals[idx].fed){
-      btn.classList.add('done');
-      btn.innerHTML='✓ '+dayData.meals[idx].time;
-      card.classList.add('fed');
-    } else {
-      btn.classList.remove('done');btn.textContent='✓ Podano';card.classList.remove('fed');
+  if(!day||day.date!==todayStr()){
+    day=newDay();
+    saveDay();
+    if(document.getElementById('meals-container').childNodes.length){
+      buildMealCards();
+      renderAll();
     }
   }
 }
-function updateTrackerUI(){
+function scheduleNextMidnight(){
+  var now=new Date();
+  var next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,5);
+  setTimeout(function(){checkDayReset();renderAll();scheduleNextMidnight();},next-now);
+}
+
+/* ============================================================
+   HANDLERY
+   ============================================================ */
+function onWeightChange(val){
   checkDayReset();
+  var kg=parseFloat(String(val).replace(',','.'));
+  settings.weight=(isFinite(kg)&&kg>0)?kg:null;
+  saveSettings();flashSaved();
+  renderAll();
+}
+function onFoodChange(kind,id){
+  checkDayReset();
+  if(kind==='dry'&&DRY_FOODS[id])settings.dryFoodId=id;
+  if(kind==='wet'&&WET_FOODS[id])settings.wetFoodId=id;
+  saveSettings();flashSaved();
+  renderAll();
+}
+
+function setMode(nm){
+  checkDayReset();
+  if(nm===settings.mode||!MODES[nm])return;
+  reconcileDayToMode(nm);
+  saveSettings();saveDay();flashSaved();
+  buildMealCards();
+  renderAll();
+}
+/* Zmiana trybu w środku dnia: podane posiłki, których nie ma w nowym trybie,
+   stają się ekstra (żeby sumy dnia dalej się zgadzały); udziały nowego trybu
+   są odbudowywane z ustawień, a ekstra nakładane od nowa po kolei. */
+function reconcileDayToMode(nm){
+  var oldIds=MODES[day.mode]?MODES[day.mode].mealIds:[],newIds=MODES[nm].mealIds,i,id,m;
+  for(i=0;i<oldIds.length;i++){
+    id=oldIds[i];m=day.meals[id];
+    if(m&&m.fed&&newIds.indexOf(id)<0){
+      if(m.dryG>0)day.extras.push(orphanExtra('sucha',m.dryG,m.time,MEAL_META[id].name));
+      if(m.wetG>0)day.extras.push(orphanExtra('mokra',m.wetG,m.time,MEAL_META[id].name));
+    }
+  }
+  settings.mode=nm;day.mode=nm;
+  var meals={};
+  for(i=0;i<newIds.length;i++){
+    m=day.meals[newIds[i]];
+    meals[newIds[i]]=(m&&m.fed)?m:null;
+  }
+  day.meals=meals;
+  rebuildDayShares();
+}
+function orphanExtra(type,grams,time,label){
+  var food=type==='mokra'?WET_FOODS[settings.wetFoodId]:DRY_FOODS[settings.dryFoodId];
+  var daily=settings.weight>0?computeDaily(food,settings.weight):null;
+  return{id:genId(),type:type,grams:Math.round(grams),time:time||'',
+    share:(daily&&daily.grams>0)?grams/daily.grams:0,deductions:[],overshoot:0,label:label};
+}
+/* Odbudowa dzisiejszych udziałów: domyślne z ustawień + ponowne nałożenie
+   wszystkich ekstra (z przeliczeniem ich deductions). */
+function rebuildDayShares(){
+  var mode=MODES[settings.mode],i;
+  day.shares={};
+  for(i=0;i<mode.mealIds.length;i++)day.shares[mode.mealIds[i]]=settings.shares[settings.mode][i];
+  for(i=0;i<day.extras.length;i++){
+    var ex=day.extras[i];
+    var res=applyExtra(day.shares,unfedMealIds(),ex.share||0);
+    day.shares=res.shares;
+    ex.deductions=res.deductions;
+    ex.overshoot=res.overshoot;
+  }
+}
+
+function onShareInput(id,val){
+  checkDayReset();
+  var m=day.meals[id];
+  if(m&&m.fed)return;
+  draggingId=id;
+  var f=(parseInt(val,10)||0)/100;
+  day.shares=rebalanceShares(day.shares,unfedMealIds(),id,f);
+  computed=compute();
+  updateMeals();renderTracker();renderSummary();
+}
+function onShareCommit(id){
+  draggingId=null;
+  computed=compute();
+  updateMeals();
+  saveDay();
+  if(day.extras.length===0){
+    var ids=MODES[settings.mode].mealIds,arr=[];
+    for(var i=0;i<ids.length;i++)arr.push(day.shares[ids[i]]);
+    settings.shares[settings.mode]=arr;
+    saveSettings();
+  }
+  flashSaved();
+}
+
+function toggleFed(id){
+  checkDayReset();
+  var m=day.meals[id];
+  if(m&&m.fed){
+    day.meals[id]=null;
+  }else{
+    if(!computed||!computed.valid)return;
+    var t=computed.mealTypes[id],g=computed.mealGrams[id]||0;
+    day.meals[id]={fed:true,time:nowTimeStr(),wetG:t==='mokra'?g:0,dryG:t==='sucha'?g:0};
+  }
+  saveDay();flashSaved();
+  renderAll();
+}
+
+function setExtraType(t){
+  if(t!=='mokra'&&t!=='sucha')return;
+  extraType=t;
+  renderExtraForm();
+}
+function addExtra(){
+  checkDayReset();
+  if(!computed||!computed.valid)return;
+  var raw=(document.getElementById('extra-grams').value||'').replace(',','.');
+  var g=parseFloat(raw);
+  if(!(g>0)||!isFinite(g)){showExtraWarn('Podaj gramaturę ekstra porcji (np. 50).');return;}
+  var daily=extraType==='mokra'?computed.wet:computed.dry;
+  if(!daily||!(daily.grams>0)){showExtraWarn('Nie można wyliczyć dawki dziennej dla tego typu karmy.');return;}
+  var e=g/daily.grams;
+  var res=applyExtra(day.shares,unfedMealIds(),e);
+  day.shares=res.shares;
+  day.extras.push({id:genId(),type:extraType,grams:Math.round(g),time:nowTimeStr(),
+    share:e,deductions:res.deductions,overshoot:res.overshoot,label:null});
+  document.getElementById('extra-grams').value='';
+  hideExtraWarn();
+  saveDay();flashSaved();
+  renderAll();
+}
+function removeExtra(id){
+  checkDayReset();
+  for(var i=0;i<day.extras.length;i++){
+    if(day.extras[i].id===id){
+      var ded=day.extras[i].deductions;
+      for(var j=0;j<ded.length;j++){
+        if(typeof day.shares[ded[j].mealId]==='number')day.shares[ded[j].mealId]+=ded[j].amount;
+      }
+      day.extras.splice(i,1);
+      break;
+    }
+  }
+  saveDay();flashSaved();
+  renderAll();
+}
+
+function toggleRef(which){
+  var body=document.getElementById('refbody-'+which);
+  var arrow=document.getElementById('arrow-'+which);
+  body.classList.toggle('open');
+  arrow.classList.toggle('open',body.classList.contains('open'));
+}
+
+function resetAll(){
+  if(!confirm('Wyczyścić wszystkie ustawienia i dzisiejszy dziennik?'))return;
+  try{localStorage.removeItem(LS_SET);localStorage.removeItem(LS_DAY);}catch(e){}
+  settings=defaultSettings();
+  day=newDay();
+  document.getElementById('weight-input').value='';
+  document.getElementById('extra-grams').value='';
+  extraType='sucha';
+  hideExtraWarn();
+  buildMealCards();
+  renderAll();
+}
+
+/* ============================================================
+   RENDEROWANIE
+   ============================================================ */
+function flashSaved(){
+  var el=document.getElementById('saved');
+  el.classList.add('show');
+  if(savedTimer)clearTimeout(savedTimer);
+  savedTimer=setTimeout(function(){el.classList.remove('show')},1600);
+}
+function showExtraWarn(msg){
+  var el=document.getElementById('extra-warn');
+  el.textContent=msg;el.style.display='block';
+  if(extraWarnTimer)clearTimeout(extraWarnTimer);
+  extraWarnTimer=setTimeout(hideExtraWarn,4000);
+}
+function hideExtraWarn(){
+  document.getElementById('extra-warn').style.display='none';
+  if(extraWarnTimer){clearTimeout(extraWarnTimer);extraWarnTimer=null;}
+}
+
+function populateSelects(){
+  var ds=document.getElementById('dry-select'),ws=document.getElementById('wet-select'),id,html='';
+  for(id in DRY_FOODS)html+='<option value="'+id+'">'+DRY_FOODS[id].name+'</option>';
+  ds.innerHTML=html;
+  html='';
+  for(id in WET_FOODS)html+='<option value="'+id+'">'+WET_FOODS[id].name+'</option>';
+  ws.innerHTML=html;
+}
+
+function buildMealCards(){
+  var mode=MODES[settings.mode],html='',tiles='',i;
+  for(i=0;i<mode.mealIds.length;i++){
+    var id=mode.mealIds[i],meta=MEAL_META[id];
+    var isWet=(id===mode.wetMealId);
+    html+='<div class="meal-card" id="meal-'+id+'">'
+      +'<div class="meal-header">'
+      +'<div class="meal-title">'+meta.icon+' '+meta.name
+      +' <span class="type-badge '+(isWet?'tb-wet':'tb-dry')+'">'+(isWet?'💧 MOKRA':'🌾 SUCHA')+'</span></div>'
+      +'<div class="meal-badges">'
+      +'<div class="meal-total-badge" id="badge-'+id+'">— g</div>'
+      +'<div class="fed-btn" id="fedbtn-'+id+'" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
+      +'</div></div>'
+      +'<div class="share-row"><span class="field-label" style="margin-bottom:0">Udział w dziennej dawce</span>'
+      +'<span class="share-pct" id="sharepct-'+id+'">—</span></div>'
+      +'<div class="slider-wrap"><input type="range" class="split-range" id="range-'+id+'" min="0" max="100" value="0"'
+      +' oninput="onShareInput(\''+id+'\',this.value)" onchange="onShareCommit(\''+id+'\')"></div>'
+      +'<div class="slider-ends"><span>0%</span><span>100% dnia</span></div>'
+      +'</div>';
+    tiles+='<div class="dt-meal" id="dt-m-'+id+'"><div class="dt-meal-icon">'+meta.icon+'</div>'
+      +'<div class="dt-meal-name">'+meta.name+'</div>'
+      +'<div class="dt-meal-time" id="dt-t-'+id+'"></div>'
+      +'<div class="dt-meal-grams" id="dt-g-'+id+'">—</div></div>';
+  }
+  document.getElementById('meals-container').innerHTML=html;
+  var dtm=document.getElementById('dt-meals');
+  dtm.innerHTML=tiles;
+  dtm.style.gridTemplateColumns='repeat('+mode.mealIds.length+',1fr)';
+}
+
+function updateMeals(){
+  var mode=MODES[settings.mode],c=computed,i;
+  for(i=0;i<mode.mealIds.length;i++){
+    var id=mode.mealIds[i];
+    var m=day.meals[id],fed=!!(m&&m.fed);
+    var card=document.getElementById('meal-'+id);
+    var badge=document.getElementById('badge-'+id);
+    var btn=document.getElementById('fedbtn-'+id);
+    var slider=document.getElementById('range-'+id);
+    var pct=Math.round((day.shares[id]||0)*100);
+    document.getElementById('sharepct-'+id).textContent=pct+'%';
+    if(id!==draggingId)slider.value=pct;
+    var sv=parseInt(slider.value,10)||0;
+    slider.style.background='linear-gradient(to right,#4a7c4a '+sv+'%,#e8d5b7 '+sv+'%)';
+    slider.disabled=fed;
+    card.classList.toggle('fed',fed);
+    if(fed){
+      btn.classList.add('done');
+      btn.classList.remove('disabled');
+      btn.textContent='✓ '+(m.time||'');
+      badge.textContent=Math.round(m.wetG+m.dryG)+' g';
+    }else{
+      btn.classList.remove('done');
+      btn.classList.toggle('disabled',!c.valid);
+      btn.textContent='✓ Podano';
+      badge.textContent=c.valid?((c.mealGrams[id]||0)+' g'):'— g';
+    }
+  }
+  document.getElementById('dayonly-note').style.display=day.extras.length>0?'block':'none';
+}
+
+function renderModeToggle(){
+  document.getElementById('mode-btn-dom').classList.toggle('active',settings.mode==='dom');
+  document.getElementById('mode-btn-praca').classList.toggle('active',settings.mode==='praca');
+}
+function renderFoodSelects(){
+  document.getElementById('dry-select').value=settings.dryFoodId;
+  document.getElementById('wet-select').value=settings.wetFoodId;
+}
+function renderExtraForm(){
+  var valid=!!(computed&&computed.valid);
+  document.getElementById('extra-type-mokra').classList.toggle('active',extraType==='mokra');
+  document.getElementById('extra-type-sucha').classList.toggle('active',extraType==='sucha');
+  document.getElementById('extra-grams').disabled=!valid;
+  document.getElementById('extra-add').classList.toggle('disabled',!valid);
+}
+
+function renderTracker(){
+  var c=computed,mode=MODES[settings.mode],i;
+  var show=c.valid||c.fedCount>0||day.extras.length>0;
+  var el=document.getElementById('day-tracker');
+  el.style.display=show?'block':'none';
+  if(!show)return;
   var d=new Date();
   var dni=['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota'];
   var mies=['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
   document.getElementById('dt-date').textContent=dni[d.getDay()]+', '+d.getDate()+' '+mies[d.getMonth()];
-  var totalWet=0,totalDry=0,fedCount=0;
-  for(var m=1;m<=3;m++){
-    var idx=m-1,meal=dayData.meals[idx];
-    var mCard=document.getElementById('dt-m'+(idx+1));
-    var tEl=document.getElementById('dt-t'+(idx+1));
-    var gEl=document.getElementById('dt-g'+(idx+1));
-    if(meal.fed){
-      mCard.classList.add('fed');tEl.textContent=meal.time;gEl.textContent=(meal.wetG+meal.dryG)+' g';
-      totalWet+=meal.wetG;totalDry+=meal.dryG;fedCount++;
-    } else {
-      mCard.classList.remove('fed');tEl.textContent='';gEl.textContent='—';
+  for(i=0;i<mode.mealIds.length;i++){
+    var id=mode.mealIds[i],m=day.meals[id],fed=!!(m&&m.fed);
+    document.getElementById('dt-m-'+id).classList.toggle('fed',fed);
+    document.getElementById('dt-t-'+id).textContent=fed?(m.time||''):'';
+    document.getElementById('dt-g-'+id).textContent=fed?(Math.round(m.wetG+m.dryG)+' g'):'—';
+  }
+  var chips='';
+  for(i=0;i<day.extras.length;i++){
+    var ex=day.extras[i];
+    chips+='<div class="extra-chip">'+(ex.type==='mokra'?'💧':'🌾')+' '
+      +(ex.label?ex.label+' · ':'')+ex.grams+' g'+(ex.time?' · '+ex.time:'')
+      +'<span class="chip-x" onclick="removeExtra(\''+ex.id+'\')" title="Usuń">✕</span></div>';
+  }
+  var cw=document.getElementById('extra-chips');
+  cw.innerHTML=chips;
+  cw.style.display=chips?'flex':'none';
+  document.getElementById('dt-wet').textContent=c.givenWet;
+  document.getElementById('dt-dry').textContent=c.givenDry;
+  document.getElementById('dt-prog-txt').textContent=c.fedCount+' / '+c.N+' posiłków';
+  document.getElementById('dt-prog-fill').style.width=Math.round(c.fedCount/c.N*100)+'%';
+}
+
+function renderSummary(){
+  var c=computed,el=document.getElementById('summary-content');
+  if(!c.valid){
+    el.innerHTML='<div class="no-calc">Podaj wagę psa — wyniki pojawią się automatycznie 🐾</div>';
+    return;
+  }
+  var planDry=c.givenDry+c.remDry,planWet=c.givenWet+c.remWet,i;
+  var html='<div class="summary-main'+(c.wetInUse?'':' single')+'">';
+  if(c.wetInUse)
+    html+='<div class="sum-block wb"><div class="sb-label">💧 Mokra / dzień</div><div class="sb-value wv">'+planWet+'</div><div class="sb-unit">g</div></div>';
+  html+='<div class="sum-block db"><div class="sb-label">🌾 Sucha / dzień</div><div class="sb-value dv">'+planDry+'</div><div class="sb-unit">g</div></div>';
+  html+='</div><div class="summary-divider"></div>';
+  var dryFood=DRY_FOODS[settings.dryFoodId];
+  var dryInfo=Math.round(c.dry.grams)+' g';
+  if(c.dry.bracket)dryInfo+=' (przedział '+(c.dry.bracket[0]===0?'≤'+c.dry.bracket[1]:c.dry.bracket[0]+'–'+c.dry.bracket[1])+' kg)';
+  html+='<div class="sum-row"><span class="sl">Dawka producenta — '+dryFood.shortName+'</span><span class="sv">'+dryInfo+'</span></div>';
+  if(c.wetInUse&&c.wet){
+    var wetFood=WET_FOODS[settings.wetFoodId];
+    html+='<div class="sum-row"><span class="sl">Dawka producenta — '+wetFood.shortName+'</span><span class="sv">'+Math.round(c.wet.grams)+' g</span></div>';
+  }
+  html+='<div class="sum-row"><span class="sl">Podano dziś</span><span class="sv">'+(c.givenDry+c.givenWet)+' g</span></div>';
+  html+='<div class="sum-row"><span class="sl">Pozostało (plan)</span><span class="sv">'+(c.remDry+c.remWet)+' g</span></div>';
+  html+='<div class="sum-total"><span class="st-label">Razem w miskach</span><span class="st-value">~'+(planDry+planWet)+' g</span></div>';
+  for(i=0;i<c.warnings.length;i++)html+='<div class="note-box warn">'+c.warnings[i]+'</div>';
+  html+='<div class="note-box">📋 Posiłki dzielą dzienną dawkę wg suwaków. Dane z tabel producentów — skonsultuj z weterynarzem.</div>';
+  el.innerHTML=html;
+}
+
+function renderFoodTable(food,kg){
+  var ths,tds,i,b,hl,html;
+  if(food.kind==='points-interp'){
+    ths='<th>kg</th>';tds='<td>g/dz</td>';
+    var pts=food.points;
+    for(i=0;i<pts.length;i++){
+      hl=false;
+      if(kg!=null){
+        if(kg===pts[i][0])hl=true;
+        else if(i<pts.length-1&&kg>pts[i][0]&&kg<pts[i+1][0])hl=true;
+        else if(i>0&&kg>pts[i-1][0]&&kg<pts[i][0])hl=true;
+        else if(i===0&&kg<pts[0][0])hl=true;
+        else if(i===pts.length-1&&kg>pts[pts.length-1][0])hl=true;
+      }
+      ths+='<th'+(hl?' class="hl"':'')+'>'+pts[i][0]+'</th>';
+      tds+='<td'+(hl?' class="hl"':'')+'>'+pts[i][1]+'</td>';
+    }
+    html='<div class="ref-scroll"><table class="ref-table"><thead><tr>'+ths+'</tr></thead><tbody><tr>'+tds+'</tr></tbody></table></div>'
+      +'<div class="ref-note">Wartości pośrednie interpolowane liniowo między kolumnami.</div>';
+    return html;
+  }
+  if(food.kind==='bracket-step'){
+    ths='<th>kg</th>';tds='<td>g/dz</td>';
+    for(i=0;i<food.brackets.length;i++){
+      b=food.brackets[i];
+      hl=kg!=null&&((kg>b[0]&&kg<=b[1])||(i===food.brackets.length-1&&kg>b[1]));
+      var lbl=b[0]===0?'≤'+b[1]:b[0]+'–'+b[1];
+      ths+='<th'+(hl?' class="hl"':'')+'>'+lbl+'</th>';
+      tds+='<td'+(hl?' class="hl"':'')+'>'+b[2]+'</td>';
+    }
+    html='<div class="ref-scroll"><table class="ref-table"><thead><tr>'+ths+'</tr></thead><tbody><tr>'+tds+'</tr></tbody></table></div>'
+      +'<div class="ref-note">Stała wartość w przedziale wagi (kolumna: aktywność normalna).</div>';
+    return html;
+  }
+  /* bracket-interp */
+  ths='<th>Waga</th>';tds='<td>g/dz</td>';
+  for(i=0;i<food.brackets.length;i++){
+    b=food.brackets[i];
+    hl=kg!=null&&((kg>=b[0]&&kg<=b[1])||(i===0&&kg<b[0])||(i===food.brackets.length-1&&kg>b[1]));
+    ths+='<th'+(hl?' class="hl"':'')+'>'+b[0]+'–'+b[1]+' kg</th>';
+    tds+='<td'+(hl?' class="hl"':'')+'>'+b[2]+'–'+b[3]+'</td>';
+  }
+  html='<div class="ref-scroll"><table class="ref-table wet-tbl"><thead><tr>'+ths+'</tr></thead><tbody><tr>'+tds+'</tr></tbody></table></div>'
+    +'<div class="ref-note">Puszka 400 g. Wartość dla wagi pośredniej interpolowana liniowo w przedziale.</div>';
+  return html;
+}
+function renderRefTables(){
+  var kg=(computed&&computed.valid)?computed.kg:null;
+  var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId];
+  document.getElementById('ref-dry-name').textContent='Tabela: '+dryFood.name;
+  document.getElementById('ref-wet-name').textContent='Tabela: '+wetFood.name;
+  document.getElementById('ref-dry-content').innerHTML=renderFoodTable(dryFood,kg);
+  document.getElementById('ref-wet-content').innerHTML=renderFoodTable(wetFood,kg);
+}
+
+function renderAll(){
+  computed=compute();
+  renderModeToggle();
+  renderFoodSelects();
+  updateMeals();
+  renderExtraForm();
+  renderTracker();
+  renderSummary();
+  renderRefTables();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+(function init(){
+  var mig=migrate();
+  settings=loadSettings();
+  if(mig&&mig.weight&&!(settings.weight>0))settings.weight=mig.weight;
+  var loaded=loadDay();
+  if(loaded){
+    day=loaded;
+    if(day.mode!==settings.mode)reconcileDayToMode(settings.mode);
+  }else{
+    day=newDay();
+    if(mig&&mig.day&&settings.mode==='dom'){
+      var ids=MODES.dom.mealIds;
+      for(var i=0;i<ids.length;i++){
+        var m=mig.day.meals[i];
+        if(m&&m.fed)day.meals[ids[i]]={fed:true,time:String(m.time||''),wetG:Math.max(0,num(m.wetG)),dryG:Math.max(0,num(m.dryG))};
+      }
     }
   }
-  document.getElementById('dt-wet').textContent=totalWet;
-  document.getElementById('dt-dry').textContent=totalDry;
-  document.getElementById('dt-prog-txt').textContent=fedCount+' / 3 posiłków';
-  document.getElementById('dt-prog-fill').style.width=Math.round(fedCount/3*100)+'%';
-}
-
-// PODŚWIETLANIE TABELEK
-function highlightTables(kg){
-  var dryH=document.querySelectorAll('#dry-ref-table thead tr th');
-  var dryC=document.querySelectorAll('#dry-ref-table tbody tr td');
-  for(var i=0;i<dryH.length;i++)dryH[i].style.background='';
-  for(var i=0;i<dryC.length;i++)dryC[i].style.background='';
-  for(var i=0;i<DRY_KGS.length;i++){
-    if(kg===DRY_KGS[i]){if(dryH[i+1])dryH[i+1].style.background='rgba(122,173,106,.55)';if(dryC[i+1])dryC[i+1].style.background='rgba(74,124,74,.2)';break;}
-    if(i<DRY_KGS.length-1&&kg>DRY_KGS[i]&&kg<DRY_KGS[i+1]){
-      if(dryH[i+1])dryH[i+1].style.background='rgba(122,173,106,.45)';
-      if(dryH[i+2])dryH[i+2].style.background='rgba(122,173,106,.45)';
-      if(dryC[i+1])dryC[i+1].style.background='rgba(74,124,74,.18)';
-      if(dryC[i+2])dryC[i+2].style.background='rgba(74,124,74,.18)';break;
-    }
-  }
-  var wetH=document.querySelectorAll('#wet-ref-table thead tr th');
-  var wetC=document.querySelectorAll('#wet-ref-table tbody tr td');
-  for(var i=0;i<wetH.length;i++)wetH[i].style.background='';
-  for(var i=0;i<wetC.length;i++)wetC[i].style.background='';
-  var wi=kg>=5&&kg<=10?1:kg>10&&kg<=30?2:kg>30&&kg<=60?3:-1;
-  if(wi>0){if(wetH[wi])wetH[wi].style.background='rgba(139,94,60,.45)';if(wetC[wi])wetC[wi].style.background='rgba(139,94,60,.18)';}
-}
-
-// MIDNIGHT
-function scheduleNextMidnight(){
-  var now=new Date();
-  var midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,0);
-  setTimeout(function(){checkDayReset();updateTrackerUI();updateFedButtons();scheduleNextMidnight();},midnight-now);
-}
-
-// REF TABLES
-function toggleRef(which){
-  var body=document.getElementById('refbody-'+which);
-  var arrow=document.getElementById('arrow-'+which);
-  body.classList.toggle('open');arrow.classList.toggle('open',body.classList.contains('open'));
-}
-
-// LOCALSTORAGE
-var LS='brit_v5',LS_DAY='brit_day_v1';
-function saveSettings(){
-  try{
-    localStorage.setItem(LS,JSON.stringify({weight:lastKg,wetPct:wetPct}));
-    var el=document.getElementById('saved');el.classList.add('show');
-    setTimeout(function(){el.classList.remove('show')},1600);
-  }catch(e){}
-}
-function saveDayData(){try{localStorage.setItem(LS_DAY,JSON.stringify(dayData));}catch(e){}}
-function loadDayData(){try{var d=JSON.parse(localStorage.getItem(LS_DAY));if(d&&d.date===todayStr())dayData=d;}catch(e){}}
-function loadSettings(){
-  try{
-    var d=JSON.parse(localStorage.getItem(LS));
-    if(!d)return;
-    if(d.weight&&d.weight>0){
-      lastKg=d.weight;
-      document.getElementById('weight-input').value=d.weight;
-    }
-    if(d.wetPct&&d.wetPct.length===3)wetPct=d.wetPct;
-    for(var m=1;m<=3;m++)updateSliderUI(m);
-    if(lastKg>0){calcDone=true;recalc();}
-  }catch(e){}
-}
-function resetAll(){
-  if(!confirm('Wyczyścić wszystko?'))return;
-  localStorage.removeItem(LS);localStorage.removeItem(LS_DAY);
-  document.getElementById('weight-input').value='';
-  wetPct=[50,50,50];
-  for(var m=1;m<=3;m++){updateSliderUI(m);resetFedBtn(m);}
-  dayData={date:todayStr(),meals:[{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0},{fed:false,time:null,wetG:0,dryG:0}]};
-  resetDisplay();
-}
-
-// INIT
-for(var m=1;m<=3;m++)updateSliderUI(m);
-loadDayData();
-checkDayReset();
-loadSettings();
-updateFedButtons();
-scheduleNextMidnight();
+  saveSettings();saveDay();
+  populateSelects();
+  document.getElementById('weight-input').value=settings.weight>0?settings.weight:'';
+  buildMealCards();
+  renderAll();
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden){checkDayReset();renderAll();}
+  });
+  scheduleNextMidnight();
+})();
 </script>
-
 </body>
 </html>
