@@ -43,7 +43,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .weight-unit{font-size:.85rem;color:var(--text-mid);opacity:.7;margin-left:6px;flex-shrink:0}
 
 /* FOOD SELECTS */
-.food-select{width:100%;padding:11px 14px;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;font-family:'Lato',sans-serif;font-size:.95rem;color:var(--text-dark);outline:none;appearance:none;-webkit-appearance:none;
+.food-select{width:100%;padding:11px 36px 11px 14px;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;font-family:'Lato',sans-serif;font-size:1rem;color:var(--text-dark);outline:none;appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a7c4a' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .food-select:focus{border-color:var(--green-mid)}
 .food-gap{margin-top:14px}
@@ -82,7 +82,8 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .extra-type-btn.active{background:var(--green-mid);color:white}
 .extra-grams-wrap{display:flex;align-items:center;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;padding:0 12px;flex:1;min-width:90px}
 .extra-grams-wrap:focus-within{border-color:var(--green-mid)}
-.extra-grams-wrap input{font-family:'Lato',sans-serif;font-size:.95rem;color:var(--text-dark);width:100%;min-width:0;border:none;outline:none;background:transparent;padding:9px 0}
+.extra-grams-wrap input{font-family:'Lato',sans-serif;font-size:1rem;color:var(--text-dark);width:100%;min-width:0;border:none;outline:none;background:transparent;padding:9px 0}
+.extra-grams-wrap.disabled,.extra-type-toggle.disabled{opacity:.45;pointer-events:none}
 .extra-add-btn{background:var(--green-mid);color:white;border-radius:10px;padding:9px 16px;font-size:.85rem;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;display:flex;align-items:center;white-space:nowrap}
 .extra-add-btn.disabled{opacity:.45;pointer-events:none}
 .extra-warn{font-size:.76rem;color:var(--brown-dark);background:rgba(196,149,106,.18);border-radius:8px;padding:7px 11px;margin-top:9px}
@@ -164,6 +165,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .reset-btn{width:100%;padding:11px;background:transparent;color:var(--brown-mid);border:1.5px solid var(--brown-pale);border-radius:12px;font-family:'Lato',sans-serif;font-size:.84rem;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
 .saved{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;color:var(--green-mid);opacity:0;transition:opacity .3s;margin-top:6px}
 .saved.show{opacity:1}
+[role="button"]:focus-visible{outline:2px solid var(--green-mid);outline-offset:2px}
 
 @media(max-width:460px){
   .summary-main,.dt-totals{grid-template-columns:1fr}
@@ -186,10 +188,10 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 <div class="card">
   <div class="card-title">🗓️ Tryb dnia</div>
   <div class="mode-toggle">
-    <div class="mode-btn" id="mode-btn-dom" onclick="setMode('dom')">
+    <div class="mode-btn" id="mode-btn-dom" role="button" tabindex="0" onclick="setMode('dom')">
       <div class="mb-name">🏠 Dom</div><div class="mb-sub">3 posiłki · sucha</div>
     </div>
-    <div class="mode-btn" id="mode-btn-praca" onclick="setMode('praca')">
+    <div class="mode-btn" id="mode-btn-praca" role="button" tabindex="0" onclick="setMode('praca')">
       <div class="mb-name">💼 Praca</div><div class="mb-sub">4 posiłki · 2. mokry</div>
     </div>
   </div>
@@ -203,7 +205,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
     <input id="weight-input" class="weight-field" type="text" inputmode="decimal" placeholder="np. 18" oninput="onWeightChange(this.value)">
     <span class="weight-unit">kg</span>
   </div>
-  <div class="hint">Dawki liczone z tabel wybranych karm. Dla wag pośrednich: interpolacja (Brit) lub wartość przedziału (Belcando).</div>
+  <div class="hint">Dawki liczone z tabel wybranych karm. Wagi pośrednie: interpolacja (Brit) lub wartość przedziału (Belcando).</div>
 </div>
 
 <!-- KARMY -->
@@ -224,15 +226,15 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 <div class="card">
   <div class="card-title">🍖 Ekstra posiłek</div>
   <div class="extra-form">
-    <div class="extra-type-toggle">
-      <div class="extra-type-btn" id="extra-type-mokra" onclick="setExtraType('mokra')">💧 Mokra</div>
-      <div class="extra-type-btn active" id="extra-type-sucha" onclick="setExtraType('sucha')">🌾 Sucha</div>
+    <div class="extra-type-toggle" id="extra-type-toggle">
+      <div class="extra-type-btn" id="extra-type-mokra" role="button" tabindex="0" onclick="setExtraType('mokra')">💧 Mokra</div>
+      <div class="extra-type-btn active" id="extra-type-sucha" role="button" tabindex="0" onclick="setExtraType('sucha')">🌾 Sucha</div>
     </div>
-    <div class="extra-grams-wrap">
+    <div class="extra-grams-wrap" id="extra-grams-wrap">
       <input id="extra-grams" type="text" inputmode="decimal" placeholder="np. 50">
       <span class="weight-unit">g</span>
     </div>
-    <div class="extra-add-btn" id="extra-add" onclick="addExtra()">+ Dodaj</div>
+    <div class="extra-add-btn" id="extra-add" role="button" tabindex="0" onclick="addExtra()">+ Dodaj</div>
   </div>
   <div class="hint">Ekstra porcja liczy się jako podana i proporcjonalnie pomniejsza posiłki jeszcze niepodane.</div>
   <div class="extra-warn" id="extra-warn" style="display:none"></div>
@@ -266,7 +268,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 
 <!-- TABELKI REFERENCYJNE -->
 <div class="ref-card">
-  <div class="ref-toggle" onclick="toggleRef('dry')">
+  <div class="ref-toggle" role="button" tabindex="0" onclick="toggleRef('dry')">
     <div class="ref-title">🌾 <span id="ref-dry-name">Tabela suchej karmy</span></div>
     <span class="ref-arrow" id="arrow-dry">▼</span>
   </div>
@@ -274,14 +276,14 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 </div>
 
 <div class="ref-card">
-  <div class="ref-toggle" onclick="toggleRef('wet')">
+  <div class="ref-toggle" role="button" tabindex="0" onclick="toggleRef('wet')">
     <div class="ref-title">💧 <span id="ref-wet-name">Tabela mokrej karmy</span></div>
     <span class="ref-arrow" id="arrow-wet">▼</span>
   </div>
   <div class="ref-body" id="refbody-wet"><div id="ref-wet-content"></div></div>
 </div>
 
-<div class="reset-btn" onclick="resetAll()">↺ Wyczyść ustawienia</div>
+<div class="reset-btn" role="button" tabindex="0" onclick="resetAll()">↺ Wyczyść ustawienia</div>
 <div class="saved" id="saved">✓ Zapisano</div>
 </div>
 
@@ -325,13 +327,14 @@ function computeDaily(food,kg){
     return null;
   }
   if(food.kind==='bracket-step'){
-    /* konwencja przedziału (lo, hi]: 5 kg -> przedział 3-5, 5.01 kg -> 5-10 */
+    /* konwencja przedziału [lo, hi): waga graniczna należy do wyższego
+       przedziału (18 kg -> 15-20 = 240 g, 20 kg -> już 20-25 = 280 g) */
+    var lastS=food.brackets[food.brackets.length-1];
+    if(kg>lastS[1])return{grams:lastS[2],note:'clamped-high',bracket:[lastS[0],lastS[1]]};
     for(i=0;i<food.brackets.length;i++){
       b=food.brackets[i];
-      if(kg>b[0]&&kg<=b[1])return{grams:b[2],note:null,bracket:[b[0],b[1]]};
+      if(kg>=b[0]&&(kg<b[1]||b===lastS))return{grams:b[2],note:null,bracket:[b[0],b[1]]};
     }
-    b=food.brackets[food.brackets.length-1];
-    if(kg>b[1])return{grams:b[2],note:'clamped-high',bracket:[b[0],b[1]]};
     return null;
   }
   if(food.kind==='bracket-interp'){
@@ -844,7 +847,7 @@ function buildMealCards(){
       +' <span class="type-badge '+(isWet?'tb-wet':'tb-dry')+'">'+(isWet?'💧 MOKRA':'🌾 SUCHA')+'</span></div>'
       +'<div class="meal-badges">'
       +'<div class="meal-total-badge" id="badge-'+id+'">— g</div>'
-      +'<div class="fed-btn" id="fedbtn-'+id+'" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
+      +'<div class="fed-btn" id="fedbtn-'+id+'" role="button" tabindex="0" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
       +'</div></div>'
       +'<div class="share-row"><span class="field-label" style="margin-bottom:0">Udział w dziennej dawce</span>'
       +'<span class="share-pct" id="sharepct-'+id+'">—</span></div>'
@@ -907,6 +910,8 @@ function renderExtraForm(){
   document.getElementById('extra-type-mokra').classList.toggle('active',extraType==='mokra');
   document.getElementById('extra-type-sucha').classList.toggle('active',extraType==='sucha');
   document.getElementById('extra-grams').disabled=!valid;
+  document.getElementById('extra-grams-wrap').classList.toggle('disabled',!valid);
+  document.getElementById('extra-type-toggle').classList.toggle('disabled',!valid);
   document.getElementById('extra-add').classList.toggle('disabled',!valid);
 }
 
@@ -931,7 +936,7 @@ function renderTracker(){
     var ex=day.extras[i];
     chips+='<div class="extra-chip">'+(ex.type==='mokra'?'💧':'🌾')+' '
       +(ex.label?ex.label+' · ':'')+ex.grams+' g'+(ex.time?' · '+ex.time:'')
-      +'<span class="chip-x" onclick="removeExtra(\''+ex.id+'\')" title="Usuń">✕</span></div>';
+      +'<span class="chip-x" role="button" tabindex="0" onclick="removeExtra(\''+ex.id+'\')" title="Usuń">✕</span></div>';
   }
   var cw=document.getElementById('extra-chips');
   cw.innerHTML=chips;
@@ -995,13 +1000,13 @@ function renderFoodTable(food,kg){
     ths='<th>kg</th>';tds='<td>g/dz</td>';
     for(i=0;i<food.brackets.length;i++){
       b=food.brackets[i];
-      hl=kg!=null&&((kg>b[0]&&kg<=b[1])||(i===food.brackets.length-1&&kg>b[1]));
-      var lbl=b[0]===0?'≤'+b[1]:b[0]+'–'+b[1];
+      hl=kg!=null&&(i===food.brackets.length-1?kg>=b[0]:(kg>=b[0]&&kg<b[1]));
+      var lbl=b[0]===0?'<'+b[1]:b[0]+'–'+b[1];
       ths+='<th'+(hl?' class="hl"':'')+'>'+lbl+'</th>';
       tds+='<td'+(hl?' class="hl"':'')+'>'+b[2]+'</td>';
     }
     html='<div class="ref-scroll"><table class="ref-table"><thead><tr>'+ths+'</tr></thead><tbody><tr>'+tds+'</tr></tbody></table></div>'
-      +'<div class="ref-note">Stała wartość w przedziale wagi (kolumna: aktywność normalna).</div>';
+      +'<div class="ref-note">Stała wartość dla całego przedziału wagi, wiernie wg tabeli producenta (kolumna: aktywność normalna). Waga graniczna należy do wyższego przedziału (np. 20 kg → 20–25).</div>';
     return html;
   }
   /* bracket-interp */
@@ -1064,6 +1069,12 @@ function renderAll(){
   renderAll();
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden){checkDayReset();renderAll();}
+  });
+  document.addEventListener('keydown',function(ev){
+    if((ev.key==='Enter'||ev.key===' ')&&ev.target&&ev.target.getAttribute&&ev.target.getAttribute('role')==='button'){
+      ev.preventDefault();
+      ev.target.click();
+    }
   });
   scheduleNextMidnight();
 })();
