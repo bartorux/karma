@@ -143,20 +143,40 @@ const belD = computeDaily(bel, 18).grams; // 240
 let bg = allocateGrams([1 / 3, 1 / 3, 1 / 3], belD);
 eq('Belcando dom: suma posilkow = 240', bg.reduce((a, b) => a + b, 0), 240);
 
+// ---- energie karm i rownowartosc energetyczna (kotwica: tabela suchej) ----
+eq('kcal: Brit sucha 3.93', DRY_FOODS.brit_gastro_dry.kcal, 3.93);
+eq('kcal: Brit mokra 1.02', WET_FOODS.brit_gastro_wet.kcal, 1.02);
+eq('kcal: LowFat 0.775', WET_FOODS.brit_gastro_lowfat_wet.kcal, 0.775);
+assert('kcal: Belcando oznaczone jako szacunek', DRY_FOODS.belcando_salmon.kcalEstimated === true);
+eq('equiv: identycznosc', energyEquivGrams(100, 3.93, 3.93), 100, 1e-12);
+eq('equiv: 184g suchej -> LowFat', energyEquivGrams(184, 3.93, 0.775), 184 * 3.93 / 0.775, 1e-9);
+eq('equiv: 184g suchej -> mokra std ~709 g', energyEquivGrams(184, 3.93, 1.02), 708.94, 0.01);
+
 // ---- scenariusz zlozony: praca 4 posilki, 18 kg, Brit sucha + LowFat ----
 const dryD = computeDaily(britDry, 18).grams;           // 184
-const wetD = computeDaily(wetLF, 18).grams;             // 800 + 8/20*1020 = 1208
+const wetTab = computeDaily(wetLF, 18).grams;           // tabela mokrej (informacyjnie): 1208
+const wetEq = energyEquivGrams(dryD, 3.93, 0.775);      // 933.06 g = energia dziennej suchej
 eq('scenariusz: sucha 18kg = 184', dryD, 184, 1e-9);
-eq('scenariusz: LowFat 18kg = 1208', wetD, 1208, 1e-9);
+eq('scenariusz: LowFat tabela 18kg = 1208', wetTab, 1208, 1e-9);
+eq('scenariusz: LowFat rownowartosc = 933.06', wetEq, 933.058, 0.01);
 let shares = { rano: .25, przedpoludnie: .25, popoludnie: .25, wieczor: .25 };
 const dryG = allocateGrams([shares.rano, shares.popoludnie, shares.wieczor], dryD);
-const wetG = allocateGrams([shares.przedpoludnie], wetD);
+const wetG = allocateGrams([shares.przedpoludnie], wetEq);
 eq('scenariusz: sucha suma = 138', dryG.reduce((a, b) => a + b, 0), 138); // round(184*0.75)
-eq('scenariusz: mokry posilek = 302', wetG[0], 302); // round(1208*0.25)
+eq('scenariusz: mokry posilek = 233', wetG[0], 233); // round(933.06*0.25)
+// zachowanie energii: dzien mieszany = energia czysto suchego dnia (+/- zaokraglenia)
+const kcalMixed = dryG.reduce((a, b) => a + b, 0) * 3.93 + wetG[0] * 0.775;
+const kcalPureDry = dryD * 3.93; // 723.12
+assert('scenariusz: energia mieszana ~= czysto sucha (+/-1.5 kcal)', Math.abs(kcalMixed - kcalPureDry) < 1.5);
 // ekstra 50 g suchej -> e = 50/184
 const e = 50 / dryD;
 ax = applyExtra(shares, ['rano', 'przedpoludnie', 'popoludnie', 'wieczor'], e);
 eq('scenariusz: suma po ekstra', sum(ax.shares, Object.keys(shares)), 1 - e, 1e-9);
+// ekstra mokra 100 g -> udzial liczony z rownowartosci energetycznej
+const eWet = 100 / wetEq;
+ax = applyExtra(shares, ['rano', 'przedpoludnie', 'popoludnie', 'wieczor'], eWet);
+eq('scenariusz: ekstra mokra 100g = ~10.7% dnia', eWet, 0.1072, 0.0005);
+eq('scenariusz: suma po ekstra mokrej', sum(ax.shares, Object.keys(shares)), 1 - eWet, 1e-9);
 
 console.log(failures ? `\n${failures} FAILURES` : '\nALL TESTS PASSED');
 if (failures) throw new Error(failures + ' FAILURES');

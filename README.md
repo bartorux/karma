@@ -34,11 +34,31 @@ wychodzi do sieci.
 
 ## Model dawkowania
 
-Założenie izokaloryczne: dzienna dawka z tabeli każdej karmy pokrywa to samo
-zapotrzebowanie psa, więc **udział posiłku = ułamek dziennego zapotrzebowania**,
-a gramy = `udział × dawkaDzienna(karmy danego typu)`. Udziały to floaty
-sumujące się do 1 (minus udziały ekstra) — są jedynym źródłem prawdy, pozycje
-suwaków to ich zaokrąglona projekcja.
+**Kotwica kaloryczna — tabela suchej karmy wyznacza dzienny cel energetyczny.**
+Tabele producenta dla suchej i mokrej karmy nie są między sobą równoważne
+energetycznie (dla psa 18 kg: sucha Brit VD GI ≈ 723 kcal/dzień, mokre tabele
+≈ 935 kcal/dzień — różnica ~30%). Dlatego:
+
+- **udział posiłku = ułamek dziennego celu energetycznego** (cel = dawka
+  z tabeli suchej × jej energia),
+- posiłek suchy: `gramy = udział × dawkaDziennaSuchej` (wprost z tabeli),
+- posiłek mokry: `gramy = udział × dawkaDziennaSuchej × kcalSuchej / kcalMokrej`
+  — równowartość energetyczna, nie tabela mokrej.
+
+Dzień mieszany ma dzięki temu zawsze tyle samo kalorii co czysto suchy.
+Tabela mokrej karmy jest pokazywana informacyjnie w podsumowaniu i tabelkach.
+
+Energie metaboliczne (dane producenta, [britvetdiets.com](https://britvetdiets.com/diets/31-gastrointestinal)):
+
+| Karma | ME |
+|---|---|
+| Brit VD GF Gastrointestinal sucha | 3930 kcal/kg |
+| Brit VD GF Gastrointestinal mokra 400 g | 1020 kcal/kg |
+| Brit VD GF GI Low Fat mokra 400 g | 775 kcal/kg |
+| Belcando Mastercraft Fresh Salmon | ~3560 kcal/kg (szacunek ze składu analitycznego — producent nie publikuje ME; aplikacja pokazuje wtedy notkę) |
+
+Udziały to floaty sumujące się do 1 (minus udziały ekstra) — są jedynym
+źródłem prawdy, pozycje suwaków i pola gramów to ich zaokrąglona projekcja.
 
 Gramy per posiłek są rozdzielane **metodą największych reszt** w obrębie grupy
 typu karmy, żeby suma posiłków była równa zaokrąglonej dawce dziennej.
