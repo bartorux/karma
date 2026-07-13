@@ -1,8 +1,9 @@
 # 🐾 Co dziś w misce?
 
 Jednoplikowa aplikacja webowa (czysty HTML/CSS/JS, bez zależności) do planowania
-dziennych porcji karmy dla psa według tabel dawkowania producentów.
-Działa na GitHub Pages: **https://bartorux.github.io/karma/**
+dziennych porcji karmy dla psa według tabel dawkowania producentów i ich
+energii metabolicznych. Działa na GitHub Pages:
+**https://bartorux.github.io/karma/**
 
 Dane trzymane są wyłącznie lokalnie w przeglądarce (`localStorage`) — nic nie
 wychodzi do sieci.
@@ -29,8 +30,8 @@ wychodzi do sieci.
   „Odchudzanie" niżej).
 - **Dziennik dnia** — czas podania, sumy mokrej/suchej, postęp x/N,
   automatyczny reset o północy (ustawienia zostają).
-- **Tabelki referencyjne** wybranych karm z podświetleniem wiersza dla
-  aktualnej wagi.
+- **Tabelki referencyjne** wybranych karm z podświetleniem wiersza dla wagi,
+  z której liczone są dawki (docelowej, gdy jest ustawiona).
 
 ## Model dawkowania
 
@@ -80,7 +81,9 @@ obowiązuje tylko do końca dnia.
 
 ### Ekstra posiłek
 
-`e = gramy / dawkaDzienna(typu)`; od niepodanych odejmowane proporcjonalnie
+`e = gramy / dawkaDzienna(typu)` — dla suchej dawka wprost z tabeli, dla
+mokrej równowartość energetyczna celu (jak przy posiłkach mokrych);
+od niepodanych odejmowane proporcjonalnie
 (`factor = max(0, (S − e)/S)`), z zapisem dokładnych odjęć per posiłek
 (`deductions`) — dzięki temu usunięcie ekstra jest wiernie odwracalne.
 Nadwyżka ponad budżet dnia (`overshoot`) wyświetla ostrzeżenie o przekroczeniu
@@ -98,7 +101,7 @@ odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
 |---|---|---|
 | Brit VD GF Gastrointestinal (sucha) | punkty wagowe 2–80 kg | interpolacja liniowa między punktami; poza zakresem wartość skrajna + ostrzeżenie |
 | Belcando Mastercraft Fresh Salmon | przedziały wagowe (kolumna „aktywność normalna") | **stała wartość dla całego przedziału**, wiernie wg producenta; konwencja `[lo, hi)` — waga graniczna należy do wyższego przedziału (18 kg → 15–20 → 240 g, ale 20 kg → 20–25 → 280 g); powyżej 80 kg wartość skrajna + ostrzeżenie |
-| Brit VD mokre (obie) | przedziały 5–60 kg z zakresem gramatur | interpolacja liniowa wewnątrz przedziału; poza 5–60 kg ekstrapolacja nachyleniem skrajnego przedziału + ostrzeżenie „wartość szacunkowa" |
+| Brit VD mokre (obie) | przedziały 5–60 kg z zakresem gramatur | **tylko informacyjnie** — gramatura posiłków mokrych wynika z kotwicy kalorycznej, nie z tej tabeli; wartość informacyjna interpolowana liniowo wewnątrz przedziału, poza 5–60 kg ekstrapolowana i oznaczana „(poza tabelą)" |
 
 ## localStorage
 
@@ -113,6 +116,7 @@ odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
   shares:{ rano:f, ... },                      // dzisiejsze efektywne udziały
   meals:{ rano:{fed,time,wetG,dryG}|null, ... },
   extras:[ {id,type,grams,time,share,deductions:[{mealId,amount}],overshoot,label} ] }
+  // share = ułamek dziennego celu energetycznego w chwili dodania ekstra
 ```
 
 Przy pierwszym uruchomieniu nowej wersji stare klucze `brit_v5` (waga)
@@ -129,13 +133,14 @@ Czysta matematyka dawkowania (blok między `/*TESTABLE-START*/`
 a `/*TESTABLE-END*/` w `index.html`) jest testowana bez przeglądarki:
 
 ```
-node tests/test-math.js          # Node.js
-osascript -l JavaScript tests/test-math-jxa.js   # macOS bez Node
+node tests/test-math.js                          # Node.js
+osascript -l JavaScript tests/test-math-jxa.js   # macOS bez Node (z katalogu repo)
 ```
 
 Testy pokrywają wartości referencyjne tabel, granice przedziałów,
 bilansowanie suwaków (w tym suwak na 100% i z powrotem), ekstra posiłki
-z wiernym cofaniem oraz zaokrąglanie gramów.
+z wiernym cofaniem, zaokrąglanie gramów oraz kotwicę kaloryczną
+(równowartość energetyczna mokrej i bilans energii dnia mieszanego).
 
 ## Odchudzanie — jak liczy aplikacja i dlaczego
 
@@ -153,10 +158,11 @@ Zgodnie z wytycznymi weterynaryjnymi (AAHA, VCA, Cornell, APOP):
 4. **Duża redukcja = weterynarz** — cel poniżej 80% aktualnej wagi wyświetla
    osobne ostrzeżenie (redukcja >20% masy powinna przebiegać pod nadzorem).
 
-Aplikacja świadomie nie liczy kalorii (RER/MER) — operuje wyłącznie tabelami
-producentów, więc mechanizmem redukcji jest tabela odczytana dla wagi
-docelowej. Karma Brit VD GF Gastrointestinal **Low Fat** ma obniżoną
-kaloryczność i dobrze pasuje do planów redukcyjnych.
+Aplikacja nie wylicza zapotrzebowania RER/MER — mechanizmem redukcji jest
+tabela producenta odczytana dla wagi docelowej (energie karm służą tylko do
+przeliczania mokrej na równowartość suchej, patrz „Model dawkowania").
+Karma Brit VD GF Gastrointestinal **Low Fat** ma obniżoną kaloryczność
+(775 kcal/kg) i dobrze pasuje do planów redukcyjnych.
 
 Źródła: [AAHA Weight Management Guidelines](https://www.aaha.org/resources/2021-aaha-nutrition-and-weight-management-guidelines/weight-reduction-in-the-obese-pet/),
 [VCA — Creating a Weight Reduction Plan for Dogs](https://vcahospitals.com/know-your-pet/creating-a-weight-reduction-plan-for-dogs),
