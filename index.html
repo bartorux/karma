@@ -57,7 +57,10 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .type-badge.tb-dry{background:rgba(139,94,60,.14);color:var(--brown-dark)}
 .type-badge.tb-wet{background:rgba(74,124,74,.16);color:var(--green-deep)}
 .meal-badges{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.meal-total-badge{font-size:.8rem;font-weight:700;background:var(--green-mist);color:var(--green-deep);border:1.5px solid var(--green-pale);border-radius:20px;padding:4px 12px;white-space:nowrap}
+.meal-total-badge{display:flex;align-items:center;gap:3px;font-size:.8rem;font-weight:700;background:var(--green-mist);color:var(--green-deep);border:1.5px solid var(--green-pale);border-radius:20px;padding:3px 12px;white-space:nowrap}
+.meal-total-badge:focus-within{border-color:var(--green-mid)}
+.meal-grams-field{width:48px;font-family:'Lato',sans-serif;font-size:1rem;font-weight:700;color:var(--green-deep);text-align:right;border:none;outline:none;background:transparent;padding:0;caret-color:var(--green-mid)}
+.meal-grams-field:disabled{opacity:.7}
 .fed-btn{background:white;color:var(--text-mid);border:1.5px solid var(--green-pale);border-radius:20px;padding:4px 12px;font-family:'Lato',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
 .fed-btn.done{background:var(--green-mid);border-color:var(--green-mid);color:white}
 .fed-btn.disabled{opacity:.45;pointer-events:none}
@@ -452,7 +455,7 @@ var settings=defaultSettings();
 var day=null;
 var computed=null;
 var extraType='sucha';
-var draggingId=null;
+var draggingId=null,editingGramsId=null;
 var savedTimer=null,extraWarnTimer=null;
 
 function defaultSettings(){
@@ -761,6 +764,28 @@ function onShareCommit(id){
   flashSaved();
 }
 
+/* Dokładne wpisanie gramów posiłku: przeliczane na udział
+   (g / dawkaDzienna typu) i bilansowane jak suwak. */
+function onGramsInput(id,val){
+  checkDayReset();
+  var m=day.meals[id];
+  if(m&&m.fed)return;
+  if(!computed||!computed.valid)return;
+  var g=parseFloat(String(val).replace(',','.'));
+  if(!isFinite(g)||g<0)return;
+  var t=computed.mealTypes[id];
+  var daily=t==='mokra'?computed.wet:computed.dry;
+  if(!daily||!(daily.grams>0))return;
+  editingGramsId=id;
+  day.shares=rebalanceShares(day.shares,unfedMealIds(),id,g/daily.grams);
+  computed=compute();
+  updateMeals();renderTracker();renderSummary();
+}
+function onGramsCommit(id){
+  editingGramsId=null;
+  onShareCommit(id);
+}
+
 function toggleFed(id){
   checkDayReset();
   var m=day.meals[id];
@@ -874,7 +899,8 @@ function buildMealCards(){
       +'<div class="meal-title">'+meta.icon+' '+meta.name
       +' <span class="type-badge '+(isWet?'tb-wet':'tb-dry')+'">'+(isWet?'💧 MOKRA':'🌾 SUCHA')+'</span></div>'
       +'<div class="meal-badges">'
-      +'<div class="meal-total-badge" id="badge-'+id+'">— g</div>'
+      +'<div class="meal-total-badge"><input type="text" inputmode="numeric" class="meal-grams-field" id="grams-'+id+'" placeholder="—"'
+      +' oninput="onGramsInput(\''+id+'\',this.value)" onchange="onGramsCommit(\''+id+'\')"><span>g</span></div>'
       +'<div class="fed-btn" id="fedbtn-'+id+'" role="button" tabindex="0" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
       +'</div></div>'
       +'<div class="share-row"><span class="field-label" style="margin-bottom:0">Udział w dziennej dawce</span>'
@@ -900,7 +926,7 @@ function updateMeals(){
     var id=mode.mealIds[i];
     var m=day.meals[id],fed=!!(m&&m.fed);
     var card=document.getElementById('meal-'+id);
-    var badge=document.getElementById('badge-'+id);
+    var gramsEl=document.getElementById('grams-'+id);
     var btn=document.getElementById('fedbtn-'+id);
     var slider=document.getElementById('range-'+id);
     var pct=Math.round((day.shares[id]||0)*100);
@@ -914,12 +940,14 @@ function updateMeals(){
       btn.classList.add('done');
       btn.classList.remove('disabled');
       btn.textContent='✓ '+(m.time||'');
-      badge.textContent=Math.round(m.wetG+m.dryG)+' g';
+      gramsEl.disabled=true;
+      if(id!==editingGramsId)gramsEl.value=Math.round(m.wetG+m.dryG);
     }else{
       btn.classList.remove('done');
       btn.classList.toggle('disabled',!c.valid);
       btn.textContent='✓ Podano';
-      badge.textContent=c.valid?((c.mealGrams[id]||0)+' g'):'— g';
+      gramsEl.disabled=!c.valid;
+      if(id!==editingGramsId)gramsEl.value=c.valid?(c.mealGrams[id]||0):'';
     }
   }
   document.getElementById('dayonly-note').style.display=day.extras.length>0?'block':'none';

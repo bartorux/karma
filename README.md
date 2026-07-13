@@ -18,6 +18,9 @@ wychodzi do sieci.
 - **Suwaki udziału** — każdy posiłek ma udział w dziennej dawce; przesunięcie
   jednego suwaka proporcjonalnie bilansuje pozostałe (suma zawsze 100%).
   Posiłki oznaczone „Podano" są zamrożone i nie podlegają bilansowaniu.
+- **Dokładne gramy** — gramaturę posiłku można też wpisać z klawiatury
+  (pole obok nazwy posiłku); wpisana wartość jest przeliczana na udział
+  i bilansuje resztę dnia tak samo jak suwak.
 - **Ekstra posiłek** — dowolna gramatura, mokra lub sucha; liczy się jako
   podany i proporcjonalnie pomniejsza posiłki jeszcze niepodane. Usunięcie
   ekstra przywraca dokładnie odjęte udziały.
