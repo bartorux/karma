@@ -43,7 +43,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .weight-unit{font-size:.85rem;color:var(--text-mid);opacity:.7;margin-left:6px;flex-shrink:0}
 
 /* FOOD SELECTS */
-.food-select{width:100%;padding:11px 14px;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;font-family:'Lato',sans-serif;font-size:.95rem;color:var(--text-dark);outline:none;appearance:none;-webkit-appearance:none;
+.food-select{width:100%;padding:11px 36px 11px 14px;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;font-family:'Lato',sans-serif;font-size:1rem;color:var(--text-dark);outline:none;appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a7c4a' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .food-select:focus{border-color:var(--green-mid)}
 .food-gap{margin-top:14px}
@@ -57,7 +57,10 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .type-badge.tb-dry{background:rgba(139,94,60,.14);color:var(--brown-dark)}
 .type-badge.tb-wet{background:rgba(74,124,74,.16);color:var(--green-deep)}
 .meal-badges{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.meal-total-badge{font-size:.8rem;font-weight:700;background:var(--green-mist);color:var(--green-deep);border:1.5px solid var(--green-pale);border-radius:20px;padding:4px 12px;white-space:nowrap}
+.meal-total-badge{display:flex;align-items:center;gap:3px;font-size:.8rem;font-weight:700;background:var(--green-mist);color:var(--green-deep);border:1.5px solid var(--green-pale);border-radius:20px;padding:3px 12px;white-space:nowrap}
+.meal-total-badge:focus-within{border-color:var(--green-mid)}
+.meal-grams-field{width:48px;font-family:'Lato',sans-serif;font-size:1rem;font-weight:700;color:var(--green-deep);text-align:right;border:none;outline:none;background:transparent;padding:0;caret-color:var(--green-mid)}
+.meal-grams-field:disabled{opacity:.7}
 .fed-btn{background:white;color:var(--text-mid);border:1.5px solid var(--green-pale);border-radius:20px;padding:4px 12px;font-family:'Lato',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
 .fed-btn.done{background:var(--green-mid);border-color:var(--green-mid);color:white}
 .fed-btn.disabled{opacity:.45;pointer-events:none}
@@ -82,7 +85,8 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .extra-type-btn.active{background:var(--green-mid);color:white}
 .extra-grams-wrap{display:flex;align-items:center;background:var(--green-mist);border:1.5px solid var(--green-pale);border-radius:10px;padding:0 12px;flex:1;min-width:90px}
 .extra-grams-wrap:focus-within{border-color:var(--green-mid)}
-.extra-grams-wrap input{font-family:'Lato',sans-serif;font-size:.95rem;color:var(--text-dark);width:100%;min-width:0;border:none;outline:none;background:transparent;padding:9px 0}
+.extra-grams-wrap input{font-family:'Lato',sans-serif;font-size:1rem;color:var(--text-dark);width:100%;min-width:0;border:none;outline:none;background:transparent;padding:9px 0}
+.extra-grams-wrap.disabled,.extra-type-toggle.disabled{opacity:.45;pointer-events:none}
 .extra-add-btn{background:var(--green-mid);color:white;border-radius:10px;padding:9px 16px;font-size:.85rem;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;display:flex;align-items:center;white-space:nowrap}
 .extra-add-btn.disabled{opacity:.45;pointer-events:none}
 .extra-warn{font-size:.76rem;color:var(--brown-dark);background:rgba(196,149,106,.18);border-radius:8px;padding:7px 11px;margin-top:9px}
@@ -164,6 +168,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .reset-btn{width:100%;padding:11px;background:transparent;color:var(--brown-mid);border:1.5px solid var(--brown-pale);border-radius:12px;font-family:'Lato',sans-serif;font-size:.84rem;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
 .saved{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.7rem;color:var(--green-mid);opacity:0;transition:opacity .3s;margin-top:6px}
 .saved.show{opacity:1}
+[role="button"]:focus-visible{outline:2px solid var(--green-mid);outline-offset:2px}
 
 @media(max-width:460px){
   .summary-main,.dt-totals{grid-template-columns:1fr}
@@ -186,10 +191,10 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 <div class="card">
   <div class="card-title">🗓️ Tryb dnia</div>
   <div class="mode-toggle">
-    <div class="mode-btn" id="mode-btn-dom" onclick="setMode('dom')">
+    <div class="mode-btn" id="mode-btn-dom" role="button" tabindex="0" onclick="setMode('dom')">
       <div class="mb-name">🏠 Dom</div><div class="mb-sub">3 posiłki · sucha</div>
     </div>
-    <div class="mode-btn" id="mode-btn-praca" onclick="setMode('praca')">
+    <div class="mode-btn" id="mode-btn-praca" role="button" tabindex="0" onclick="setMode('praca')">
       <div class="mb-name">💼 Praca</div><div class="mb-sub">4 posiłki · 2. mokry</div>
     </div>
   </div>
@@ -203,7 +208,12 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
     <input id="weight-input" class="weight-field" type="text" inputmode="decimal" placeholder="np. 18" oninput="onWeightChange(this.value)">
     <span class="weight-unit">kg</span>
   </div>
-  <div class="hint">Dawki liczone z tabel wybranych karm. Dla wag pośrednich: interpolacja (Brit) lub wartość przedziału (Belcando).</div>
+  <span class="field-label food-gap">🎯 Waga docelowa (kg) — opcjonalnie, odchudzanie</span>
+  <div class="weight-input-wrap" onclick="document.getElementById('target-input').focus()">
+    <input id="target-input" class="weight-field" type="text" inputmode="decimal" placeholder="np. 16" oninput="onTargetChange(this.value)">
+    <span class="weight-unit">kg</span>
+  </div>
+  <div class="hint">Dawki liczone z tabel wybranych karm. Wagi pośrednie: interpolacja (Brit) lub wartość przedziału (Belcando). Gdy podasz wagę docelową, wszystkie dawki liczone są dla niej — tak zalecają wytyczne weterynaryjne przy odchudzaniu.</div>
 </div>
 
 <!-- KARMY -->
@@ -213,7 +223,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
   <select id="dry-select" class="food-select" onchange="onFoodChange('dry',this.value)"></select>
   <span class="field-label food-gap">💧 Mokra karma</span>
   <select id="wet-select" class="food-select" onchange="onFoodChange('wet',this.value)"></select>
-  <div class="hint">Wybór zapamiętuje się automatycznie do następnej zmiany.</div>
+  <div class="hint">Wybór zapamiętuje się automatycznie. Posiłki mokre liczone są energetycznie względem tabeli suchej — dzień mieszany ma tyle samo kalorii co czysto suchy.</div>
 </div>
 
 <!-- POSIŁKI (renderowane dynamicznie) -->
@@ -224,15 +234,15 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 <div class="card">
   <div class="card-title">🍖 Ekstra posiłek</div>
   <div class="extra-form">
-    <div class="extra-type-toggle">
-      <div class="extra-type-btn" id="extra-type-mokra" onclick="setExtraType('mokra')">💧 Mokra</div>
-      <div class="extra-type-btn active" id="extra-type-sucha" onclick="setExtraType('sucha')">🌾 Sucha</div>
+    <div class="extra-type-toggle" id="extra-type-toggle">
+      <div class="extra-type-btn" id="extra-type-mokra" role="button" tabindex="0" onclick="setExtraType('mokra')">💧 Mokra</div>
+      <div class="extra-type-btn active" id="extra-type-sucha" role="button" tabindex="0" onclick="setExtraType('sucha')">🌾 Sucha</div>
     </div>
-    <div class="extra-grams-wrap">
+    <div class="extra-grams-wrap" id="extra-grams-wrap">
       <input id="extra-grams" type="text" inputmode="decimal" placeholder="np. 50">
       <span class="weight-unit">g</span>
     </div>
-    <div class="extra-add-btn" id="extra-add" onclick="addExtra()">+ Dodaj</div>
+    <div class="extra-add-btn" id="extra-add" role="button" tabindex="0" onclick="addExtra()">+ Dodaj</div>
   </div>
   <div class="hint">Ekstra porcja liczy się jako podana i proporcjonalnie pomniejsza posiłki jeszcze niepodane.</div>
   <div class="extra-warn" id="extra-warn" style="display:none"></div>
@@ -266,7 +276,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 
 <!-- TABELKI REFERENCYJNE -->
 <div class="ref-card">
-  <div class="ref-toggle" onclick="toggleRef('dry')">
+  <div class="ref-toggle" role="button" tabindex="0" onclick="toggleRef('dry')">
     <div class="ref-title">🌾 <span id="ref-dry-name">Tabela suchej karmy</span></div>
     <span class="ref-arrow" id="arrow-dry">▼</span>
   </div>
@@ -274,14 +284,14 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 </div>
 
 <div class="ref-card">
-  <div class="ref-toggle" onclick="toggleRef('wet')">
+  <div class="ref-toggle" role="button" tabindex="0" onclick="toggleRef('wet')">
     <div class="ref-title">💧 <span id="ref-wet-name">Tabela mokrej karmy</span></div>
     <span class="ref-arrow" id="arrow-wet">▼</span>
   </div>
   <div class="ref-body" id="refbody-wet"><div id="ref-wet-content"></div></div>
 </div>
 
-<div class="reset-btn" onclick="resetAll()">↺ Wyczyść ustawienia</div>
+<div class="reset-btn" role="button" tabindex="0" onclick="resetAll()">↺ Wyczyść ustawienia</div>
 <div class="saved" id="saved">✓ Zapisano</div>
 </div>
 
@@ -295,16 +305,19 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
    zaokrąglona projekcja.
    ============================================================ */
 /*TESTABLE-START*/
+/* kcal = energia metaboliczna w kcal/g. Brit: dane producenta (britvetdiets.com).
+   Belcando nie publikuje ME — wartość oszacowana ze składu analitycznego
+   (zmodyfikowany wzór Atwatera), stąd kcalEstimated. */
 var DRY_FOODS={
-  brit_gastro_dry:{name:'Brit VD GF Gastrointestinal (sucha)',shortName:'Brit VD Gastro',kind:'points-interp',
+  brit_gastro_dry:{name:'Brit VD GF Gastrointestinal (sucha)',shortName:'Brit VD Gastro',kind:'points-interp',kcal:3.93,
     points:[[2,30],[5,70],[10,120],[15,160],[20,200],[25,240],[30,270],[40,340],[50,400],[60,460],[70,510],[80,570]]},
-  belcando_salmon:{name:'Belcando Mastercraft Fresh Salmon (sucha)',shortName:'Belcando Mastercraft',kind:'bracket-step',
+  belcando_salmon:{name:'Belcando Mastercraft Fresh Salmon (sucha)',shortName:'Belcando Mastercraft',kind:'bracket-step',kcal:3.56,kcalEstimated:true,
     brackets:[[0,3,60],[3,5,80],[5,10,140],[10,15,190],[15,20,240],[20,25,280],[25,35,360],[35,50,470],[50,65,580],[65,80,680]]}
 };
 var WET_FOODS={
-  brit_gastro_wet:{name:'Brit VD GF Gastrointestinal 400 g (mokra)',shortName:'Brit VD Gastro',kind:'bracket-interp',
+  brit_gastro_wet:{name:'Brit VD GF Gastrointestinal 400 g (mokra)',shortName:'Brit VD Gastro',kind:'bracket-interp',kcal:1.02,
     brackets:[[5,10,360,605],[10,30,605,1380],[30,60,1380,2320]]},
-  brit_gastro_lowfat_wet:{name:'Brit VD GF Gastrointestinal Low Fat 400 g (mokra)',shortName:'Brit VD Low Fat',kind:'bracket-interp',
+  brit_gastro_lowfat_wet:{name:'Brit VD GF Gastrointestinal Low Fat 400 g (mokra)',shortName:'Brit VD Low Fat',kind:'bracket-interp',kcal:0.775,
     brackets:[[5,10,475,800],[10,30,800,1820],[30,60,1820,3060]]}
 };
 
@@ -325,13 +338,14 @@ function computeDaily(food,kg){
     return null;
   }
   if(food.kind==='bracket-step'){
-    /* konwencja przedziału (lo, hi]: 5 kg -> przedział 3-5, 5.01 kg -> 5-10 */
+    /* konwencja przedziału [lo, hi): waga graniczna należy do wyższego
+       przedziału (18 kg -> 15-20 = 240 g, 20 kg -> już 20-25 = 280 g) */
+    var lastS=food.brackets[food.brackets.length-1];
+    if(kg>lastS[1])return{grams:lastS[2],note:'clamped-high',bracket:[lastS[0],lastS[1]]};
     for(i=0;i<food.brackets.length;i++){
       b=food.brackets[i];
-      if(kg>b[0]&&kg<=b[1])return{grams:b[2],note:null,bracket:[b[0],b[1]]};
+      if(kg>=b[0]&&(kg<b[1]||b===lastS))return{grams:b[2],note:null,bracket:[b[0],b[1]]};
     }
-    b=food.brackets[food.brackets.length-1];
-    if(kg>b[1])return{grams:b[2],note:'clamped-high',bracket:[b[0],b[1]]};
     return null;
   }
   if(food.kind==='bracket-interp'){
@@ -422,6 +436,14 @@ function allocateGrams(fracs,D){
   for(i=0;i<rem;i++)out[order[i%order.length][1]]++;
   return out;
 }
+
+/* Równowartość energetyczna: ile gramów karmy docelowej pokrywa tę samą
+   energię co `grams` karmy źródłowej. Kotwica kaloryczna dni mieszanych:
+   dzienny cel energetyczny wyznacza tabela SUCHEJ karmy, a gramatura mokrych
+   posiłków wynika z jej energii, nie z tabeli mokrej. */
+function energyEquivGrams(grams,fromKcalPerG,toKcalPerG){
+  return grams*fromKcalPerG/toKcalPerG;
+}
 /*TESTABLE-END*/
 
 /* ============================================================
@@ -444,11 +466,11 @@ var settings=defaultSettings();
 var day=null;
 var computed=null;
 var extraType='sucha';
-var draggingId=null;
+var draggingId=null,editingGramsId=null;
 var savedTimer=null,extraWarnTimer=null;
 
 function defaultSettings(){
-  return{v:6,weight:null,dryFoodId:'brit_gastro_dry',wetFoodId:'brit_gastro_wet',mode:'dom',
+  return{v:6,weight:null,targetWeight:null,dryFoodId:'brit_gastro_dry',wetFoodId:'brit_gastro_wet',mode:'dom',
     shares:{dom:[1/3,1/3,1/3],praca:[0.25,0.25,0.25,0.25]}};
 }
 function pad2(n){return(n<10?'0':'')+n}
@@ -493,6 +515,7 @@ function loadSettings(){
     var d=JSON.parse(localStorage.getItem(LS_SET));
     if(d&&typeof d==='object'){
       if(typeof d.weight==='number'&&isFinite(d.weight)&&d.weight>0)s.weight=d.weight;
+      if(typeof d.targetWeight==='number'&&isFinite(d.targetWeight)&&d.targetWeight>0)s.targetWeight=d.targetWeight;
       if(DRY_FOODS[d.dryFoodId])s.dryFoodId=d.dryFoodId;
       if(WET_FOODS[d.wetFoodId])s.wetFoodId=d.wetFoodId;
       if(MODES[d.mode])s.mode=d.mode;
@@ -570,23 +593,31 @@ function migrate(){
    WARSTWA OBLICZEŃ (czysta — bez DOM)
    ============================================================ */
 function compute(){
-  var kg=settings.weight;
+  /* odchudzanie: gdy ustawiona waga docelowa, dawki liczone dla niej,
+     nie dla aktualnej (zalecenie weterynaryjne) */
+  var realKg=settings.weight,targetKg=settings.targetWeight;
+  var dietActive=!!(targetKg&&targetKg>0);
+  var kg=dietActive?targetKg:realKg;
   var mode=MODES[settings.mode];
   var valid=!!(kg&&kg>0);
-  var dry=valid?computeDaily(DRY_FOODS[settings.dryFoodId],kg):null;
-  var wet=valid?computeDaily(WET_FOODS[settings.wetFoodId],kg):null;
+  var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId];
+  var dry=valid?computeDaily(dryFood,kg):null;
+  var wetTable=valid?computeDaily(wetFood,kg):null;
+  var dryDailyG=(dry&&dry.grams>0)?dry.grams:null;
+  var dailyKcal=dryDailyG?dryDailyG*dryFood.kcal:null;
+  var wetDailyG=dryDailyG?energyEquivGrams(dryDailyG,dryFood.kcal,wetFood.kcal):null;
   var mealTypes={},mealGrams={},dryIds=[],wetIds=[],i,id;
   for(i=0;i<mode.mealIds.length;i++){
     id=mode.mealIds[i];
     mealTypes[id]=(id===mode.wetMealId)?'mokra':'sucha';
     (mealTypes[id]==='mokra'?wetIds:dryIds).push(id);
   }
-  if(valid&&dry){
-    var dg=allocateGrams(dryIds.map(function(x){return day.shares[x]||0}),dry.grams);
+  if(valid&&dryDailyG){
+    var dg=allocateGrams(dryIds.map(function(x){return day.shares[x]||0}),dryDailyG);
     for(i=0;i<dryIds.length;i++)mealGrams[dryIds[i]]=dg[i];
   }
-  if(valid&&wet&&wetIds.length){
-    var wg=allocateGrams(wetIds.map(function(x){return day.shares[x]||0}),wet.grams);
+  if(valid&&wetDailyG&&wetIds.length){
+    var wg=allocateGrams(wetIds.map(function(x){return day.shares[x]||0}),wetDailyG);
     for(i=0;i<wetIds.length;i++)mealGrams[wetIds[i]]=wg[i];
   }
   var givenDry=0,givenWet=0,fedCount=0,remDry=0,remWet=0;
@@ -609,13 +640,24 @@ function compute(){
   var warnings=[];
   if(valid&&dry&&dry.note)
     warnings.push('⚠️ Waga poza tabelą suchej karmy — przyjęto wartość skrajną ('+Math.round(dry.grams)+' g/dzień).');
-  if(valid&&wet&&wet.note==='extrapolated'&&wetInUse)
-    warnings.push('⚠️ Waga poza tabelą mokrej karmy (5–60 kg) — dawka mokra jest szacunkowa.');
-  var overshoot=0;
-  for(i=0;i<day.extras.length;i++)overshoot+=num(day.extras[i].overshoot);
+  if(valid&&wetInUse&&dryFood.kcalEstimated)
+    warnings.push('ℹ️ Energia karmy suchej szacowana ze składu (producent nie publikuje ME) — dawki mokre przybliżone.');
+  var overshoot=0,extraShareSum=0;
+  for(i=0;i<day.extras.length;i++){
+    overshoot+=num(day.extras[i].overshoot);
+    extraShareSum+=num(day.extras[i].share);
+  }
   if(overshoot>0.005)
     warnings.push('⚠️ Ekstra posiłki przekraczają dzienną dawkę o ~'+Math.round(overshoot*100)+'%.');
-  return{valid:valid,kg:kg,dry:dry,wet:wet,mealTypes:mealTypes,mealGrams:mealGrams,
+  if(dietActive&&realKg>0&&targetKg>=realKg)
+    warnings.push('ℹ️ Waga docelowa nie jest mniejsza od aktualnej — dawkowanie i tak liczone dla docelowej.');
+  if(dietActive&&realKg>0&&targetKg<realKg*0.8)
+    warnings.push('⚠️ Cel poniżej 80% aktualnej wagi — tak dużą redukcję prowadź pod kontrolą weterynarza.');
+  if(dietActive&&extraShareSum>0.10)
+    warnings.push('⚠️ Ekstra posiłki to ponad 10% dziennej dawki — przy odchudzaniu przysmaki ogranicz do maks. 10%.');
+  return{valid:valid,kg:kg,realKg:realKg,targetKg:targetKg,dietActive:dietActive,
+    dry:dry,wetTable:wetTable,dryDailyG:dryDailyG,wetDailyG:wetDailyG,dailyKcal:dailyKcal,
+    mealTypes:mealTypes,mealGrams:mealGrams,
     givenDry:Math.round(givenDry),givenWet:Math.round(givenWet),remDry:remDry,remWet:remWet,
     fedCount:fedCount,N:mode.mealIds.length,wetInUse:wetInUse,warnings:warnings};
 }
@@ -646,6 +688,13 @@ function onWeightChange(val){
   checkDayReset();
   var kg=parseFloat(String(val).replace(',','.'));
   settings.weight=(isFinite(kg)&&kg>0)?kg:null;
+  saveSettings();flashSaved();
+  renderAll();
+}
+function onTargetChange(val){
+  checkDayReset();
+  var kg=parseFloat(String(val).replace(',','.'));
+  settings.targetWeight=(isFinite(kg)&&kg>0)?kg:null;
   saveSettings();flashSaved();
   renderAll();
 }
@@ -686,11 +735,21 @@ function reconcileDayToMode(nm){
   day.meals=meals;
   rebuildDayShares();
 }
+/* Dzienna gramatura pokrywająca 100% zapotrzebowania dla danego typu karmy
+   (sucha: tabela; mokra: równowartość energetyczna celu z tabeli suchej). */
+function dailyAllowanceFor(type){
+  var kg=(settings.targetWeight>0)?settings.targetWeight:settings.weight;
+  if(!(kg>0))return null;
+  var dryFood=DRY_FOODS[settings.dryFoodId];
+  var d=computeDaily(dryFood,kg);
+  if(!d||!(d.grams>0))return null;
+  if(type==='sucha')return d.grams;
+  return energyEquivGrams(d.grams,dryFood.kcal,WET_FOODS[settings.wetFoodId].kcal);
+}
 function orphanExtra(type,grams,time,label){
-  var food=type==='mokra'?WET_FOODS[settings.wetFoodId]:DRY_FOODS[settings.dryFoodId];
-  var daily=settings.weight>0?computeDaily(food,settings.weight):null;
+  var daily=dailyAllowanceFor(type);
   return{id:genId(),type:type,grams:Math.round(grams),time:time||'',
-    share:(daily&&daily.grams>0)?grams/daily.grams:0,deductions:[],overshoot:0,label:label};
+    share:(daily&&daily>0)?grams/daily:0,deductions:[],overshoot:0,label:label};
 }
 /* Odbudowa dzisiejszych udziałów: domyślne z ustawień + ponowne nałożenie
    wszystkich ekstra (z przeliczeniem ich deductions). */
@@ -731,6 +790,28 @@ function onShareCommit(id){
   flashSaved();
 }
 
+/* Dokładne wpisanie gramów posiłku: przeliczane na udział
+   (g / dawkaDzienna typu) i bilansowane jak suwak. */
+function onGramsInput(id,val){
+  checkDayReset();
+  var m=day.meals[id];
+  if(m&&m.fed)return;
+  if(!computed||!computed.valid)return;
+  var g=parseFloat(String(val).replace(',','.'));
+  if(!isFinite(g)||g<0)return;
+  var t=computed.mealTypes[id];
+  var daily=t==='mokra'?computed.wetDailyG:computed.dryDailyG;
+  if(!daily||!(daily>0))return;
+  editingGramsId=id;
+  day.shares=rebalanceShares(day.shares,unfedMealIds(),id,g/daily);
+  computed=compute();
+  updateMeals();renderTracker();renderSummary();
+}
+function onGramsCommit(id){
+  editingGramsId=null;
+  onShareCommit(id);
+}
+
 function toggleFed(id){
   checkDayReset();
   var m=day.meals[id];
@@ -756,9 +837,9 @@ function addExtra(){
   var raw=(document.getElementById('extra-grams').value||'').replace(',','.');
   var g=parseFloat(raw);
   if(!(g>0)||!isFinite(g)){showExtraWarn('Podaj gramaturę ekstra porcji (np. 50).');return;}
-  var daily=extraType==='mokra'?computed.wet:computed.dry;
-  if(!daily||!(daily.grams>0)){showExtraWarn('Nie można wyliczyć dawki dziennej dla tego typu karmy.');return;}
-  var e=g/daily.grams;
+  var daily=extraType==='mokra'?computed.wetDailyG:computed.dryDailyG;
+  if(!daily||!(daily>0)){showExtraWarn('Nie można wyliczyć dawki dziennej dla tego typu karmy.');return;}
+  var e=g/daily;
   var res=applyExtra(day.shares,unfedMealIds(),e);
   day.shares=res.shares;
   day.extras.push({id:genId(),type:extraType,grams:Math.round(g),time:nowTimeStr(),
@@ -797,6 +878,7 @@ function resetAll(){
   settings=defaultSettings();
   day=newDay();
   document.getElementById('weight-input').value='';
+  document.getElementById('target-input').value='';
   document.getElementById('extra-grams').value='';
   extraType='sucha';
   hideExtraWarn();
@@ -843,8 +925,9 @@ function buildMealCards(){
       +'<div class="meal-title">'+meta.icon+' '+meta.name
       +' <span class="type-badge '+(isWet?'tb-wet':'tb-dry')+'">'+(isWet?'💧 MOKRA':'🌾 SUCHA')+'</span></div>'
       +'<div class="meal-badges">'
-      +'<div class="meal-total-badge" id="badge-'+id+'">— g</div>'
-      +'<div class="fed-btn" id="fedbtn-'+id+'" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
+      +'<div class="meal-total-badge"><input type="text" inputmode="numeric" class="meal-grams-field" id="grams-'+id+'" placeholder="—"'
+      +' oninput="onGramsInput(\''+id+'\',this.value)" onchange="onGramsCommit(\''+id+'\')"><span>g</span></div>'
+      +'<div class="fed-btn" id="fedbtn-'+id+'" role="button" tabindex="0" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
       +'</div></div>'
       +'<div class="share-row"><span class="field-label" style="margin-bottom:0">Udział w dziennej dawce</span>'
       +'<span class="share-pct" id="sharepct-'+id+'">—</span></div>'
@@ -869,7 +952,7 @@ function updateMeals(){
     var id=mode.mealIds[i];
     var m=day.meals[id],fed=!!(m&&m.fed);
     var card=document.getElementById('meal-'+id);
-    var badge=document.getElementById('badge-'+id);
+    var gramsEl=document.getElementById('grams-'+id);
     var btn=document.getElementById('fedbtn-'+id);
     var slider=document.getElementById('range-'+id);
     var pct=Math.round((day.shares[id]||0)*100);
@@ -883,12 +966,14 @@ function updateMeals(){
       btn.classList.add('done');
       btn.classList.remove('disabled');
       btn.textContent='✓ '+(m.time||'');
-      badge.textContent=Math.round(m.wetG+m.dryG)+' g';
+      gramsEl.disabled=true;
+      if(id!==editingGramsId)gramsEl.value=Math.round(m.wetG+m.dryG);
     }else{
       btn.classList.remove('done');
       btn.classList.toggle('disabled',!c.valid);
       btn.textContent='✓ Podano';
-      badge.textContent=c.valid?((c.mealGrams[id]||0)+' g'):'— g';
+      gramsEl.disabled=!c.valid;
+      if(id!==editingGramsId)gramsEl.value=c.valid?(c.mealGrams[id]||0):'';
     }
   }
   document.getElementById('dayonly-note').style.display=day.extras.length>0?'block':'none';
@@ -907,6 +992,8 @@ function renderExtraForm(){
   document.getElementById('extra-type-mokra').classList.toggle('active',extraType==='mokra');
   document.getElementById('extra-type-sucha').classList.toggle('active',extraType==='sucha');
   document.getElementById('extra-grams').disabled=!valid;
+  document.getElementById('extra-grams-wrap').classList.toggle('disabled',!valid);
+  document.getElementById('extra-type-toggle').classList.toggle('disabled',!valid);
   document.getElementById('extra-add').classList.toggle('disabled',!valid);
 }
 
@@ -931,7 +1018,7 @@ function renderTracker(){
     var ex=day.extras[i];
     chips+='<div class="extra-chip">'+(ex.type==='mokra'?'💧':'🌾')+' '
       +(ex.label?ex.label+' · ':'')+ex.grams+' g'+(ex.time?' · '+ex.time:'')
-      +'<span class="chip-x" onclick="removeExtra(\''+ex.id+'\')" title="Usuń">✕</span></div>';
+      +'<span class="chip-x" role="button" tabindex="0" onclick="removeExtra(\''+ex.id+'\')" title="Usuń">✕</span></div>';
   }
   var cw=document.getElementById('extra-chips');
   cw.innerHTML=chips;
@@ -954,18 +1041,32 @@ function renderSummary(){
     html+='<div class="sum-block wb"><div class="sb-label">💧 Mokra / dzień</div><div class="sb-value wv">'+planWet+'</div><div class="sb-unit">g</div></div>';
   html+='<div class="sum-block db"><div class="sb-label">🌾 Sucha / dzień</div><div class="sb-value dv">'+planDry+'</div><div class="sb-unit">g</div></div>';
   html+='</div><div class="summary-divider"></div>';
+  if(c.dietActive){
+    html+='<div class="sum-row"><span class="sl">🎯 Dawkowanie na wagę docelową</span><span class="sv">'+c.targetKg+' kg'
+      +(c.realKg>0?' (aktualna: '+c.realKg+' kg)':'')+'</span></div>';
+  }
   var dryFood=DRY_FOODS[settings.dryFoodId];
   var dryInfo=Math.round(c.dry.grams)+' g';
-  if(c.dry.bracket)dryInfo+=' (przedział '+(c.dry.bracket[0]===0?'≤'+c.dry.bracket[1]:c.dry.bracket[0]+'–'+c.dry.bracket[1])+' kg)';
+  if(c.dry.bracket)dryInfo+=' (przedział '+(c.dry.bracket[0]===0?'<'+c.dry.bracket[1]:c.dry.bracket[0]+'–'+c.dry.bracket[1])+' kg)';
   html+='<div class="sum-row"><span class="sl">Dawka producenta — '+dryFood.shortName+'</span><span class="sv">'+dryInfo+'</span></div>';
-  if(c.wetInUse&&c.wet){
+  if(c.dailyKcal)
+    html+='<div class="sum-row"><span class="sl">⚖️ Cel energetyczny dnia</span><span class="sv">~'+Math.round(c.dailyKcal)+' kcal'+(dryFood.kcalEstimated?' (szac.)':'')+'</span></div>';
+  if(c.wetInUse&&c.wetDailyG){
     var wetFood=WET_FOODS[settings.wetFoodId];
-    html+='<div class="sum-row"><span class="sl">Dawka producenta — '+wetFood.shortName+'</span><span class="sv">'+Math.round(c.wet.grams)+' g</span></div>';
+    html+='<div class="sum-row"><span class="sl">Mokra — równowartość celu (100%)</span><span class="sv">'+Math.round(c.wetDailyG)+' g</span></div>';
+    if(c.wetTable)
+      html+='<div class="sum-row"><span class="sl">Mokra — tabela producenta (info)</span><span class="sv">'+Math.round(c.wetTable.grams)+' g'+(c.wetTable.note==='extrapolated'?' (poza tabelą)':'')+'</span></div>';
   }
   html+='<div class="sum-row"><span class="sl">Podano dziś</span><span class="sv">'+(c.givenDry+c.givenWet)+' g</span></div>';
   html+='<div class="sum-row"><span class="sl">Pozostało (plan)</span><span class="sv">'+(c.remDry+c.remWet)+' g</span></div>';
   html+='<div class="sum-total"><span class="st-label">Razem w miskach</span><span class="st-value">~'+(planDry+planWet)+' g</span></div>';
   for(i=0;i<c.warnings.length;i++)html+='<div class="note-box warn">'+c.warnings[i]+'</div>';
+  if(c.wetInUse&&c.dailyKcal){
+    var ratio=DRY_FOODS[settings.dryFoodId].kcal/WET_FOODS[settings.wetFoodId].kcal;
+    html+='<div class="note-box">⚖️ Posiłki mokre liczone energetycznie względem tabeli suchej (1 g suchej ≈ '+ratio.toFixed(1).replace('.',',')+' g mokrej) — dzień mieszany ma tyle samo kalorii co czysto suchy.</div>';
+  }
+  if(c.dietActive)
+    html+='<div class="note-box">🎯 Odchudzanie: bezpieczne tempo to 1–2% masy ciała tygodniowo. Waż psa co tydzień o tej samej porze i koryguj plan z weterynarzem.</div>';
   html+='<div class="note-box">📋 Posiłki dzielą dzienną dawkę wg suwaków. Dane z tabel producentów — skonsultuj z weterynarzem.</div>';
   el.innerHTML=html;
 }
@@ -995,13 +1096,13 @@ function renderFoodTable(food,kg){
     ths='<th>kg</th>';tds='<td>g/dz</td>';
     for(i=0;i<food.brackets.length;i++){
       b=food.brackets[i];
-      hl=kg!=null&&((kg>b[0]&&kg<=b[1])||(i===food.brackets.length-1&&kg>b[1]));
-      var lbl=b[0]===0?'≤'+b[1]:b[0]+'–'+b[1];
+      hl=kg!=null&&(i===food.brackets.length-1?kg>=b[0]:(kg>=b[0]&&kg<b[1]));
+      var lbl=b[0]===0?'<'+b[1]:b[0]+'–'+b[1];
       ths+='<th'+(hl?' class="hl"':'')+'>'+lbl+'</th>';
       tds+='<td'+(hl?' class="hl"':'')+'>'+b[2]+'</td>';
     }
     html='<div class="ref-scroll"><table class="ref-table"><thead><tr>'+ths+'</tr></thead><tbody><tr>'+tds+'</tr></tbody></table></div>'
-      +'<div class="ref-note">Stała wartość w przedziale wagi (kolumna: aktywność normalna).</div>';
+      +'<div class="ref-note">Stała wartość dla całego przedziału wagi, wiernie wg tabeli producenta (kolumna: aktywność normalna). Waga graniczna należy do wyższego przedziału (np. 20 kg → 20–25).</div>';
     return html;
   }
   /* bracket-interp */
@@ -1060,10 +1161,17 @@ function renderAll(){
   saveSettings();saveDay();
   populateSelects();
   document.getElementById('weight-input').value=settings.weight>0?settings.weight:'';
+  document.getElementById('target-input').value=settings.targetWeight>0?settings.targetWeight:'';
   buildMealCards();
   renderAll();
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden){checkDayReset();renderAll();}
+  });
+  document.addEventListener('keydown',function(ev){
+    if((ev.key==='Enter'||ev.key===' ')&&ev.target&&ev.target.getAttribute&&ev.target.getAttribute('role')==='button'){
+      ev.preventDefault();
+      ev.target.click();
+    }
   });
   scheduleNextMidnight();
 })();
