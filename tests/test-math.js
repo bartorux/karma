@@ -178,5 +178,86 @@ ax = applyExtra(shares, ['rano', 'przedpoludnie', 'popoludnie', 'wieczor'], eWet
 eq('scenariusz: ekstra mokra 100g = ~10.7% dnia', eWet, 0.1072, 0.0005);
 eq('scenariusz: suma po ekstra mokrej', sum(ax.shares, Object.keys(shares)), 1 - eWet, 1e-9);
 
+// ---- normy energetyczne FEDIAF / AAHA ----
+eq('masa metaboliczna 18 kg', metabolicKg(18), Math.pow(18, 0.75), 1e-12);
+eq('masa metaboliczna 18 kg ~ 8.739', metabolicKg(18), 8.7389, 0.001);
+eq('RER 18 kg = 611.7 kcal', rerKcal(18), 611.72, 0.01);
+eq('RER 20 kg = 662.0 kcal', rerKcal(20), 662.02, 0.01);
+eq('FEDIAF normal 18 kg = 961 kcal', fediafKcal(18, 'normal'), 961.27, 0.01);
+eq('FEDIAF low 18 kg = 830 kcal', fediafKcal(18, 'low'), 830.19, 0.01);
+eq('FEDIAF high 18 kg = 1136 kcal', fediafKcal(18, 'high'), 1136.05, 0.01);
+eq('FEDIAF domyslnie normal przy nieznanej aktywnosci', fediafKcal(18, 'bzdura'), fediafKcal(18, 'normal'), 1e-12);
+assert('metabolicKg(0) -> null', metabolicKg(0) === null);
+assert('rerKcal(-1) -> null', rerKcal(-1) === null);
+
+// wspolczynniki wzgledem RER (kontrola spojnosci norm)
+eq('norma normal = 1.571 x RER', ACTIVITY_KCAL.normal / 70, 1.5714, 0.0001);
+eq('norma low = 1.357 x RER', ACTIVITY_KCAL.low / 70, 1.3571, 0.0001);
+
+// ---- werdykt kaloryczny ----
+let vd = energyVerdict(723.1, 18, 'normal');   // plan Brit sucha
+eq('werdykt Brit sucha 18kg: below', vd.level, 'below');
+eq('werdykt Brit sucha 18kg: ~25% ponizej', vd.offPct, 25);
+eq('werdykt Brit sucha 18kg przy niskiej aktywnosci', energyVerdict(723.1, 18, 'low').level, 'below');
+eq('werdykt Brit sucha 18kg low: ~13%', energyVerdict(723.1, 18, 'low').offPct, 13);
+eq('werdykt mokra tabela 18kg: ok', energyVerdict(933.3, 18, 'normal').level, 'ok');
+// Belcando 18 kg = 854 kcal = 97.8 kcal/kg^0.75 -> tuz pod progiem 0.90
+eq('werdykt Belcando 18kg: below (tuz pod progiem)', energyVerdict(854.4, 18, 'normal').level, 'below');
+eq('werdykt Belcando 18kg: ~11% ponizej', energyVerdict(854.4, 18, 'normal').offPct, 11);
+eq('werdykt Belcando 18kg przy niskiej aktywnosci: ok', energyVerdict(854.4, 18, 'low').level, 'ok');
+eq('Belcando 18 kg = 97.8 kcal/kg^0.75', 854.4 / metabolicKg(18), 97.77, 0.02);
+// progi dokladnie na granicy -> ok
+const tgt = fediafKcal(18, 'normal');
+eq('prog 0.90 -> ok', energyVerdict(tgt * 0.90, 18, 'normal').level, 'ok');
+eq('prog 1.10 -> ok', energyVerdict(tgt * 1.10, 18, 'normal').level, 'ok');
+eq('ponizej progu -> below', energyVerdict(tgt * 0.899, 18, 'normal').level, 'below');
+eq('powyzej progu -> above', energyVerdict(tgt * 1.101, 18, 'normal').level, 'above');
+assert('werdykt bez planu -> null', energyVerdict(0, 18, 'normal') === null);
+
+// ---- kalibracja tabel producentow (kcal/kg^0.75) ----
+function tableKcalPerMetabolic(food, kg) {
+  return computeDaily(food, kg).grams * food.kcal / metabolicKg(kg);
+}
+eq('Brit sucha 20 kg = 83 kcal/kg^0.75', tableKcalPerMetabolic(britDry, 20), 83.1, 0.1);
+eq('Brit sucha 40 kg = 84 kcal/kg^0.75', tableKcalPerMetabolic(britDry, 40), 84.0, 0.1);
+eq('Brit mokra 10 kg = 110 kcal/kg^0.75', tableKcalPerMetabolic(wetStd, 10), 109.7, 0.1);
+eq('Brit mokra 30 kg = 110 kcal/kg^0.75', tableKcalPerMetabolic(wetStd, 30), 109.8, 0.1);
+eq('LowFat 30 kg = 110 kcal/kg^0.75', tableKcalPerMetabolic(wetLF, 30), 110.0, 0.1);
+eq('Belcando 17.5 kg = 100 kcal/kg^0.75', tableKcalPerMetabolic(bel, 17.5), 99.9, 0.1);
+
+// ---- podstawa celu energetycznego: dry / wet / fediaf ----
+function dailyKcalByBasis(basis, kg, dryFood, wetFood, activity) {
+  if (basis === 'fediaf') return fediafKcal(kg, activity);
+  if (basis === 'wet') return computeDaily(wetFood, kg).grams * wetFood.kcal;
+  return computeDaily(dryFood, kg).grams * dryFood.kcal;
+}
+// REGRESJA: podstawa 'dry' daje dokladnie wartosc z tabeli suchej (zachowanie sprzed zmiany)
+let kc = dailyKcalByBasis('dry', 18, britDry, wetLF, 'normal');
+eq('basis dry 18kg -> 184 g suchej (regresja)', kc / britDry.kcal, 184, 1e-9);
+eq('basis dry 20kg -> 200 g suchej (regresja)', dailyKcalByBasis('dry', 20, britDry, wetLF, 'normal') / britDry.kcal, 200, 1e-9);
+eq('basis dry 18kg -> 723 kcal', kc, 723.12, 0.01);
+eq('basis wet 18kg -> 936 kcal', dailyKcalByBasis('wet', 18, britDry, wetLF, 'normal'), 936.2, 0.01);
+eq('basis fediaf 18kg -> 961 kcal', dailyKcalByBasis('fediaf', 18, britDry, wetLF, 'normal'), 961.27, 0.01);
+// niezmiennik: obie gramatury niosa te sama energie, niezaleznie od podstawy
+['dry', 'wet', 'fediaf'].forEach(basis => {
+  const k = dailyKcalByBasis(basis, 18, britDry, wetLF, 'normal');
+  const dG = k / britDry.kcal, wG = k / wetLF.kcal;
+  assert('niezmiennik energii, basis ' + basis,
+    Math.abs(dG * britDry.kcal - k) < 1e-9 && Math.abs(wG * wetLF.kcal - k) < 1e-9);
+});
+
+// ---- dzien bez mokrej ma te sama energie co mieszany ----
+const kcDay = dailyKcalByBasis('dry', 18, britDry, wetLF, 'normal');
+// tryb dom: 3 posilki suche, udzialy 1/3
+const domG = allocateGrams([1 / 3, 1 / 3, 1 / 3], kcDay / britDry.kcal);
+assert('dzien suchy = cel energetyczny (+/-2 kcal)',
+  Math.abs(domG.reduce((a, b) => a + b, 0) * britDry.kcal - kcDay) < 2);
+// tryb praca z mokrym suwakiem na 0% -> pozostale przejmuja udzial
+let z = { rano: 1 / 3, przedpoludnie: 0, popoludnie: 1 / 3, wieczor: 1 / 3 };
+const zeroWetG = allocateGrams([z.rano, z.popoludnie, z.wieczor], kcDay / britDry.kcal);
+eq('mokry posilek na 0% -> suma suchych = pelna dawka', zeroWetG.reduce((a, b) => a + b, 0), 184);
+assert('mokry na 0% = ta sama energia co dzien suchy',
+  Math.abs(zeroWetG.reduce((a, b) => a + b, 0) * britDry.kcal - kcDay) < 2);
+
 console.log(failures ? `\n${failures} FAILURES` : '\nALL TESTS PASSED');
 process.exit(failures ? 1 : 0);

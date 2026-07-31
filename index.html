@@ -170,6 +170,20 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .saved.show{opacity:1}
 [role="button"]:focus-visible{outline:2px solid var(--green-mid);outline-offset:2px}
 
+/* KONTROLA KALORYCZNA */
+.per-dog-tag{font-family:'Lato',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--green-mist);color:var(--text-mid);border:1px solid var(--green-pale);border-radius:20px;padding:3px 9px}
+.energy-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.energy-block{background:var(--green-mist);border:1px solid rgba(184,212,170,.6);border-radius:12px;padding:11px 12px;text-align:center;min-width:0}
+.eb-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-mid);opacity:.75;margin-bottom:3px}
+.eb-value{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--green-deep);line-height:1}
+.eb-unit{font-size:.66rem;color:var(--text-mid);opacity:.65;margin-top:2px}
+.verdict{border-radius:12px;padding:11px 14px;margin-top:12px;font-size:.82rem;line-height:1.45}
+.verdict.v-ok{background:rgba(74,124,74,.12);border:1px solid rgba(74,124,74,.35);color:var(--green-deep)}
+.verdict.v-below{background:rgba(230,170,80,.16);border:1px solid rgba(200,140,50,.4);color:var(--brown-dark)}
+.verdict.v-above{background:rgba(200,90,60,.13);border:1px solid rgba(180,80,50,.35);color:#7a2f1d}
+.verdict strong{display:block;margin-bottom:3px;font-size:.88rem}
+
 @media(max-width:460px){
   .summary-main,.dt-totals{grid-template-columns:1fr}
   .summary-main.single{grid-template-columns:1fr}
@@ -214,6 +228,9 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
     <span class="weight-unit">kg</span>
   </div>
   <div class="hint">Dawki liczone z tabel wybranych karm. Wagi pośrednie: interpolacja (Brit) lub wartość przedziału (Belcando). Gdy podasz wagę docelową, wszystkie dawki liczone są dla niej — tak zalecają wytyczne weterynaryjne przy odchudzaniu.</div>
+  <span class="field-label food-gap">🐕 Liczba psów (zbliżona waga)</span>
+  <div class="mode-toggle" id="dogcount-toggle"></div>
+  <div class="hint">Wszystkie porcje w aplikacji są <strong>na jednego psa</strong>. Liczba psów służy tylko do policzenia zużycia karmy.</div>
 </div>
 
 <!-- KARMY -->
@@ -223,7 +240,32 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
   <select id="dry-select" class="food-select" onchange="onFoodChange('dry',this.value)"></select>
   <span class="field-label food-gap">💧 Mokra karma</span>
   <select id="wet-select" class="food-select" onchange="onFoodChange('wet',this.value)"></select>
-  <div class="hint">Wybór zapamiętuje się automatycznie. Posiłki mokre liczone są energetycznie względem tabeli suchej — dzień mieszany ma tyle samo kalorii co czysto suchy.</div>
+  <div class="hint">Wybór zapamiętuje się automatycznie. Posiłki mokre i suche liczone są energetycznie od wspólnego celu dnia — dzień mieszany ma tyle samo kalorii co czysto suchy.</div>
+</div>
+
+<!-- KONTROLA KALORYCZNA -->
+<div class="card">
+  <div class="card-title">⚖️ Kontrola kaloryczna <span class="per-dog-tag">na 1 psa</span></div>
+  <span class="field-label">Aktywność psa</span>
+  <div class="mode-toggle" style="margin-bottom:14px">
+    <div class="mode-btn" id="act-btn-low" role="button" tabindex="0" onclick="setActivity('low')">
+      <div class="mb-name">🛋️ Mało</div><div class="mb-sub">&lt; 1 h</div>
+    </div>
+    <div class="mode-btn" id="act-btn-normal" role="button" tabindex="0" onclick="setActivity('normal')">
+      <div class="mb-name">🚶 Normalna</div><div class="mb-sub">1–3 h</div>
+    </div>
+    <div class="mode-btn" id="act-btn-high" role="button" tabindex="0" onclick="setActivity('high')">
+      <div class="mb-name">🏃 Dużo</div><div class="mb-sub">&gt; 3 h</div>
+    </div>
+  </div>
+  <span class="field-label">Podstawa celu energetycznego</span>
+  <select id="basis-select" class="food-select" onchange="onBasisChange(this.value)">
+    <option value="dry">Tabela suchej karmy (domyślnie)</option>
+    <option value="wet">Tabela mokrej karmy</option>
+    <option value="fediaf">Norma FEDIAF wg aktywności</option>
+  </select>
+  <div id="energy-readout"></div>
+  <div class="hint">Normy FEDIAF to średnia populacyjna — indywidualne zapotrzebowanie waha się ±20–25%. Rozstrzyga kondycja ciała i trend masy, nie tabela.</div>
 </div>
 
 <!-- POSIŁKI (renderowane dynamicznie) -->
@@ -270,7 +312,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 
 <!-- PODSUMOWANIE -->
 <div class="summary-card">
-  <div class="summary-title">📊 Dawka dzienna (plan)</div>
+  <div class="summary-title">📊 Dawka dzienna (plan) <span class="per-dog-tag" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.85)">na 1 psa</span></div>
   <div id="summary-content"><div class="no-calc">Podaj wagę psa — wyniki pojawią się automatycznie 🐾</div></div>
 </div>
 
@@ -444,6 +486,28 @@ function allocateGrams(fracs,D){
 function energyEquivGrams(grams,fromKcalPerG,toKcalPerG){
   return grams*fromKcalPerG/toKcalPerG;
 }
+
+/* ---- Normy energetyczne (FEDIAF / AAHA) ----
+   Masa metaboliczna = kg^0,75. RER (spoczynkowe) = 70 x kg^0,75.
+   MER utrzymaniowe wg FEDIAF zależnie od aktywności; 70 = poziom
+   redukcji masy wg AAHA. */
+var ACTIVITY_KCAL={low:95,normal:110,high:130};
+var ACTIVITY_LABEL={low:'mało aktywny (<1 h)',normal:'normalna aktywność (1–3 h)',high:'aktywny (>3 h)'};
+function metabolicKg(kg){return(kg>0)?Math.pow(kg,0.75):null}
+function rerKcal(kg){var m=metabolicKg(kg);return m?70*m:null}
+function fediafKcal(kg,activity){
+  var m=metabolicKg(kg),f=ACTIVITY_KCAL[activity]||ACTIVITY_KCAL.normal;
+  return m?f*m:null;
+}
+/* Werdykt planu względem normy dla danej aktywności; tolerancja +/-10%.
+   Zwraca {level:'below'|'ok'|'above', ratio, offPct}. */
+function energyVerdict(planKcal,kg,activity){
+  var target=fediafKcal(kg,activity);
+  if(!target||!(planKcal>0))return null;
+  var ratio=planKcal/target;
+  var level=ratio<0.90?'below':(ratio>1.10?'above':'ok');
+  return{level:level,ratio:ratio,offPct:Math.round(Math.abs(1-ratio)*100),target:target};
+}
 /*TESTABLE-END*/
 
 /* ============================================================
@@ -471,6 +535,7 @@ var savedTimer=null,extraWarnTimer=null;
 
 function defaultSettings(){
   return{v:6,weight:null,targetWeight:null,dryFoodId:'brit_gastro_dry',wetFoodId:'brit_gastro_wet',mode:'dom',
+    activity:'normal',energyBasis:'dry',dogCount:1,
     shares:{dom:[1/3,1/3,1/3],praca:[0.25,0.25,0.25,0.25]}};
 }
 function pad2(n){return(n<10?'0':'')+n}
@@ -519,6 +584,9 @@ function loadSettings(){
       if(DRY_FOODS[d.dryFoodId])s.dryFoodId=d.dryFoodId;
       if(WET_FOODS[d.wetFoodId])s.wetFoodId=d.wetFoodId;
       if(MODES[d.mode])s.mode=d.mode;
+      if(ACTIVITY_KCAL[d.activity])s.activity=d.activity;
+      if(d.energyBasis==='dry'||d.energyBasis==='wet'||d.energyBasis==='fediaf')s.energyBasis=d.energyBasis;
+      if(typeof d.dogCount==='number'&&d.dogCount>=1&&d.dogCount<=4)s.dogCount=Math.round(d.dogCount);
       var modes=['dom','praca'];
       for(var i=0;i<modes.length;i++){
         var m=modes[i],arr=d.shares&&d.shares[m];
@@ -597,15 +665,22 @@ function compute(){
      nie dla aktualnej (zalecenie weterynaryjne) */
   var realKg=settings.weight,targetKg=settings.targetWeight;
   var dietActive=!!(targetKg&&targetKg>0);
-  var kg=dietActive?targetKg:realKg;
+  var kg=dosingWeight();
   var mode=MODES[settings.mode];
   var valid=!!(kg&&kg>0);
   var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId];
   var dry=valid?computeDaily(dryFood,kg):null;
   var wetTable=valid?computeDaily(wetFood,kg):null;
-  var dryDailyG=(dry&&dry.grams>0)?dry.grams:null;
-  var dailyKcal=dryDailyG?dryDailyG*dryFood.kcal:null;
-  var wetDailyG=dryDailyG?energyEquivGrams(dryDailyG,dryFood.kcal,wetFood.kcal):null;
+  /* Cel energetyczny dnia wg wybranej podstawy; obie gramatury wyprowadzane
+     z niego, więc dzień suchy i mieszany zawsze niosą tę samą energię. */
+  var basis=settings.energyBasis,dailyKcal=valid?dailyKcalTarget(kg):null;
+  var dryDailyG=dailyKcal?dailyKcal/dryFood.kcal:null;
+  var wetDailyG=dailyKcal?dailyKcal/wetFood.kcal:null;
+  var mKg=valid?metabolicKg(kg):null;
+  var rer=valid?rerKcal(kg):null;
+  var fediafTarget=valid?fediafKcal(kg,settings.activity):null;
+  var kcalPerMetabolic=(dailyKcal&&mKg)?dailyKcal/mKg:null;
+  var verdict=dailyKcal?energyVerdict(dailyKcal,kg,settings.activity):null;
   var mealTypes={},mealGrams={},dryIds=[],wetIds=[],i,id;
   for(i=0;i<mode.mealIds.length;i++){
     id=mode.mealIds[i];
@@ -638,10 +713,12 @@ function compute(){
   }
   var wetInUse=!!mode.wetMealId||hasWetExtra;
   var warnings=[];
-  if(valid&&dry&&dry.note)
+  if(valid&&basis==='dry'&&dry&&dry.note)
     warnings.push('⚠️ Waga poza tabelą suchej karmy — przyjęto wartość skrajną ('+Math.round(dry.grams)+' g/dzień).');
-  if(valid&&wetInUse&&dryFood.kcalEstimated)
-    warnings.push('ℹ️ Energia karmy suchej szacowana ze składu (producent nie publikuje ME) — dawki mokre przybliżone.');
+  if(valid&&basis==='wet'&&wetTable&&wetTable.note==='extrapolated')
+    warnings.push('⚠️ Waga poza tabelą mokrej karmy (5–60 kg) — cel energetyczny jest szacunkowy.');
+  if(valid&&dryFood.kcalEstimated)
+    warnings.push('ℹ️ Energia karmy suchej szacowana ze składu (producent nie publikuje ME) — przeliczenia przybliżone.');
   var overshoot=0,extraShareSum=0;
   for(i=0;i<day.extras.length;i++){
     overshoot+=num(day.extras[i].overshoot);
@@ -657,6 +734,8 @@ function compute(){
     warnings.push('⚠️ Ekstra posiłki to ponad 10% dziennej dawki — przy odchudzaniu przysmaki ogranicz do maks. 10%.');
   return{valid:valid,kg:kg,realKg:realKg,targetKg:targetKg,dietActive:dietActive,
     dry:dry,wetTable:wetTable,dryDailyG:dryDailyG,wetDailyG:wetDailyG,dailyKcal:dailyKcal,
+    basis:basis,mKg:mKg,rer:rer,fediafTarget:fediafTarget,
+    kcalPerMetabolic:kcalPerMetabolic,verdict:verdict,
     mealTypes:mealTypes,mealGrams:mealGrams,
     givenDry:Math.round(givenDry),givenWet:Math.round(givenWet),remDry:remDry,remWet:remWet,
     fedCount:fedCount,N:mode.mealIds.length,wetInUse:wetInUse,warnings:warnings};
@@ -705,6 +784,28 @@ function onFoodChange(kind,id){
   saveSettings();flashSaved();
   renderAll();
 }
+function setActivity(a){
+  checkDayReset();
+  if(!ACTIVITY_KCAL[a])return;
+  settings.activity=a;
+  saveSettings();flashSaved();
+  renderAll();
+}
+function onBasisChange(b){
+  checkDayReset();
+  if(b!=='dry'&&b!=='wet'&&b!=='fediaf')return;
+  settings.energyBasis=b;
+  saveSettings();flashSaved();
+  renderAll();
+}
+function setDogCount(n){
+  checkDayReset();
+  n=Math.round(n);
+  if(!(n>=1&&n<=4))return;
+  settings.dogCount=n;
+  saveSettings();flashSaved();
+  renderAll();
+}
 
 function setMode(nm){
   checkDayReset();
@@ -735,16 +836,29 @@ function reconcileDayToMode(nm){
   day.meals=meals;
   rebuildDayShares();
 }
-/* Dzienna gramatura pokrywająca 100% zapotrzebowania dla danego typu karmy
-   (sucha: tabela; mokra: równowartość energetyczna celu z tabeli suchej). */
-function dailyAllowanceFor(type){
-  var kg=(settings.targetWeight>0)?settings.targetWeight:settings.weight;
+/* Waga, z której liczone są dawki: docelowa przy odchudzaniu, inaczej aktualna. */
+function dosingWeight(){
+  return(settings.targetWeight>0)?settings.targetWeight:settings.weight;
+}
+/* Dzienny cel energetyczny wg wybranej podstawy (tabela suchej / mokrej /
+   norma FEDIAF). Jedno źródło prawdy dla compute() i ekstra posiłków. */
+function dailyKcalTarget(kg){
   if(!(kg>0))return null;
-  var dryFood=DRY_FOODS[settings.dryFoodId];
-  var d=computeDaily(dryFood,kg);
-  if(!d||!(d.grams>0))return null;
-  if(type==='sucha')return d.grams;
-  return energyEquivGrams(d.grams,dryFood.kcal,WET_FOODS[settings.wetFoodId].kcal);
+  var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId],t;
+  if(settings.energyBasis==='fediaf')return fediafKcal(kg,settings.activity);
+  if(settings.energyBasis==='wet'){
+    t=computeDaily(wetFood,kg);
+    return(t&&t.grams>0)?t.grams*wetFood.kcal:null;
+  }
+  t=computeDaily(dryFood,kg);
+  return(t&&t.grams>0)?t.grams*dryFood.kcal:null;
+}
+/* Dzienna gramatura pokrywająca 100% celu energetycznego danym typem karmy. */
+function dailyAllowanceFor(type){
+  var kcal=dailyKcalTarget(dosingWeight());
+  if(!kcal)return null;
+  var food=type==='sucha'?DRY_FOODS[settings.dryFoodId]:WET_FOODS[settings.wetFoodId];
+  return kcal/food.kcal;
 }
 function orphanExtra(type,grams,time,label){
   var daily=dailyAllowanceFor(type);
@@ -925,7 +1039,7 @@ function buildMealCards(){
       +'<div class="meal-title">'+meta.icon+' '+meta.name
       +' <span class="type-badge '+(isWet?'tb-wet':'tb-dry')+'">'+(isWet?'💧 MOKRA':'🌾 SUCHA')+'</span></div>'
       +'<div class="meal-badges">'
-      +'<div class="meal-total-badge"><input type="text" inputmode="numeric" class="meal-grams-field" id="grams-'+id+'" placeholder="—"'
+      +'<div class="meal-total-badge" title="Porcja na jednego psa"><input type="text" inputmode="numeric" class="meal-grams-field" id="grams-'+id+'" placeholder="—"'
       +' oninput="onGramsInput(\''+id+'\',this.value)" onchange="onGramsCommit(\''+id+'\')"><span>g</span></div>'
       +'<div class="fed-btn" id="fedbtn-'+id+'" role="button" tabindex="0" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
       +'</div></div>'
@@ -987,6 +1101,49 @@ function renderFoodSelects(){
   document.getElementById('dry-select').value=settings.dryFoodId;
   document.getElementById('wet-select').value=settings.wetFoodId;
 }
+function cansStr(grams){
+  return(Math.round(grams/400*10)/10).toString().replace('.',',');
+}
+function renderDogCount(){
+  var el=document.getElementById('dogcount-toggle'),html='',n;
+  for(n=1;n<=4;n++){
+    html+='<div class="mode-btn'+(settings.dogCount===n?' active':'')+'" role="button" tabindex="0" onclick="setDogCount('+n+')">'
+      +'<div class="mb-name">'+n+'</div><div class="mb-sub">'+(n===1?'pies':(n<5?'psy':'psów'))+'</div></div>';
+  }
+  el.innerHTML=html;
+}
+function renderEnergyCard(){
+  var c=computed,el=document.getElementById('energy-readout');
+  document.getElementById('basis-select').value=settings.energyBasis;
+  var a;
+  for(a in ACTIVITY_KCAL)
+    document.getElementById('act-btn-'+a).classList.toggle('active',settings.activity===a);
+  if(!c.valid||!c.dailyKcal){
+    el.innerHTML='<div class="hint" style="margin-top:14px">Podaj wagę psa, aby zobaczyć ocenę kaloryczną planu.</div>';
+    return;
+  }
+  var est=DRY_FOODS[settings.dryFoodId].kcalEstimated&&settings.energyBasis!=='fediaf';
+  var html='<div class="energy-grid">'
+    +'<div class="energy-block"><div class="eb-label">Cel dnia</div><div class="eb-value">'+Math.round(c.dailyKcal)+'</div><div class="eb-unit">kcal'+(est?' (szac.)':'')+'</div></div>'
+    +'<div class="energy-block"><div class="eb-label">Na kg^0,75</div><div class="eb-value">'+Math.round(c.kcalPerMetabolic)+'</div><div class="eb-unit">kcal/kg^0,75</div></div>'
+    +'<div class="energy-block"><div class="eb-label">Norma FEDIAF</div><div class="eb-value">'+Math.round(c.fediafTarget)+'</div><div class="eb-unit">kcal · '+ACTIVITY_KCAL[settings.activity]+' kcal/kg^0,75</div></div>'
+    +'<div class="energy-block"><div class="eb-label">RER (spoczynek)</div><div class="eb-value">'+Math.round(c.rer)+'</div><div class="eb-unit">kcal · 70 kcal/kg^0,75</div></div>'
+    +'</div>';
+  var v=c.verdict;
+  if(v){
+    var cls=v.level==='ok'?'v-ok':(v.level==='below'?'v-below':'v-above');
+    var head=v.level==='ok'?'✅ Plan w normie dla tej aktywności'
+      :(v.level==='below'?'🔽 Plan ~'+v.offPct+'% poniżej normy FEDIAF'
+      :'🔼 Plan ~'+v.offPct+'% powyżej normy FEDIAF');
+    var body=v.level==='ok'
+      ?'Cel dnia mieści się w zakresie ±10% normy dla psa o aktywności: '+ACTIVITY_LABEL[settings.activity]+'.'
+      :'To porównanie ze średnią populacyjną, nie zalecenie zmiany dawki. Jeśli pies utrzymuje masę i kondycję (żebra wyczuwalne, talia widoczna), obecny poziom jest dla niego właściwy.';
+    html+='<div class="verdict '+cls+'"><strong>'+head+'</strong>'+body+'</div>';
+  }
+  if(c.dietActive)
+    html+='<div class="verdict v-ok" style="background:rgba(74,124,74,.08)"><strong>🎯 Odchudzanie</strong>Poziom redukcji wg AAHA to ok. '+Math.round(c.rer)+' kcal (1,0 × RER wagi docelowej '+c.targetKg+' kg).</div>';
+  el.innerHTML=html;
+}
 function renderExtraForm(){
   var valid=!!(computed&&computed.valid);
   document.getElementById('extra-type-mokra').classList.toggle('active',extraType==='mokra');
@@ -1045,25 +1202,34 @@ function renderSummary(){
     html+='<div class="sum-row"><span class="sl">🎯 Dawkowanie na wagę docelową</span><span class="sv">'+c.targetKg+' kg'
       +(c.realKg>0?' (aktualna: '+c.realKg+' kg)':'')+'</span></div>';
   }
-  var dryFood=DRY_FOODS[settings.dryFoodId];
+  var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId];
+  var BASIS_LABEL={dry:'tabela suchej',wet:'tabela mokrej',fediaf:'norma FEDIAF'};
+  if(c.dailyKcal)
+    html+='<div class="sum-row"><span class="sl">⚖️ Cel energetyczny dnia</span><span class="sv">~'+Math.round(c.dailyKcal)+' kcal'
+      +(dryFood.kcalEstimated&&settings.energyBasis!=='fediaf'?' (szac.)':'')+' · '+BASIS_LABEL[settings.energyBasis]+'</span></div>';
   var dryInfo=Math.round(c.dry.grams)+' g';
   if(c.dry.bracket)dryInfo+=' (przedział '+(c.dry.bracket[0]===0?'<'+c.dry.bracket[1]:c.dry.bracket[0]+'–'+c.dry.bracket[1])+' kg)';
-  html+='<div class="sum-row"><span class="sl">Dawka producenta — '+dryFood.shortName+'</span><span class="sv">'+dryInfo+'</span></div>';
-  if(c.dailyKcal)
-    html+='<div class="sum-row"><span class="sl">⚖️ Cel energetyczny dnia</span><span class="sv">~'+Math.round(c.dailyKcal)+' kcal'+(dryFood.kcalEstimated?' (szac.)':'')+'</span></div>';
+  html+='<div class="sum-row"><span class="sl">Tabela producenta — '+dryFood.shortName+' (sucha)</span><span class="sv">'+dryInfo+'</span></div>';
+  if(c.dryDailyG)
+    html+='<div class="sum-row"><span class="sl">Sucha — pokrycie celu (100%)</span><span class="sv">'+Math.round(c.dryDailyG)+' g</span></div>';
   if(c.wetInUse&&c.wetDailyG){
-    var wetFood=WET_FOODS[settings.wetFoodId];
-    html+='<div class="sum-row"><span class="sl">Mokra — równowartość celu (100%)</span><span class="sv">'+Math.round(c.wetDailyG)+' g</span></div>';
+    html+='<div class="sum-row"><span class="sl">Mokra — pokrycie celu (100%)</span><span class="sv">'+Math.round(c.wetDailyG)+' g ≈ '+cansStr(c.wetDailyG)+' puszki 400 g</span></div>';
     if(c.wetTable)
-      html+='<div class="sum-row"><span class="sl">Mokra — tabela producenta (info)</span><span class="sv">'+Math.round(c.wetTable.grams)+' g'+(c.wetTable.note==='extrapolated'?' (poza tabelą)':'')+'</span></div>';
+      html+='<div class="sum-row"><span class="sl">Tabela producenta — '+wetFood.shortName+' (mokra)</span><span class="sv">'+Math.round(c.wetTable.grams)+' g'+(c.wetTable.note==='extrapolated'?' (poza tabelą)':'')+'</span></div>';
   }
   html+='<div class="sum-row"><span class="sl">Podano dziś</span><span class="sv">'+(c.givenDry+c.givenWet)+' g</span></div>';
   html+='<div class="sum-row"><span class="sl">Pozostało (plan)</span><span class="sv">'+(c.remDry+c.remWet)+' g</span></div>';
   html+='<div class="sum-total"><span class="st-label">Razem w miskach</span><span class="st-value">~'+(planDry+planWet)+' g</span></div>';
+  if(settings.dogCount>1){
+    var n=settings.dogCount,tot='';
+    if(planDry>0)tot+=planDry*n+' g suchej';
+    if(planWet>0)tot+=(tot?' + ':'')+planWet*n+' g mokrej (≈ '+cansStr(planWet*n)+' puszki)';
+    html+='<div class="note-box">🐕 Zużycie karmy dla '+n+' psów: '+tot+' dziennie. Porcje wyżej dotyczą <strong>jednego</strong> psa — każdy pies dostaje pełną pokazaną miskę.</div>';
+  }
   for(i=0;i<c.warnings.length;i++)html+='<div class="note-box warn">'+c.warnings[i]+'</div>';
   if(c.wetInUse&&c.dailyKcal){
-    var ratio=DRY_FOODS[settings.dryFoodId].kcal/WET_FOODS[settings.wetFoodId].kcal;
-    html+='<div class="note-box">⚖️ Posiłki mokre liczone energetycznie względem tabeli suchej (1 g suchej ≈ '+ratio.toFixed(1).replace('.',',')+' g mokrej) — dzień mieszany ma tyle samo kalorii co czysto suchy.</div>';
+    var ratio=dryFood.kcal/wetFood.kcal;
+    html+='<div class="note-box">⚖️ Sucha i mokra liczone od wspólnego celu energetycznego (1 g suchej ≈ '+ratio.toFixed(1).replace('.',',')+' g mokrej). Dzień bez mokrej — tryb dom albo suwak mokrego posiłku na 0% — ma dokładnie tyle samo kalorii, pozostałe posiłki przejmują jego udział.</div>';
   }
   if(c.dietActive)
     html+='<div class="note-box">🎯 Odchudzanie: bezpieczne tempo to 1–2% masy ciała tygodniowo. Waż psa co tydzień o tej samej porze i koryguj plan z weterynarzem.</div>';
@@ -1130,6 +1296,8 @@ function renderAll(){
   computed=compute();
   renderModeToggle();
   renderFoodSelects();
+  renderDogCount();
+  renderEnergyCard();
   updateMeals();
   renderExtraForm();
   renderTracker();

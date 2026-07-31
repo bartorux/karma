@@ -28,6 +28,9 @@ wychodzi do sieci.
 - **Waga docelowa (odchudzanie)** — opcjonalne pole; gdy ustawione, wszystkie
   dawki liczone są z tabel dla wagi docelowej zamiast aktualnej (patrz sekcja
   „Odchudzanie" niżej).
+- **Kontrola kaloryczna** — cel dnia w kcal, przelicznik na kg^0,75, RER i norma
+  FEDIAF wg aktywności psa, z werdyktem „poniżej / w normie / powyżej"; do tego
+  wybór podstawy celu (tabela suchej, tabela mokrej albo norma FEDIAF).
 - **Dziennik dnia** — czas podania, sumy mokrej/suchej, postęp x/N,
   automatyczny reset o północy (ustawienia zostają).
 - **Tabelki referencyjne** wybranych karm z podświetleniem wiersza dla wagi,
@@ -35,19 +38,24 @@ wychodzi do sieci.
 
 ## Model dawkowania
 
-**Kotwica kaloryczna — tabela suchej karmy wyznacza dzienny cel energetyczny.**
-Tabele producenta dla suchej i mokrej karmy nie są między sobą równoważne
-energetycznie (dla psa 18 kg: sucha Brit VD GI ≈ 723 kcal/dzień, mokre tabele
-≈ 935 kcal/dzień — różnica ~30%). Dlatego:
+**Wszystko liczy się od jednego dziennego celu energetycznego (kcal).**
+Tabele producentów nie są między sobą równoważne energetycznie (dla psa 18 kg:
+sucha Brit VD GI ≈ 723 kcal/dzień, mokre tabele ≈ 936 kcal — różnica ~30%),
+dlatego aplikacja nie miesza tabel, tylko wyprowadza obie gramatury z celu:
 
-- **udział posiłku = ułamek dziennego celu energetycznego** (cel = dawka
-  z tabeli suchej × jej energia),
-- posiłek suchy: `gramy = udział × dawkaDziennaSuchej` (wprost z tabeli),
-- posiłek mokry: `gramy = udział × dawkaDziennaSuchej × kcalSuchej / kcalMokrej`
-  — równowartość energetyczna, nie tabela mokrej.
+```
+dailyKcal = wg wybranej podstawy (tabela suchej | tabela mokrej | norma FEDIAF)
+gramySuchej = dailyKcal / kcalSuchej      gramyMokrej = dailyKcal / kcalMokrej
+gramy posiłku = udział × gramyDanegoTypu
+```
 
-Dzień mieszany ma dzięki temu zawsze tyle samo kalorii co czysto suchy.
-Tabela mokrej karmy jest pokazywana informacyjnie w podsumowaniu i tabelkach.
+Konsekwencja: **dzień czysto suchy i dzień mieszany niosą dokładnie tyle samo
+energii**. Pominięcie mokrej (tryb dom albo suwak mokrego posiłku na 0%) nie
+wymaga żadnej rekompensaty — pozostałe posiłki przejmują jego udział.
+
+Podstawa celu jest wybierana w karcie „Kontrola kaloryczna"; domyślnie to
+tabela suchej karmy. Tabele niewybrane jako podstawa pokazywane są
+informacyjnie w podsumowaniu i w tabelkach referencyjnych.
 
 Energie metaboliczne (dane producenta, [britvetdiets.com](https://britvetdiets.com/diets/31-gastrointestinal)):
 
@@ -109,6 +117,9 @@ odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
 // 'karma_settings_v6' — trwałe ustawienia
 { v:6, weight, targetWeight,          // targetWeight: null = odchudzanie wyłączone
   dryFoodId, wetFoodId, mode:'dom'|'praca',
+  activity:'low'|'normal'|'high',     // 95 | 110 | 130 kcal/kg^0,75
+  energyBasis:'dry'|'wet'|'fediaf',   // podstawa dziennego celu energetycznego
+  dogCount:1..4,                      // tylko do zużycia karmy, nie zmienia porcji
   shares:{ dom:[⅓,⅓,⅓], praca:[.25,.25,.25,.25] } }
 
 // 'karma_day_v2' — dziennik bieżącego dnia (reset o północy)
@@ -133,14 +144,62 @@ Czysta matematyka dawkowania (blok między `/*TESTABLE-START*/`
 a `/*TESTABLE-END*/` w `index.html`) jest testowana bez przeglądarki:
 
 ```
-node tests/test-math.js                          # Node.js
-osascript -l JavaScript tests/test-math-jxa.js   # macOS bez Node (z katalogu repo)
+node tests/test-math.js                               # Node.js
+node tests/test-integrity.js
+osascript -l JavaScript tests/test-math-jxa.js        # macOS bez Node (z katalogu repo)
+osascript -l JavaScript tests/test-integrity-jxa.js
 ```
 
-Testy pokrywają wartości referencyjne tabel, granice przedziałów,
-bilansowanie suwaków (w tym suwak na 100% i z powrotem), ekstra posiłki
-z wiernym cofaniem, zaokrąglanie gramów oraz kotwicę kaloryczną
-(równowartość energetyczna mokrej i bilans energii dnia mieszanego).
+`test-math` (131 asercji) pokrywa wartości referencyjne tabel, granice
+przedziałów, bilansowanie suwaków (w tym suwak na 100% i z powrotem), ekstra
+posiłki z wiernym cofaniem, zaokrąglanie gramów, normy FEDIAF/AAHA, progi
+werdyktu, kalibrację tabel oraz niezmiennik energii dnia (mieszany = suchy).
+
+`test-integrity` sprawdza sam plik: parsowanie `<script>`, spójność
+`getElementById` z markupem, istnienie funkcji z inline handlerów oraz brak
+półpauz i cudzysłowów typograficznych w pozycjach składniowych CSS
+(tak zepsuła się poprzednia wersja pliku).
+
+## Kontrola kaloryczna
+
+Osobna karta pokazuje, gdzie plan leży względem norm weterynaryjnych — bo same
+tabele producentów potrafią się różnić o ~25% i nie mówią, czy pies dostaje
+tyle, ile powinien.
+
+Miarą jest **masa metaboliczna** (kg^0,75), której używają FEDIAF i AAHA:
+
+| Odniesienie | kcal/kg^0,75 | × RER |
+|---|---|---|
+| RER (zapotrzebowanie spoczynkowe) | 70 | 1,00 |
+| AAHA — poziom redukcji masy | 70 | 1,00 |
+| FEDIAF — pies mało aktywny (<1 h) | 95 | 1,36 |
+| FEDIAF — aktywność normalna (1–3 h) | 110 | 1,57 |
+| FEDIAF — pies aktywny (>3 h) | 130 | 1,86 |
+
+Kalibracja tabel użytych w aplikacji (kcal/kg^0,75):
+
+| Tabela | Wartość | Ocena |
+|---|---|---|
+| Brit VD GI **sucha** | ~83 | poniżej dolnej granicy FEDIAF |
+| Brit VD GI mokra | 107–110 | norma FEDIAF |
+| Brit VD GI Low Fat mokra | 107–110 | norma FEDIAF |
+| Belcando Mastercraft (środek przedziału) | ~100 | dolna część normy |
+
+Obie mokre tabele Brit są wyskalowane dokładnie na 110 kcal/kg^0,75, a sucha
+tabela tego samego producenta leży ~25% niżej — stąd możliwość wyboru podstawy
+celu.
+
+Werdykt porównuje cel dnia z normą FEDIAF dla wybranej aktywności
+(tolerancja ±10%: `poniżej` / `w normie` / `powyżej`).
+
+> **Werdykt „poniżej" nie jest poleceniem dokarmiania.** Normy to średnia
+> populacyjna, a indywidualne zapotrzebowanie waha się ±20–25%. Rozstrzyga
+> kondycja ciała (żebra wyczuwalne, ale niewidoczne; talia widoczna z góry)
+> i trend masy ciała, nie tabela.
+
+Wszystkie porcje w aplikacji są **na jednego psa** — tabele producentów są per
+pies. Ustawienie „liczba psów" nie zmienia porcji w misce, służy wyłącznie do
+policzenia dziennego zużycia karmy.
 
 ## Odchudzanie — jak liczy aplikacja i dlaczego
 
@@ -164,7 +223,9 @@ przeliczania mokrej na równowartość suchej, patrz „Model dawkowania").
 Karma Brit VD GF Gastrointestinal **Low Fat** ma obniżoną kaloryczność
 (775 kcal/kg) i dobrze pasuje do planów redukcyjnych.
 
-Źródła: [AAHA Weight Management Guidelines](https://www.aaha.org/resources/2021-aaha-nutrition-and-weight-management-guidelines/weight-reduction-in-the-obese-pet/),
+Źródła: [FEDIAF Nutritional Guidelines](https://europeanpetfood.org/wp-content/uploads/2022/03/Updated-Nutritional-Guidelines.pdf),
+[Energy Requirements of Adult Dogs: A Meta-Analysis](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4196927/),
+[AAHA Weight Management Guidelines](https://www.aaha.org/resources/2021-aaha-nutrition-and-weight-management-guidelines/weight-reduction-in-the-obese-pet/),
 [VCA — Creating a Weight Reduction Plan for Dogs](https://vcahospitals.com/know-your-pet/creating-a-weight-reduction-plan-for-dogs),
 [Cornell — Obesity and weight loss in dogs](https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/obesity-and-weight-loss-dogs),
 [Association for Pet Obesity Prevention](https://www.petobesityprevention.org/weight-loss-dogs).
