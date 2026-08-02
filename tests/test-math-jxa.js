@@ -290,11 +290,12 @@ assert('deficyt bez planu -> null', deficitVsMaintenance(0, 20, 'normal') === nu
 assert('deficyt bez wagi -> null', deficitVsMaintenance(612, 0, 'normal') === null);
 
 // ---- cel planu x zrodlo normy (odpowiednik dailyKcalTarget) ----
-// Dwa niezalezne pytania: JAKI cel i SKAD norma. 'tabela mokrej' juz nie jest
-// zrodlem dziennego celu — mokry posilek wychodzi z kotwicy kalorycznej.
+// Przy redukcji zrodlo jest jedno: mnoznik x RER wagi docelowej. Tabela
+// producenta odczytana dla wagi docelowej to liczba UTRZYMANIOWA (~1,34 x RER),
+// wiec jako zrodlo redukcji byla redundantna wobec mnoznika i mylaca.
 function dailyKcalByGoal(goal, source, kg, dryFood, activity, factor) {
-  if (goal === 'redukcja' && source === 'rer') return reductionKcal(kg, factor);
-  if (goal === 'utrzymanie' && source === 'fediaf') return fediafKcal(kg, activity);
+  if (goal === 'redukcja') return reductionKcal(kg, factor);
+  if (source === 'fediaf') return fediafKcal(kg, activity);
   return computeDaily(dryFood, kg, activity).grams * dryFood.kcal;
 }
 // REGRESJA: zrodlo 'tabela' daje dokladnie wartosc z tabeli suchej
@@ -304,13 +305,10 @@ eq('utrzymanie/tabela 20kg -> 200 g suchej (regresja)', dailyKcalByGoal('utrzyma
 eq('utrzymanie/tabela 18kg -> 723 kcal', kc, 723.12, 0.01);
 eq('utrzymanie/fediaf 18kg -> 961 kcal', dailyKcalByGoal('utrzymanie', 'fediaf', 18, britDry, 'normal'), 961.27, 0.01);
 eq('redukcja/rer 1.0 18kg -> 612 kcal', dailyKcalByGoal('redukcja', 'rer', 18, britDry, 'normal', 1.0), 611.72, 0.01);
-eq('redukcja/tabela 18kg -> 723 kcal (Brit)', dailyKcalByGoal('redukcja', 'tabela', 18, britDry, 'normal'), 723.12, 0.01);
 
 // scenariusz z pytania: pies 20 kg, cel 18 kg, Belcando
 eq('redukcja/rer 1.0 na Belcando 18kg -> 164 g', reductionKcal(18, 1.0) / bel.kcal, 164.4, 0.1);
 eq('redukcja/rer 1.2 na Belcando 18kg -> 197 g', reductionKcal(18, 1.2) / bel.kcal, 197.3, 0.1);
-eq('redukcja/tabela na Belcando 18kg normal -> 253 g',
-  dailyKcalByGoal('redukcja', 'tabela', 18, bel, 'normal') / bel.kcal, 253, 1e-9);
 // utrzymanie 20 kg na Belcando: aktywnosc RUSZA dawka (kolumny z worka)
 eq('utrzymanie/tabela Belcando 20kg low -> 240 g',
   dailyKcalByGoal('utrzymanie', 'tabela', 20, bel, 'low') / bel.kcal, 240, 1e-9);
@@ -328,7 +326,7 @@ eq('deficyt 612 kcal vs utrzymanie 20 kg, normal', deficitVsMaintenance(rerKcal(
 eq('deficyt 612 kcal vs utrzymanie 20 kg, high', deficitVsMaintenance(rerKcal(18), 20, 'high').pct, 50);
 
 // niezmiennik: obie gramatury niosa te sama energie, niezaleznie od celu i zrodla
-[['utrzymanie', 'tabela'], ['utrzymanie', 'fediaf'], ['redukcja', 'rer'], ['redukcja', 'tabela']].forEach(([goal, source]) => {
+[['utrzymanie', 'tabela'], ['utrzymanie', 'fediaf'], ['redukcja', 'rer']].forEach(([goal, source]) => {
   const k = dailyKcalByGoal(goal, source, 18, britDry, 'normal', 1.0);
   const dG = k / britDry.kcal, wG = k / wetLF.kcal;
   assert(`niezmiennik energii, ${goal}/${source}`,
@@ -337,7 +335,8 @@ eq('deficyt 612 kcal vs utrzymanie 20 kg, high', deficitVsMaintenance(rerKcal(18
 
 // ---- migracja ustawien v6 -> v7 ----
 eq('migracja: redukcja -> goal redukcja', goalFromBasis('redukcja', true).goal, 'redukcja');
-eq('migracja: redukcja -> zrodlo rer', goalFromBasis('redukcja', true).reductionSource, 'rer');
+// zapisany mnoznik zostaje nietkniety
+assert('migracja: redukcja nie nadpisuje mnoznika', goalFromBasis('redukcja', true).reductionFactor === undefined);
 eq('migracja: dry bez celu -> utrzymanie', goalFromBasis('dry', false).goal, 'utrzymanie');
 eq('migracja: dry bez celu -> zrodlo tabela', goalFromBasis('dry', false).maintenanceSource, 'tabela');
 eq('migracja: fediaf bez celu -> zrodlo fediaf', goalFromBasis('fediaf', false).maintenanceSource, 'fediaf');
@@ -345,14 +344,46 @@ eq('migracja: fediaf bez celu -> zrodlo fediaf', goalFromBasis('fediaf', false).
 eq('migracja: wet -> tabela', goalFromBasis('wet', false).maintenanceSource, 'tabela');
 // w v6 sama waga docelowa po cichu przelaczala dawkowanie -> w v7 to redukcja
 eq('migracja: dry z waga docelowa -> redukcja', goalFromBasis('dry', true).goal, 'redukcja');
-eq('migracja: dry z waga docelowa -> zrodlo tabela', goalFromBasis('dry', true).reductionSource, 'tabela');
+eq('migracja: dry z waga docelowa -> mnoznik 1.2', goalFromBasis('dry', true).reductionFactor, 1.2);
 eq('migracja: fediaf z waga docelowa -> redukcja', goalFromBasis('fediaf', true).goal, 'redukcja');
 // walidatory
 assert('isGoal odrzuca smieci', isGoal('bzdura') === false);
 assert('isGoal przyjmuje utrzymanie', isGoal('utrzymanie') === true);
 assert('isMaintenanceSource odrzuca rer', isMaintenanceSource('rer') === false);
-assert('isReductionSource odrzuca fediaf', isReductionSource('fediaf') === false);
-assert('isReductionSource przyjmuje rer', isReductionSource('rer') === true);
+assert('isMaintenanceSource przyjmuje fediaf', isMaintenanceSource('fediaf') === true);
+assert('REDUCTION_SOURCES usuniete', typeof REDUCTION_SOURCES === 'undefined');
+
+// ---- sugestia mnoznika redukcji ----
+// Celem jest deficyt 20-40% (≈1-2% masy tygodniowo), nie konkretna liczba kcal.
+// Ten sam plan daje inny deficyt zaleznie od tego, jak bardzo pies jest ponad celem.
+let sg = suggestReductionFactor(18, 20, 'normal');   // 11% ponad cel
+eq('sugestia 20->18 normal: mnoznik 1.2', sg.factor, 1.2);
+eq('sugestia 20->18 normal: deficyt 29%', sg.pct, 29);
+// 1.0 x RER dawaloby 41% — poza pasmem, stad sugestia lagodniejszego poziomu
+eq('kontrola: 1.0 x RER przy 20->18 daje 41%', deficitVsMaintenance(rerKcal(18), 20, 'normal').pct, 41);
+sg = suggestReductionFactor(18, 30, 'normal');       // 67% ponad cel
+eq('sugestia 30->18 normal: mnoznik 1.4', sg.factor, 1.4);
+eq('sugestia 30->18 normal: deficyt 39%', sg.pct, 39);
+// pies bardzo otyly: nawet najlagodniejszy poziom wypada poza pasmem
+assert('sugestia 40->18 -> null', suggestReductionFactor(18, 40, 'normal') === null);
+// cel nie nizszy od wagi aktualnej -> brak sensownej sugestii
+assert('sugestia gdy cel >= waga aktualna -> null', suggestReductionFactor(20, 20, 'normal') === null);
+assert('sugestia gdy cel > waga aktualna -> null', suggestReductionFactor(22, 20, 'normal') === null);
+assert('sugestia bez wagi -> null', suggestReductionFactor(18, 0, 'normal') === null);
+// aktywnosc zmienia utrzymanie, wiec i sugestie
+assert('sugestia zalezy od aktywnosci',
+  suggestReductionFactor(18, 20, 'low').factor !== suggestReductionFactor(18, 20, 'high').factor);
+// niezmienniki: wynik zawsze z listy i zawsze w pasmie
+[[18, 20], [18, 22], [18, 25], [18, 30], [10, 12], [30, 36]].forEach(([tgt, real]) => {
+  ['low', 'normal', 'high'].forEach(a => {
+    const r = suggestReductionFactor(tgt, real, a);
+    if (!r) return;
+    assert(`sugestia ${real}->${tgt} ${a}: mnoznik z listy`, REDUCTION_FACTORS.indexOf(r.factor) >= 0);
+    assert(`sugestia ${real}->${tgt} ${a}: deficyt w 20-40% (${r.pct}%)`, r.pct >= 20 && r.pct <= 40);
+    eq(`sugestia ${real}->${tgt} ${a}: pct zgodny z deficytem`,
+      r.pct, deficitVsMaintenance(reductionKcal(tgt, r.factor), real, a).pct);
+  });
+});
 
 // ---- dzien bez mokrej ma te sama energie co mieszany ----
 const kcDay = dailyKcalByGoal('utrzymanie', 'tabela', 18, britDry, 'normal');

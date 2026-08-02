@@ -89,6 +89,8 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 .extra-grams-wrap.disabled,.extra-type-toggle.disabled{opacity:.45;pointer-events:none}
 .extra-add-btn{background:var(--green-mid);color:white;border-radius:10px;padding:9px 16px;font-size:.85rem;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;display:flex;align-items:center;white-space:nowrap}
 .extra-add-btn.disabled{opacity:.45;pointer-events:none}
+.suggest-btn{display:inline-block;margin-top:9px;background:var(--green-mid);color:white;border-radius:9px;
+  padding:7px 14px;font-size:.78rem;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none}
 .extra-warn{font-size:.76rem;color:var(--brown-dark);background:rgba(196,149,106,.18);border-radius:8px;padding:7px 11px;margin-top:9px}
 
 /* EXTRA CHIPS */
@@ -171,8 +173,6 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 [role="button"]:focus-visible{outline:2px solid var(--green-mid);outline-offset:2px}
 
 /* KONTROLA KALORYCZNA */
-.per-dog-tag{font-family:'Lato',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
-  background:var(--green-mist);color:var(--text-mid);border:1px solid var(--green-pale);border-radius:20px;padding:3px 9px}
 .energy-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
 .energy-block{background:var(--green-mist);border:1px solid rgba(184,212,170,.6);border-radius:12px;padding:11px 12px;text-align:center;min-width:0}
 .eb-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-mid);opacity:.75;margin-bottom:3px}
@@ -223,9 +223,6 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
     <span class="weight-unit">kg</span>
   </div>
   <div class="hint">Dawki liczone z tabel wybranych karm; wagi pośrednie interpolowane liniowo. Odchudzanie ustawisz w karcie „Cel planu" niżej.</div>
-  <span class="field-label food-gap">🐕 Liczba psów (zbliżona waga)</span>
-  <div class="mode-toggle" id="dogcount-toggle"></div>
-  <div class="hint">Wszystkie porcje w aplikacji są <strong>na jednego psa</strong>. Liczba psów służy tylko do policzenia zużycia karmy.</div>
 </div>
 
 <!-- KARMY -->
@@ -242,7 +239,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 
 <!-- KONTROLA KALORYCZNA -->
 <div class="card">
-  <div class="card-title">🎯 Cel planu <span class="per-dog-tag">na 1 psa</span></div>
+  <div class="card-title">🎯 Cel planu</div>
   <span class="field-label">Co robimy?</span>
   <div class="mode-toggle" style="margin-bottom:14px">
     <div class="mode-btn" id="goal-btn-utrzymanie" role="button" tabindex="0" onclick="onGoalChange('utrzymanie')">
@@ -267,21 +264,15 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
       <input id="target-input" class="weight-field" type="text" inputmode="decimal" placeholder="np. 16" oninput="onTargetChange(this.value)">
       <span class="weight-unit">kg</span>
     </div>
-    <span class="field-label food-gap">Poziom wg</span>
-    <select id="reduction-source" class="food-select" onchange="onReductionSourceChange(this.value)">
-      <option value="rer">RER wagi docelowej (protokół AAHA)</option>
-      <option value="tabela">Tabela producenta dla wagi docelowej</option>
+    <span class="field-label food-gap">Poziom redukcji wg AAHA</span>
+    <select id="reduction-select" class="food-select" onchange="onReductionFactorChange(this.value)">
+      <option value="1">1,0 × RER — start protokołu</option>
+      <option value="1.1">1,1 × RER</option>
+      <option value="1.2">1,2 × RER — wariant łagodny</option>
+      <option value="1.3">1,3 × RER</option>
+      <option value="1.4">1,4 × RER — wyjście z plateau</option>
     </select>
-    <div id="reduction-factor-wrap">
-      <span class="field-label food-gap">Poziom redukcji wg AAHA</span>
-      <select id="reduction-select" class="food-select" onchange="onReductionFactorChange(this.value)">
-        <option value="1">1,0 × RER — start protokołu</option>
-        <option value="1.1">1,1 × RER</option>
-        <option value="1.2">1,2 × RER — wariant łagodny</option>
-        <option value="1.3">1,3 × RER</option>
-        <option value="1.4">1,4 × RER — wyjście z plateau</option>
-      </select>
-    </div>
+    <div class="hint">Dawka liczona z RER wagi docelowej. Tabela producenta to poziom <strong>utrzymaniowy</strong> — mówi, ile jeść po osiągnięciu celu, nie ile jeść, żeby go osiągnąć.</div>
   </div>
 
   <span class="field-label food-gap" id="activity-label">Aktywność psa</span>
@@ -348,7 +339,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
 
 <!-- PODSUMOWANIE -->
 <div class="summary-card">
-  <div class="summary-title">📊 Dawka dzienna (plan) <span class="per-dog-tag" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.85)">na 1 psa</span></div>
+  <div class="summary-title">📊 Dawka dzienna (plan)</div>
   <div id="summary-content"><div class="no-calc">Podaj wagę psa — wyniki pojawią się automatycznie 🐾</div></div>
 </div>
 
@@ -583,23 +574,47 @@ function deficitVsMaintenance(planKcal,realKg,activity){
   if(!m||!(planKcal>0))return null;
   return{maint:m,pct:Math.round((1-planKcal/m)*100)};
 }
+/* Zalecane tempo 1-2% masy tygodniowo odpowiada deficytowi 20-40% wobec
+   utrzymania dla wagi aktualnej. Ten sam mnożnik daje różny deficyt zależnie
+   od tego, jak bardzo pies jest ponad celem: 1,0 x RER to protokół dla psów
+   realnie otyłych, przy lekkiej nadwadze bywa za ostry. */
+var DEFICIT_MIN=20,DEFICIT_MAX=40,DEFICIT_AIM=30;
+/* Mnożnik dający deficyt w pasmie, najbliżej jego środka.
+   null, gdy żaden nie trafia — wtedy plan wymaga nadzoru weterynaryjnego. */
+function suggestReductionFactor(targetKg,realKg,activity){
+  /* Sugestia ma sens tylko wtedy, gdy jest co zrzucać. */
+  if(!(targetKg>0)||!(realKg>0)||targetKg>=realKg)return null;
+  var maint=fediafKcal(realKg,activity),r=rerKcal(targetKg);
+  if(!maint||!r)return null;
+  var best=null,i,f,pct,dist;
+  for(i=0;i<REDUCTION_FACTORS.length;i++){
+    f=REDUCTION_FACTORS[i];
+    pct=Math.round((1-f*r/maint)*100);
+    if(pct<DEFICIT_MIN||pct>DEFICIT_MAX)continue;
+    dist=Math.abs(pct-DEFICIT_AIM);
+    if(!best||dist<best.dist)best={factor:f,pct:pct,dist:dist};
+  }
+  return best?{factor:best.factor,pct:best.pct}:null;
+}
 /* ---- Cel planu i źródło normy ----
-   Dwa niezależne pytania: JAKI cel (utrzymanie / redukcja) i SKĄD norma.
-   Źródła trzymane w osobnych polach, żeby przełączanie celu tam i z powrotem
-   nie gubiło wyboru. */
+   JAKI cel (utrzymanie / redukcja), a przy utrzymaniu dodatkowo SKĄD norma.
+   Przy redukcji źródło jest jedno — mnożnik x RER wagi docelowej. Tabela
+   producenta odczytana dla wagi docelowej to liczba UTRZYMANIOWA (ok. 1,34 x RER,
+   praktycznie tożsama z normą FEDIAF), więc jako źródło redukcji byłaby
+   redundantna wobec mnożnika i myląca — przy aktywności normalnej dawała
+   1,54 x RER, czyli deficyt ok. 10%. */
 var GOALS={utrzymanie:'utrzymanie',redukcja:'redukcja'};
 var MAINTENANCE_SOURCES={tabela:'tabela producenta',fediaf:'norma FEDIAF'};
-var REDUCTION_SOURCES={rer:'RER wagi docelowej',tabela:'tabela producenta'};
 function isGoal(g){return Object.prototype.hasOwnProperty.call(GOALS,g)}
 function isMaintenanceSource(s){return Object.prototype.hasOwnProperty.call(MAINTENANCE_SOURCES,s)}
-function isReductionSource(s){return Object.prototype.hasOwnProperty.call(REDUCTION_SOURCES,s)}
-/* Migracja ustawień v6 (energyBasis) -> v7 (goal + źródła).
+/* Migracja ustawień v6 (energyBasis) -> v7 (goal + źródło utrzymaniowe).
    'wet' znika jako źródło dziennego celu — mapowane na tabelę suchej.
-   W v6 sama waga docelowa po cichu przełączała dawkowanie, więc jej obecność
-   przy podstawie tabelarycznej oznacza w v7 redukcję ze źródłem 'tabela'. */
+   W v6 sama waga docelowa po cichu przełączała dawkowanie na tabelę odczytaną
+   dla niej; w v7 to jawna redukcja, a odpowiednikiem jest mnożnik ze środka
+   zalecanego pasma deficytu. */
 function goalFromBasis(basis,hasTarget){
-  if(basis==='redukcja')return{goal:'redukcja',reductionSource:'rer'};
-  if(hasTarget)return{goal:'redukcja',reductionSource:'tabela'};
+  if(basis==='redukcja')return{goal:'redukcja'};
+  if(hasTarget)return{goal:'redukcja',reductionFactor:1.2};
   return{goal:'utrzymanie',maintenanceSource:basis==='fediaf'?'fediaf':'tabela'};
 }
 /*TESTABLE-END*/
@@ -629,8 +644,8 @@ var savedTimer=null,extraWarnTimer=null;
 
 function defaultSettings(){
   return{v:7,weight:null,targetWeight:null,dryFoodId:'brit_gastro_dry',wetFoodId:'brit_gastro_wet',mode:'dom',
-    activity:'normal',goal:'utrzymanie',maintenanceSource:'tabela',reductionSource:'rer',
-    reductionFactor:1.0,dogCount:1,
+    activity:'normal',goal:'utrzymanie',maintenanceSource:'tabela',
+    reductionFactor:1.0,
     shares:{dom:[1/3,1/3,1/3],praca:[0.25,0.25,0.25,0.25]}};
 }
 function pad2(n){return(n<10?'0':'')+n}
@@ -682,9 +697,7 @@ function loadSettings(){
       if(ACTIVITY_KCAL[d.activity])s.activity=d.activity;
       if(isGoal(d.goal))s.goal=d.goal;
       if(isMaintenanceSource(d.maintenanceSource))s.maintenanceSource=d.maintenanceSource;
-      if(isReductionSource(d.reductionSource))s.reductionSource=d.reductionSource;
       if(isReductionFactor(d.reductionFactor))s.reductionFactor=d.reductionFactor;
-      if(typeof d.dogCount==='number'&&d.dogCount>=1&&d.dogCount<=4)s.dogCount=Math.round(d.dogCount);
       var modes=['dom','praca'];
       for(var i=0;i<modes.length;i++){
         var m=modes[i],arr=d.shares&&d.shares[m];
@@ -747,7 +760,7 @@ function migrate(){
           v6.v=7;
           v6.goal=g.goal;
           if(g.maintenanceSource)v6.maintenanceSource=g.maintenanceSource;
-          if(g.reductionSource)v6.reductionSource=g.reductionSource;
+          if(g.reductionFactor)v6.reductionFactor=g.reductionFactor;
           delete v6.energyBasis;
           localStorage.setItem(LS_SET,JSON.stringify(v6));
         }
@@ -788,7 +801,7 @@ function compute(){
   var wetTable=valid?computeDaily(wetFood,kg):null;
   /* Źródło dziennego celu; obie gramatury wyprowadzane z niego, więc dzień
      suchy i mieszany zawsze niosą tę samą energię. */
-  var source=diet?settings.reductionSource:settings.maintenanceSource;
+  var source=diet?'rer':settings.maintenanceSource;
   var fromTable=(source==='tabela');
   var dailyKcal=valid?dailyKcalTarget(kg):null;
   var dryDailyG=dailyKcal?dailyKcal/dryFood.kcal:null;
@@ -802,6 +815,10 @@ function compute(){
      AKTUALNEJ, a nie normy dla docelowej (ta zawsze wyjdzie "poniżej"). */
   var deficit=(diet&&dailyKcal&&realKg>0)?deficitVsMaintenance(dailyKcal,realKg,settings.activity):null;
   var aahaKcal=diet?rerKcal(targetKg):null;
+  /* Sugerowany mnożnik i stopień nadwagi — ten sam plan daje inny deficyt
+     zależnie od tego, jak daleko pies jest od celu. */
+  var suggest=(diet&&realKg>0)?suggestReductionFactor(targetKg,realKg,settings.activity):null;
+  var overPct=(diet&&realKg>0&&targetKg>0)?(realKg/targetKg-1)*100:null;
   var mealTypes={},mealGrams={},dryIds=[],wetIds=[],i,id;
   for(i=0;i<mode.mealIds.length;i++){
     id=mode.mealIds[i];
@@ -859,6 +876,7 @@ function compute(){
     dry:dry,wetTable:wetTable,dryDailyG:dryDailyG,wetDailyG:wetDailyG,dailyKcal:dailyKcal,
     source:source,fromTable:fromTable,mKg:mKg,rer:rer,fediafTarget:fediafTarget,
     kcalPerMetabolic:kcalPerMetabolic,verdict:verdict,deficit:deficit,aahaKcal:aahaKcal,
+    suggest:suggest,overPct:overPct,
     mealTypes:mealTypes,mealGrams:mealGrams,
     givenDry:Math.round(givenDry),givenWet:Math.round(givenWet),remDry:remDry,remWet:remWet,
     fedCount:fedCount,N:mode.mealIds.length,wetInUse:wetInUse,warnings:warnings};
@@ -928,26 +946,11 @@ function onMaintenanceSourceChange(s){
   saveSettings();flashSaved();
   renderAll();
 }
-function onReductionSourceChange(s){
-  checkDayReset();
-  if(!isReductionSource(s))return;
-  settings.reductionSource=s;
-  saveSettings();flashSaved();
-  renderAll();
-}
 function onReductionFactorChange(v){
   checkDayReset();
   var f=parseFloat(v);
   if(!isReductionFactor(f))return;
   settings.reductionFactor=f;
-  saveSettings();flashSaved();
-  renderAll();
-}
-function setDogCount(n){
-  checkDayReset();
-  n=Math.round(n);
-  if(!(n>=1&&n<=4))return;
-  settings.dogCount=n;
   saveSettings();flashSaved();
   renderAll();
 }
@@ -994,8 +997,7 @@ function dosingWeight(){
 function dailyKcalTarget(kg){
   if(!(kg>0))return null;
   var dryFood=DRY_FOODS[settings.dryFoodId],t;
-  if(dietActive()&&settings.reductionSource==='rer')
-    return reductionKcal(kg,settings.reductionFactor);
+  if(dietActive())return reductionKcal(kg,settings.reductionFactor);
   if(!dietActive()&&settings.maintenanceSource==='fediaf')
     return fediafKcal(kg,settings.activity);
   t=computeDaily(dryFood,kg,settings.activity);
@@ -1190,7 +1192,7 @@ function buildMealCards(){
       +'<div class="meal-title">'+meta.icon+' '+meta.name
       +' <span class="type-badge '+(isWet?'tb-wet':'tb-dry')+'">'+(isWet?'💧 MOKRA':'🌾 SUCHA')+'</span></div>'
       +'<div class="meal-badges">'
-      +'<div class="meal-total-badge" title="Porcja na jednego psa"><input type="text" inputmode="numeric" class="meal-grams-field" id="grams-'+id+'" placeholder="—"'
+      +'<div class="meal-total-badge" title="Gramatura posiłku"><input type="text" inputmode="numeric" class="meal-grams-field" id="grams-'+id+'" placeholder="—"'
       +' oninput="onGramsInput(\''+id+'\',this.value)" onchange="onGramsCommit(\''+id+'\')"><span>g</span></div>'
       +'<div class="fed-btn" id="fedbtn-'+id+'" role="button" tabindex="0" onclick="toggleFed(\''+id+'\')">✓ Podano</div>'
       +'</div></div>'
@@ -1266,14 +1268,6 @@ function cansStr(grams){
 function fmtKg(kg){
   return(Math.round(kg*10)/10).toString().replace('.',',');
 }
-function renderDogCount(){
-  var el=document.getElementById('dogcount-toggle'),html='',n;
-  for(n=1;n<=4;n++){
-    html+='<div class="mode-btn'+(settings.dogCount===n?' active':'')+'" role="button" tabindex="0" onclick="setDogCount('+n+')">'
-      +'<div class="mb-name">'+n+'</div><div class="mb-sub">'+(n===1?'pies':(n<5?'psy':'psów'))+'</div></div>';
-  }
-  el.innerHTML=html;
-}
 function renderEnergyCard(){
   var c=computed,el=document.getElementById('energy-readout'),red=(settings.goal==='redukcja');
   document.getElementById('goal-btn-utrzymanie').classList.toggle('active',!red);
@@ -1281,16 +1275,14 @@ function renderEnergyCard(){
   document.getElementById('maintenance-wrap').style.display=red?'none':'';
   document.getElementById('redukcja-wrap').style.display=red?'':'none';
   document.getElementById('maintenance-source').value=settings.maintenanceSource;
-  document.getElementById('reduction-source').value=settings.reductionSource;
   document.getElementById('reduction-select').value=settings.reductionFactor;
-  document.getElementById('reduction-factor-wrap').style.display=(settings.reductionSource==='rer')?'':'none';
   var a;
   for(a in ACTIVITY_KCAL)
     document.getElementById('act-btn-'+a).classList.toggle('active',settings.activity===a);
   /* Aktywność rusza dawką tylko wtedy, gdy norma pochodzi z tabeli producenta
      (kolumny aktywności) albo z FEDIAF. Przy RER wagi docelowej dawka jest
      z definicji niezależna od aktywności — zostaje jej rola w ocenie deficytu. */
-  var actMovesDose=c.fromTable||(!red&&settings.maintenanceSource==='fediaf');
+  var actMovesDose=!red;
   document.getElementById('activity-label').textContent=actMovesDose
     ?'Aktywność psa — wpływa na dawkę'
     :'Aktywność psa — tylko do oceny deficytu';
@@ -1322,11 +1314,18 @@ function renderEnergyCard(){
       :(d>40?'Deficyt powyżej 40% grozy szybszą utratą niż 2% masy tygodniowo — prowadź pod kontrolą weterynarza i kontroluj masę co tydzień.'
       :'Odpowiada to mniej więcej zalecanym 1–2% masy ciała tygodniowo. Rozstrzyga jednak faktyczny trend masy, nie wyliczenie.');
     html+='<div class="verdict '+dCls+'"><strong>'+dHead+'</strong>'+dBody+'</div>';
-    if(settings.reductionSource!=='rer')
-      html+='<div class="verdict v-ok" style="background:rgba(74,124,74,.08)"><strong>🎯 Poziom redukcji wg AAHA</strong>'
-        +'Protokół startowy to 1,0 × RER wagi docelowej, czyli ok. '+Math.round(c.aahaKcal)+' kcal dla '+fmtKg(c.targetKg)+' kg. '
-        +'Obecne źródło („'+REDUCTION_SOURCES[settings.reductionSource]+'") daje '+Math.round(c.dailyKcal)+' kcal. '
-        +'Aby liczyć wprost wg AAHA, zmień „Poziom wg" na RER wagi docelowej.</div>';
+    /* Podpowiedź mnożnika: ten sam plan daje inny deficyt zależnie od tego,
+       jak bardzo pies jest ponad celem. Sugestia, nie automat. */
+    if(c.suggest&&c.suggest.factor!==settings.reductionFactor)
+      html+='<div class="verdict v-above"><strong>💡 Sugerowany poziom: '+fmtKg(c.suggest.factor)+' × RER</strong>'
+        +'Pies jest '+Math.round(c.overPct)+'% ponad cel. Obecne '+fmtKg(settings.reductionFactor)+' × RER daje deficyt '+d+'%'
+        +(d>DEFICIT_MAX?' — więcej niż zalecane 1–2% masy tygodniowo. ':(d<DEFICIT_MIN?' — za mało, żeby pies chudł. ':'. '))
+        +fmtKg(c.suggest.factor)+' × RER da '+c.suggest.pct+'%.'
+        +'<div class="suggest-btn" role="button" tabindex="0" onclick="onReductionFactorChange(\''+c.suggest.factor+'\')">Ustaw '+fmtKg(c.suggest.factor)+' × RER</div></div>';
+    else if(!c.suggest)
+      html+='<div class="verdict v-below"><strong>⚠️ Żaden poziom nie mieści się w zalecanym pasmie</strong>'
+        +'Przy '+Math.round(c.overPct)+'% ponad cel nawet najłagodniejszy poziom ('+fmtKg(REDUCTION_FACTORS[REDUCTION_FACTORS.length-1])+' × RER) '
+        +'daje deficyt poza zakresem 20–40%. Taki plan prowadź pod kontrolą weterynarza — być może cel wymaga rozbicia na etapy.</div>';
   }else{
     var v=c.verdict;
     if(v){
@@ -1406,8 +1405,9 @@ function renderSummary(){
   }
   var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId];
   if(c.dailyKcal){
-    var srcLabel=c.dietActive?REDUCTION_SOURCES[c.source]:MAINTENANCE_SOURCES[c.source];
-    if(c.dietActive&&c.source==='rer')srcLabel+=' '+fmtKg(settings.reductionFactor)+'×';
+    var srcLabel=c.dietActive
+      ?'RER wagi docelowej '+fmtKg(settings.reductionFactor)+'×'
+      :MAINTENANCE_SOURCES[c.source];
     if(c.fromTable&&dryFood.pointsByActivity)srcLabel+=' · '+ACTIVITY_LABEL[settings.activity];
     html+='<div class="sum-row"><span class="sl">⚖️ Cel energetyczny dnia</span><span class="sv">~'+Math.round(c.dailyKcal)+' kcal'
       +(dryFood.kcalEstimated&&c.fromTable?' (szac.)':'')+' · '+srcLabel+'</span></div>';
@@ -1423,12 +1423,6 @@ function renderSummary(){
   html+='<div class="sum-row"><span class="sl">Podano dziś</span><span class="sv">'+(c.givenDry+c.givenWet)+' g</span></div>';
   html+='<div class="sum-row"><span class="sl">Pozostało (plan)</span><span class="sv">'+(c.remDry+c.remWet)+' g</span></div>';
   html+='<div class="sum-total"><span class="st-label">Razem w miskach</span><span class="st-value">~'+(planDry+planWet)+' g</span></div>';
-  if(settings.dogCount>1){
-    var n=settings.dogCount,tot='';
-    if(planDry>0)tot+=planDry*n+' g suchej';
-    if(planWet>0)tot+=(tot?' + ':'')+planWet*n+' g mokrej (≈ '+cansStr(planWet*n)+' puszki)';
-    html+='<div class="note-box">🐕 Zużycie karmy dla '+n+' psów: '+tot+' dziennie. Porcje wyżej dotyczą <strong>jednego</strong> psa — każdy pies dostaje pełną pokazaną miskę.</div>';
-  }
   for(i=0;i<c.warnings.length;i++)html+='<div class="note-box warn">'+c.warnings[i]+'</div>';
   if(c.wetInUse&&c.dailyKcal){
     var ratio=dryFood.kcal/wetFood.kcal;
@@ -1492,7 +1486,6 @@ function renderAll(){
   computed=compute();
   renderModeToggle();
   renderFoodSelects();
-  renderDogCount();
   renderEnergyCard();
   updateMeals();
   renderExtraForm();

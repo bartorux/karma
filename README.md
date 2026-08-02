@@ -66,24 +66,29 @@ Karta „Cel planu" rozdziela dwa niezależne pytania: **jaki masz cel** i
 ```
 CEL:  [ Utrzymanie ]              [ Redukcja ]
         │                           │
-        │                           ├─ Waga docelowa
-        ├─ Norma wg:                ├─ Poziom wg:
-        │   • tabela producenta     │   • RER wagi docelowej × 1,0–1,4 (AAHA)
-        │   • norma FEDIAF          │   • tabela producenta dla wagi docelowej
-        │                           │
-        └─ Aktywność ───────────────┴─ Aktywność
+        ├─ Norma wg:                ├─ Waga docelowa
+        │   • tabela producenta     └─ Poziom: 1,0–1,4 × RER wagi docelowej
+        │   • norma FEDIAF
+        │
+        └─ Aktywność ───────────────── Aktywność
 ```
 
 Waga docelowa działa **tylko** przy celu „Redukcja" — samo jej wpisanie nie
 zmienia po cichu dawkowania.
 
+Przy redukcji źródło jest **jedno**: mnożnik × RER wagi docelowej. Tabela
+producenta odczytana dla wagi docelowej to liczba **utrzymaniowa** (≈1,34 × RER),
+więc jako źródło redukcji byłaby redundantna wobec mnożnika i myląca — przy
+aktywności „normalna" dawała 1,54 × RER, czyli deficyt ok. 10%. Szczegóły
+w sekcji „Odchudzanie".
+
 ### Rola aktywności
 
-| Źródło normy | Czy aktywność zmienia dawkę? |
+| Cel / źródło | Czy aktywność zmienia dawkę? |
 |---|---|
-| tabela producenta | **tak**, jeśli producent ma kolumny aktywności (Belcando) |
-| norma FEDIAF | **tak** — 95 / 110 / 130 kcal/kg^0,75 |
-| RER wagi docelowej | **nie** — RER jest z definicji energią spoczynkową |
+| utrzymanie, tabela producenta | **tak**, jeśli producent ma kolumny aktywności (Belcando) |
+| utrzymanie, norma FEDIAF | **tak** — 95 / 110 / 130 kcal/kg^0,75 |
+| redukcja | **nie** — RER jest z definicji energią spoczynkową |
 
 Przy redukcji opartej na RER aktywność nadal ma znaczenie, ale dla **oceny**,
 nie dla dawki: decyduje, jak głęboki jest deficyt względem utrzymania dla wagi
@@ -166,12 +171,10 @@ odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
   activity:'low'|'normal'|'high',     // 95 | 110 | 130 kcal/kg^0,75
   goal:'utrzymanie'|'redukcja',       // cel planu
   maintenanceSource:'tabela'|'fediaf',        // źródło normy przy utrzymaniu
-  reductionSource:'rer'|'tabela',             // źródło normy przy redukcji
-  reductionFactor:1.0|1.1|1.2|1.3|1.4,        // mnożnik RER dla źródła 'rer'
-  dogCount:1..4,                      // tylko do zużycia karmy, nie zmienia porcji
+  reductionFactor:1.0|1.1|1.2|1.3|1.4,        // mnożnik RER przy redukcji
   shares:{ dom:[⅓,⅓,⅓], praca:[.25,.25,.25,.25] } }
-// Oba źródła trzymane osobno, żeby przełączanie celu tam i z powrotem
-// nie gubiło wcześniejszego wyboru.
+// maintenanceSource dotyczy wyłącznie celu 'utrzymanie'; przy redukcji
+// źródłem jest zawsze RER wagi docelowej.
 
 // 'karma_day_v2' — dziennik bieżącego dnia (reset o północy)
 { date:'YYYY-MM-DD', mode,
@@ -188,8 +191,8 @@ Migracja v6 → v7 tłumaczy `energyBasis` na cel i źródło (`goalFromBasis`):
 
 | v6 `energyBasis` | waga docelowa | v7 |
 |---|---|---|
-| `'redukcja'` | — | `goal:'redukcja'`, `reductionSource:'rer'` |
-| `'dry'` / `'wet'` / `'fediaf'` | ustawiona | `goal:'redukcja'`, `reductionSource:'tabela'` |
+| `'redukcja'` | — | `goal:'redukcja'` (zapisany mnożnik bez zmian) |
+| `'dry'` / `'wet'` / `'fediaf'` | ustawiona | `goal:'redukcja'`, `reductionFactor:1.2` |
 | `'fediaf'` | brak | `goal:'utrzymanie'`, `maintenanceSource:'fediaf'` |
 | `'dry'` / `'wet'` | brak | `goal:'utrzymanie'`, `maintenanceSource:'tabela'` |
 
@@ -284,10 +287,6 @@ zastępuje **deficyt względem utrzymania dla wagi aktualnej** — patrz
 > kondycja ciała (żebra wyczuwalne, ale niewidoczne; talia widoczna z góry)
 > i trend masy ciała, nie tabela.
 
-Wszystkie porcje w aplikacji są **na jednego psa** — tabele producentów są per
-pies. Ustawienie „liczba psów" nie zmienia porcji w misce, służy wyłącznie do
-policzenia dziennego zużycia karmy.
-
 ## Odchudzanie — jak liczy aplikacja i dlaczego
 
 Zgodnie z wytycznymi weterynaryjnymi (AAHA, VCA, Cornell, APOP):
@@ -295,12 +294,11 @@ Zgodnie z wytycznymi weterynaryjnymi (AAHA, VCA, Cornell, APOP):
 1. **Dawkowanie na wagę docelową, nie aktualną** — po wybraniu celu „Redukcja"
    i podaniu wagi docelowej wszystkie dawki (i podświetlenie tabelek) liczone
    są dla niej. To standardowe zalecenie producentów i lecznic.
-2. **Źródło „RER wagi docelowej" = mnożnik × RER** — protokół AAHA startuje od
+2. **Jedyne źródło to mnożnik × RER wagi docelowej** — protokół AAHA startuje od
    `1,0 × RER(waga docelowa)`; dostępne mnożniki 1,0–1,4 (wyższe = wariant
-   łagodny albo wyjście z plateau). To jedyne źródło, które wprowadza faktyczny
-   deficyt — tabela producenta i norma FEDIAF to poziomy **utrzymaniowe**, tyle
-   że odczytane dla niższej wagi. Drugie źródło („tabela producenta dla wagi
-   docelowej") zostaje dostępne jako wariant łagodniejszy.
+   łagodny albo wyjście z plateau). Tylko to wprowadza faktyczny deficyt;
+   tabela producenta i norma FEDIAF to poziomy **utrzymaniowe**, tyle że
+   odczytane dla niższej wagi (patrz niżej).
 3. **Miarą planu jest deficyt wobec utrzymania dla wagi AKTUALNEJ** —
    przy redukcji karta kaloryczna porównuje cel dnia z `MER(waga aktualna)`,
    bo to on decyduje o tempie chudnięcia. Porównanie z normą dla wagi docelowej
@@ -317,14 +315,54 @@ Zgodnie z wytycznymi weterynaryjnymi (AAHA, VCA, Cornell, APOP):
 6. **Duża redukcja = weterynarz** — cel poniżej 80% aktualnej wagi wyświetla
    osobne ostrzeżenie (redukcja >20% masy powinna przebiegać pod nadzorem).
 
+### Dlaczego producent i AAHA dają różne liczby
+
+To najczęstsze źródło nieporozumienia: tabela producenta odczytana dla wagi
+docelowej daje ~34% więcej kalorii niż protokół AAHA. **To nie jest rozbieżność
+danych — oba odpowiadają na inne pytanie.** Po sprowadzeniu do wspólnej miary
+(wielokrotność RER wagi docelowej) widać to od razu:
+
+| Źródło | kcal/kg^0,75 | × RER | Co to właściwie jest |
+|---|---|---|---|
+| AAHA — poziom redukcji | 70 | **1,00** | ile jeść, **żeby schudnąć** do 18 kg |
+| Belcando „Normale" | 94 | 1,34 | ile jeść, **żeby utrzymać** 18 kg |
+| FEDIAF mało aktywny | 95 | 1,36 | to samo, innym słowem |
+| Belcando „Erhöhte" | 108 | 1,54 | utrzymanie 18 kg przy większym ruchu |
+
+Tabela producenta jest z definicji **utrzymaniowa** — praktycznie tożsama
+z normą FEDIAF (1,34 vs 1,36 × RER). Luka wobec AAHA **jest właśnie deficytem**.
+Producent nie może podać liczby redukcyjnej, bo nie zna ani aktualnej wagi psa,
+ani jego kondycji. Przy odchudzaniu jego tabela ma jedno sensowne zastosowanie:
+to liczba, na którą przełączysz się **po osiągnięciu celu** — czyli tryb
+„Utrzymanie".
+
+### Komu ufać: celem jest deficyt, nie liczba kcal
+
+Żadne z tych źródeł nie jest przepowiednią — rozstrzyga cotygodniowa waga.
+Właściwym celem jest **deficyt 20–40%**, bo to on odpowiada zalecanym 1–2% masy
+tygodniowo. Ten sam plan daje różny deficyt zależnie od tego, jak daleko pies
+jest od celu:
+
+| Plan (cel 18 kg) | kcal | pies 20 kg (11% ponad) | pies 30 kg (67% ponad) |
+|---|---|---|---|
+| 1,0 × RER | 612 | 41% — za ostro | 57% — za ostro |
+| 1,2 × RER | 734 | **29%** ✅ | 48% |
+| 1,4 × RER | 856 | 18% — za mało | **39%** ✅ |
+
+Domyślne 1,0 × RER to protokół dla psów realnie otyłych (BCS 8–9, ~30%+ ponad
+cel); przy lekkiej nadwadze jest za agresywne. Dlatego aplikacja liczy
+`suggestReductionFactor` — mnożnik dający deficyt najbliżej środka pasma — i
+pokazuje go jako podpowiedź z przyciskiem. **Nie zmienia ustawienia sama.**
+Gdy żaden mnożnik nie trafia w pasmo (pies bardzo otyły), zamiast podpowiedzi
+pojawia się informacja, że plan wymaga konsultacji weterynaryjnej.
+
 Przykład (pies 20 kg, cel 18 kg, Belcando Mastercraft):
 
-| Źródło normy | g/dzień | kcal | × RER(18 kg) | Deficyt vs utrzymanie 20 kg (1040 kcal) |
+| Poziom | g/dzień | kcal | × RER(18 kg) | Deficyt vs utrzymanie 20 kg (1040 kcal) |
 |---|---|---|---|---|
-| tabela producenta, aktywność normalna | 253 | 941 | 1,54 | 10% |
-| tabela producenta, aktywność mała | 220 | 818 | 1,34 | 21% |
-| RER × 1,2 | 197 | 734 | 1,20 | 29% |
-| RER × 1,0 | 164 | 612 | 1,00 | 41% |
+| RER × 1,0 | 164 | 612 | 1,00 | 41% — za ostro |
+| RER × 1,2 | 197 | 734 | 1,20 | **29%** ← sugerowany |
+| RER × 1,4 | 230 | 856 | 1,40 | 18% |
 
 Karma Brit VD GF Gastrointestinal **Low Fat** ma niższą gęstość energetyczną
 (775 kcal/kg). Przy kotwicy kalorycznej **nie obniża to kalorii planu** —
