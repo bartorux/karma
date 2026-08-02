@@ -1,0 +1,6 @@
+# Zdjęcia opakowań (skład analityczny, tabele dawkowania) — materiał źródłowy
+# trzymany lokalnie. Liczby z etykiet są przepisane do DRY_FOODS w index.html
+# i udokumentowane w README, więc same pliki nie muszą wisieć w repo.
+*.jpeg
+*.jpg
+*.heic

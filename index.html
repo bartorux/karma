@@ -263,7 +263,18 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
     <option value="dry">Tabela suchej karmy (domyślnie)</option>
     <option value="wet">Tabela mokrej karmy</option>
     <option value="fediaf">Norma FEDIAF wg aktywności</option>
+    <option value="redukcja">Redukcja masy (RER wagi docelowej)</option>
   </select>
+  <div id="reduction-wrap" style="display:none">
+    <span class="field-label">Poziom redukcji wg AAHA</span>
+    <select id="reduction-select" class="food-select" onchange="onReductionFactorChange(this.value)">
+      <option value="1">1,0 × RER — start protokołu</option>
+      <option value="1.1">1,1 × RER</option>
+      <option value="1.2">1,2 × RER — wariant łagodny</option>
+      <option value="1.3">1,3 × RER</option>
+      <option value="1.4">1,4 × RER — wyjście z plateau</option>
+    </select>
+  </div>
   <div id="energy-readout"></div>
   <div class="hint">Normy FEDIAF to średnia populacyjna — indywidualne zapotrzebowanie waha się ±20–25%. Rozstrzyga kondycja ciała i trend masy, nie tabela.</div>
 </div>
@@ -348,13 +359,20 @@ h1{font-family:'Playfair Display',serif;font-size:1.85rem;color:var(--green-deep
    ============================================================ */
 /*TESTABLE-START*/
 /* kcal = energia metaboliczna w kcal/g. Brit: dane producenta (britvetdiets.com).
-   Belcando nie publikuje ME — wartość oszacowana ze składu analitycznego
-   (zmodyfikowany wzór Atwatera), stąd kcalEstimated. */
+   Belcando nie publikuje ME — wartość policzona równaniem predykcyjnym FEDIAF/NRC
+   ze składników analitycznych z opakowania (białko 27%, tłuszcz 15%, popiół 6,5%,
+   włókno 3,3%, wilgotność 10% => NFE 38,2%), stąd kcalEstimated:
+     GE  = 5,7x27 + 9,4x15 + 4,1x(38,2+3,3)      = 465,1 kcal/100 g
+     dE% = 91,2 - 1,43 x (3,3/90x100)            = 86,0%
+     ME  = GE x dE% - 1,04 x 27                  = 371,6 kcal/100 g -> 3,72 kcal/g
+   (Zmodyfikowany wzór Atwatera dałby 3,56 — FEDIAF zaleca równanie predykcyjne.) */
 var DRY_FOODS={
   brit_gastro_dry:{name:'Brit VD GF Gastrointestinal (sucha)',shortName:'Brit VD Gastro',kind:'points-interp',kcal:3.93,
     points:[[2,30],[5,70],[10,120],[15,160],[20,200],[25,240],[30,270],[40,340],[50,400],[60,460],[70,510],[80,570]]},
-  belcando_salmon:{name:'Belcando Mastercraft Fresh Salmon (sucha)',shortName:'Belcando Mastercraft',kind:'bracket-step',kcal:3.56,kcalEstimated:true,
-    brackets:[[0,3,60],[3,5,80],[5,10,140],[10,15,190],[15,20,240],[20,25,280],[25,35,360],[35,50,470],[50,65,580],[65,80,680]]}
+  /* Punkty 1:1 z tabeli na opakowaniu ("Optimales Gewicht" x "Normale Aktivität").
+     To tabela punktowa, nie przedziałowa — 20 kg to wprost 240 g. */
+  belcando_salmon:{name:'Belcando Mastercraft Fresh Salmon (sucha)',shortName:'Belcando Mastercraft',kind:'points-interp',kcal:3.72,kcalEstimated:true,
+    points:[[3,60],[5,80],[10,140],[15,190],[20,240],[25,280],[35,360],[50,470],[65,580],[80,680]]}
 };
 var WET_FOODS={
   brit_gastro_wet:{name:'Brit VD GF Gastrointestinal 400 g (mokra)',shortName:'Brit VD Gastro',kind:'bracket-interp',kcal:1.02,
@@ -376,17 +394,6 @@ function computeDaily(food,kg){
       if(kg>=pts[i][0]&&kg<=pts[i+1][0]){
         return{grams:pts[i][1]+(pts[i+1][1]-pts[i][1])*(kg-pts[i][0])/(pts[i+1][0]-pts[i][0]),note:null};
       }
-    }
-    return null;
-  }
-  if(food.kind==='bracket-step'){
-    /* konwencja przedziału [lo, hi): waga graniczna należy do wyższego
-       przedziału (18 kg -> 15-20 = 240 g, 20 kg -> już 20-25 = 280 g) */
-    var lastS=food.brackets[food.brackets.length-1];
-    if(kg>lastS[1])return{grams:lastS[2],note:'clamped-high',bracket:[lastS[0],lastS[1]]};
-    for(i=0;i<food.brackets.length;i++){
-      b=food.brackets[i];
-      if(kg>=b[0]&&(kg<b[1]||b===lastS))return{grams:b[2],note:null,bracket:[b[0],b[1]]};
     }
     return null;
   }
@@ -508,6 +515,24 @@ function energyVerdict(planKcal,kg,activity){
   var level=ratio<0.90?'below':(ratio>1.10?'above':'ok');
   return{level:level,ratio:ratio,offPct:Math.round(Math.abs(1-ratio)*100),target:target};
 }
+/* Poziomy redukcji wg AAHA: wielokrotność RER wagi DOCELOWEJ.
+   1,0 = start protokołu; 1,2-1,4 = wariant łagodny / wyjście z plateau. */
+var REDUCTION_FACTORS=[1.0,1.1,1.2,1.3,1.4];
+function isReductionFactor(f){
+  for(var i=0;i<REDUCTION_FACTORS.length;i++)if(REDUCTION_FACTORS[i]===f)return true;
+  return false;
+}
+function reductionKcal(kg,factor){
+  var r=rerKcal(kg),f=isReductionFactor(factor)?factor:1.0;
+  return r?r*f:null;
+}
+/* Deficyt planu względem utrzymania dla wagi AKTUALNEJ — to on decyduje
+   o tempie chudnięcia, nie porównanie z normą dla wagi docelowej. */
+function deficitVsMaintenance(planKcal,realKg,activity){
+  var m=fediafKcal(realKg,activity);
+  if(!m||!(planKcal>0))return null;
+  return{maint:m,pct:Math.round((1-planKcal/m)*100)};
+}
 /*TESTABLE-END*/
 
 /* ============================================================
@@ -524,6 +549,8 @@ var MEAL_META={
   popoludnie:{name:'Popołudnie',icon:'🌤️'},
   wieczor:{name:'Wieczór',icon:'🌙'}
 };
+var BASIS_LABEL={dry:'tabela suchej',wet:'tabela mokrej',fediaf:'norma FEDIAF',redukcja:'redukcja RER'};
+function isEnergyBasis(b){return Object.prototype.hasOwnProperty.call(BASIS_LABEL,b)}
 var LS_SET='karma_settings_v6',LS_DAY='karma_day_v2';
 
 var settings=defaultSettings();
@@ -535,7 +562,7 @@ var savedTimer=null,extraWarnTimer=null;
 
 function defaultSettings(){
   return{v:6,weight:null,targetWeight:null,dryFoodId:'brit_gastro_dry',wetFoodId:'brit_gastro_wet',mode:'dom',
-    activity:'normal',energyBasis:'dry',dogCount:1,
+    activity:'normal',energyBasis:'dry',reductionFactor:1.0,dogCount:1,
     shares:{dom:[1/3,1/3,1/3],praca:[0.25,0.25,0.25,0.25]}};
 }
 function pad2(n){return(n<10?'0':'')+n}
@@ -585,7 +612,8 @@ function loadSettings(){
       if(WET_FOODS[d.wetFoodId])s.wetFoodId=d.wetFoodId;
       if(MODES[d.mode])s.mode=d.mode;
       if(ACTIVITY_KCAL[d.activity])s.activity=d.activity;
-      if(d.energyBasis==='dry'||d.energyBasis==='wet'||d.energyBasis==='fediaf')s.energyBasis=d.energyBasis;
+      if(isEnergyBasis(d.energyBasis))s.energyBasis=d.energyBasis;
+      if(isReductionFactor(d.reductionFactor))s.reductionFactor=d.reductionFactor;
       if(typeof d.dogCount==='number'&&d.dogCount>=1&&d.dogCount<=4)s.dogCount=Math.round(d.dogCount);
       var modes=['dom','praca'];
       for(var i=0;i<modes.length;i++){
@@ -681,6 +709,10 @@ function compute(){
   var fediafTarget=valid?fediafKcal(kg,settings.activity):null;
   var kcalPerMetabolic=(dailyKcal&&mKg)?dailyKcal/mKg:null;
   var verdict=dailyKcal?energyVerdict(dailyKcal,kg,settings.activity):null;
+  /* Przy odchudzaniu miarą planu jest deficyt wobec utrzymania dla wagi
+     AKTUALNEJ, a nie normy dla docelowej (ta zawsze wyjdzie "poniżej"). */
+  var deficit=(dietActive&&dailyKcal&&realKg>0)?deficitVsMaintenance(dailyKcal,realKg,settings.activity):null;
+  var aahaKcal=dietActive?rerKcal(targetKg):null;
   var mealTypes={},mealGrams={},dryIds=[],wetIds=[],i,id;
   for(i=0;i<mode.mealIds.length;i++){
     id=mode.mealIds[i];
@@ -718,7 +750,9 @@ function compute(){
   if(valid&&basis==='wet'&&wetTable&&wetTable.note==='extrapolated')
     warnings.push('⚠️ Waga poza tabelą mokrej karmy (5–60 kg) — cel energetyczny jest szacunkowy.');
   if(valid&&dryFood.kcalEstimated)
-    warnings.push('ℹ️ Energia karmy suchej szacowana ze składu (producent nie publikuje ME) — przeliczenia przybliżone.');
+    warnings.push('ℹ️ Energia karmy suchej ('+Math.round(dryFood.kcal*100)+' kcal/100 g) policzona równaniem predykcyjnym FEDIAF ze składników analitycznych z opakowania — producent nie publikuje ME, więc przeliczenia są przybliżone.');
+  if(valid&&basis==='redukcja'&&!dietActive)
+    warnings.push('⚠️ Podstawa „redukcja masy" bez ustawionej wagi docelowej — RER liczone z wagi aktualnej. Podaj wagę docelową albo zmień podstawę celu.');
   var overshoot=0,extraShareSum=0;
   for(i=0;i<day.extras.length;i++){
     overshoot+=num(day.extras[i].overshoot);
@@ -735,7 +769,7 @@ function compute(){
   return{valid:valid,kg:kg,realKg:realKg,targetKg:targetKg,dietActive:dietActive,
     dry:dry,wetTable:wetTable,dryDailyG:dryDailyG,wetDailyG:wetDailyG,dailyKcal:dailyKcal,
     basis:basis,mKg:mKg,rer:rer,fediafTarget:fediafTarget,
-    kcalPerMetabolic:kcalPerMetabolic,verdict:verdict,
+    kcalPerMetabolic:kcalPerMetabolic,verdict:verdict,deficit:deficit,aahaKcal:aahaKcal,
     mealTypes:mealTypes,mealGrams:mealGrams,
     givenDry:Math.round(givenDry),givenWet:Math.round(givenWet),remDry:remDry,remWet:remWet,
     fedCount:fedCount,N:mode.mealIds.length,wetInUse:wetInUse,warnings:warnings};
@@ -793,8 +827,16 @@ function setActivity(a){
 }
 function onBasisChange(b){
   checkDayReset();
-  if(b!=='dry'&&b!=='wet'&&b!=='fediaf')return;
+  if(!isEnergyBasis(b))return;
   settings.energyBasis=b;
+  saveSettings();flashSaved();
+  renderAll();
+}
+function onReductionFactorChange(v){
+  checkDayReset();
+  var f=parseFloat(v);
+  if(!isReductionFactor(f))return;
+  settings.reductionFactor=f;
   saveSettings();flashSaved();
   renderAll();
 }
@@ -845,6 +887,7 @@ function dosingWeight(){
 function dailyKcalTarget(kg){
   if(!(kg>0))return null;
   var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId],t;
+  if(settings.energyBasis==='redukcja')return reductionKcal(kg,settings.reductionFactor);
   if(settings.energyBasis==='fediaf')return fediafKcal(kg,settings.activity);
   if(settings.energyBasis==='wet'){
     t=computeDaily(wetFood,kg);
@@ -1104,6 +1147,9 @@ function renderFoodSelects(){
 function cansStr(grams){
   return(Math.round(grams/400*10)/10).toString().replace('.',',');
 }
+function fmtKg(kg){
+  return(Math.round(kg*10)/10).toString().replace('.',',');
+}
 function renderDogCount(){
   var el=document.getElementById('dogcount-toggle'),html='',n;
   for(n=1;n<=4;n++){
@@ -1115,6 +1161,8 @@ function renderDogCount(){
 function renderEnergyCard(){
   var c=computed,el=document.getElementById('energy-readout');
   document.getElementById('basis-select').value=settings.energyBasis;
+  document.getElementById('reduction-select').value=settings.reductionFactor;
+  document.getElementById('reduction-wrap').style.display=(settings.energyBasis==='redukcja')?'':'none';
   var a;
   for(a in ACTIVITY_KCAL)
     document.getElementById('act-btn-'+a).classList.toggle('active',settings.activity===a);
@@ -1123,25 +1171,44 @@ function renderEnergyCard(){
     return;
   }
   var est=DRY_FOODS[settings.dryFoodId].kcalEstimated&&settings.energyBasis!=='fediaf';
+  /* Przy odchudzaniu trzeci kafelek pokazuje utrzymanie dla wagi AKTUALNEJ —
+     to punkt odniesienia dla deficytu; norma dla docelowej nic tu nie mówi. */
+  var refLabel=c.deficit?'Utrzymanie '+fmtKg(c.realKg)+' kg':'Norma FEDIAF';
+  var refValue=c.deficit?c.deficit.maint:c.fediafTarget;
   var html='<div class="energy-grid">'
     +'<div class="energy-block"><div class="eb-label">Cel dnia</div><div class="eb-value">'+Math.round(c.dailyKcal)+'</div><div class="eb-unit">kcal'+(est?' (szac.)':'')+'</div></div>'
     +'<div class="energy-block"><div class="eb-label">Na kg^0,75</div><div class="eb-value">'+Math.round(c.kcalPerMetabolic)+'</div><div class="eb-unit">kcal/kg^0,75</div></div>'
-    +'<div class="energy-block"><div class="eb-label">Norma FEDIAF</div><div class="eb-value">'+Math.round(c.fediafTarget)+'</div><div class="eb-unit">kcal · '+ACTIVITY_KCAL[settings.activity]+' kcal/kg^0,75</div></div>'
+    +'<div class="energy-block"><div class="eb-label">'+refLabel+'</div><div class="eb-value">'+Math.round(refValue)+'</div><div class="eb-unit">kcal · '+ACTIVITY_KCAL[settings.activity]+' kcal/kg^0,75</div></div>'
     +'<div class="energy-block"><div class="eb-label">RER (spoczynek)</div><div class="eb-value">'+Math.round(c.rer)+'</div><div class="eb-unit">kcal · 70 kcal/kg^0,75</div></div>'
     +'</div>';
-  var v=c.verdict;
-  if(v){
-    var cls=v.level==='ok'?'v-ok':(v.level==='below'?'v-below':'v-above');
-    var head=v.level==='ok'?'✅ Plan w normie dla tej aktywności'
-      :(v.level==='below'?'🔽 Plan ~'+v.offPct+'% poniżej normy FEDIAF'
-      :'🔼 Plan ~'+v.offPct+'% powyżej normy FEDIAF');
-    var body=v.level==='ok'
-      ?'Cel dnia mieści się w zakresie ±10% normy dla psa o aktywności: '+ACTIVITY_LABEL[settings.activity]+'.'
-      :'To porównanie ze średnią populacyjną, nie zalecenie zmiany dawki. Jeśli pies utrzymuje masę i kondycję (żebra wyczuwalne, talia widoczna), obecny poziom jest dla niego właściwy.';
-    html+='<div class="verdict '+cls+'"><strong>'+head+'</strong>'+body+'</div>';
+  if(c.deficit){
+    /* Deficyt 20-40% względem utrzymania odpowiada zalecanym 1-2% masy/tydzień. */
+    var d=c.deficit.pct,dCls=(d>=20&&d<=40)?'v-ok':(d<20?'v-above':'v-below');
+    var dHead=d<20?'🔼 Deficyt tylko ~'+d+'% — chudnięcie będzie bardzo powolne'
+      :(d>40?'🔽 Deficyt ~'+d+'% — to więcej niż zalecane tempo'
+      :'✅ Deficyt ~'+d+'% względem utrzymania dla '+fmtKg(c.realKg)+' kg');
+    var dBody=d<20?'Przy deficycie poniżej 20% masa może stać w miejscu. Zalecane tempo 1–2% masy tygodniowo odpowiada mniej więcej 20–40% deficytu.'
+      :(d>40?'Deficyt powyżej 40% grozy szybszą utratą niż 2% masy tygodniowo — prowadź pod kontrolą weterynarza i kontroluj masę co tydzień.'
+      :'Odpowiada to mniej więcej zalecanym 1–2% masy ciała tygodniowo. Rozstrzyga jednak faktyczny trend masy, nie wyliczenie.');
+    html+='<div class="verdict '+dCls+'"><strong>'+dHead+'</strong>'+dBody+'</div>';
+    if(settings.energyBasis!=='redukcja')
+      html+='<div class="verdict v-ok" style="background:rgba(74,124,74,.08)"><strong>🎯 Poziom redukcji wg AAHA</strong>'
+        +'Protokół startowy to 1,0 × RER wagi docelowej, czyli ok. '+Math.round(c.aahaKcal)+' kcal dla '+fmtKg(c.targetKg)+' kg. '
+        +'Obecna podstawa („'+BASIS_LABEL[settings.energyBasis]+'") daje '+Math.round(c.dailyKcal)+' kcal. '
+        +'Aby liczyć wprost wg AAHA, wybierz podstawę „Redukcja masy".</div>';
+  }else{
+    var v=c.verdict;
+    if(v){
+      var cls=v.level==='ok'?'v-ok':(v.level==='below'?'v-below':'v-above');
+      var head=v.level==='ok'?'✅ Plan w normie dla tej aktywności'
+        :(v.level==='below'?'🔽 Plan ~'+v.offPct+'% poniżej normy FEDIAF'
+        :'🔼 Plan ~'+v.offPct+'% powyżej normy FEDIAF');
+      var body=v.level==='ok'
+        ?'Cel dnia mieści się w zakresie ±10% normy dla psa o aktywności: '+ACTIVITY_LABEL[settings.activity]+'.'
+        :'To porównanie ze średnią populacyjną, nie zalecenie zmiany dawki. Jeśli pies utrzymuje masę i kondycję (żebra wyczuwalne, talia widoczna), obecny poziom jest dla niego właściwy.';
+      html+='<div class="verdict '+cls+'"><strong>'+head+'</strong>'+body+'</div>';
+    }
   }
-  if(c.dietActive)
-    html+='<div class="verdict v-ok" style="background:rgba(74,124,74,.08)"><strong>🎯 Odchudzanie</strong>Poziom redukcji wg AAHA to ok. '+Math.round(c.rer)+' kcal (1,0 × RER wagi docelowej '+c.targetKg+' kg).</div>';
   el.innerHTML=html;
 }
 function renderExtraForm(){
@@ -1199,17 +1266,17 @@ function renderSummary(){
   html+='<div class="sum-block db"><div class="sb-label">🌾 Sucha / dzień</div><div class="sb-value dv">'+planDry+'</div><div class="sb-unit">g</div></div>';
   html+='</div><div class="summary-divider"></div>';
   if(c.dietActive){
-    html+='<div class="sum-row"><span class="sl">🎯 Dawkowanie na wagę docelową</span><span class="sv">'+c.targetKg+' kg'
-      +(c.realKg>0?' (aktualna: '+c.realKg+' kg)':'')+'</span></div>';
+    html+='<div class="sum-row"><span class="sl">🎯 Dawkowanie na wagę docelową</span><span class="sv">'+fmtKg(c.targetKg)+' kg'
+      +(c.realKg>0?' (aktualna: '+fmtKg(c.realKg)+' kg)':'')+'</span></div>';
+    if(c.deficit)
+      html+='<div class="sum-row"><span class="sl">Deficyt względem utrzymania '+fmtKg(c.realKg)+' kg</span><span class="sv">~'+c.deficit.pct+'% ('+Math.round(c.deficit.maint)+' kcal)</span></div>';
   }
   var dryFood=DRY_FOODS[settings.dryFoodId],wetFood=WET_FOODS[settings.wetFoodId];
-  var BASIS_LABEL={dry:'tabela suchej',wet:'tabela mokrej',fediaf:'norma FEDIAF'};
   if(c.dailyKcal)
     html+='<div class="sum-row"><span class="sl">⚖️ Cel energetyczny dnia</span><span class="sv">~'+Math.round(c.dailyKcal)+' kcal'
-      +(dryFood.kcalEstimated&&settings.energyBasis!=='fediaf'?' (szac.)':'')+' · '+BASIS_LABEL[settings.energyBasis]+'</span></div>';
-  var dryInfo=Math.round(c.dry.grams)+' g';
-  if(c.dry.bracket)dryInfo+=' (przedział '+(c.dry.bracket[0]===0?'<'+c.dry.bracket[1]:c.dry.bracket[0]+'–'+c.dry.bracket[1])+' kg)';
-  html+='<div class="sum-row"><span class="sl">Tabela producenta — '+dryFood.shortName+' (sucha)</span><span class="sv">'+dryInfo+'</span></div>';
+      +(dryFood.kcalEstimated&&settings.energyBasis!=='fediaf'?' (szac.)':'')+' · '+BASIS_LABEL[settings.energyBasis]
+      +(settings.energyBasis==='redukcja'?' '+fmtKg(settings.reductionFactor)+'×':'')+'</span></div>';
+  html+='<div class="sum-row"><span class="sl">Tabela producenta — '+dryFood.shortName+' (sucha)</span><span class="sv">'+Math.round(c.dry.grams)+' g</span></div>';
   if(c.dryDailyG)
     html+='<div class="sum-row"><span class="sl">Sucha — pokrycie celu (100%)</span><span class="sv">'+Math.round(c.dryDailyG)+' g</span></div>';
   if(c.wetInUse&&c.wetDailyG){
@@ -1256,19 +1323,6 @@ function renderFoodTable(food,kg){
     }
     html='<div class="ref-scroll"><table class="ref-table"><thead><tr>'+ths+'</tr></thead><tbody><tr>'+tds+'</tr></tbody></table></div>'
       +'<div class="ref-note">Wartości pośrednie interpolowane liniowo między kolumnami.</div>';
-    return html;
-  }
-  if(food.kind==='bracket-step'){
-    ths='<th>kg</th>';tds='<td>g/dz</td>';
-    for(i=0;i<food.brackets.length;i++){
-      b=food.brackets[i];
-      hl=kg!=null&&(i===food.brackets.length-1?kg>=b[0]:(kg>=b[0]&&kg<b[1]));
-      var lbl=b[0]===0?'<'+b[1]:b[0]+'–'+b[1];
-      ths+='<th'+(hl?' class="hl"':'')+'>'+lbl+'</th>';
-      tds+='<td'+(hl?' class="hl"':'')+'>'+b[2]+'</td>';
-    }
-    html='<div class="ref-scroll"><table class="ref-table"><thead><tr>'+ths+'</tr></thead><tbody><tr>'+tds+'</tr></tbody></table></div>'
-      +'<div class="ref-note">Stała wartość dla całego przedziału wagi, wiernie wg tabeli producenta (kolumna: aktywność normalna). Waga graniczna należy do wyższego przedziału (np. 20 kg → 20–25).</div>';
     return html;
   }
   /* bracket-interp */
