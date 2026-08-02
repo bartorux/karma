@@ -32,23 +32,42 @@ assert('Brit sucha NaN -> null', computeDaily(britDry, NaN) === null);
 // ---- computeDaily: Belcando (points-interp — etykieta podaje PUNKTY wagowe
 //      "Optimales Gewicht", nie przedzialy: 20 kg to wprost 240 g) ----
 const bel = DRY_FOODS.belcando_salmon;
-// kazdy punkt etykiety odwzorowany 1:1 (kolumna "Normale Aktivitaet")
-[[3, 60], [5, 80], [10, 140], [15, 190], [20, 240], [25, 280], [35, 360], [50, 470], [65, 580], [80, 680]]
-  .forEach(([kg, g]) => eq(`Belcando punkt etykiety ${kg} kg = ${g} g`, computeDaily(bel, kg).grams, g));
-eq('Belcando 18 kg = 220 g (interpolacja 15-20)', computeDaily(bel, 18).grams, 220, 1e-9);
-eq('Belcando 16 kg = 200 g', computeDaily(bel, 16).grams, 200, 1e-9);
-eq('Belcando 19.9 kg = 239 g', computeDaily(bel, 19.9).grams, 239, 1e-9);
-eq('Belcando 12 kg = 160 g', computeDaily(bel, 12).grams, 160, 1e-9);
-eq('Belcando 2.9 kg clamp-low', computeDaily(bel, 2.9).note, 'clamped-low');
-eq('Belcando 2.9 kg = 60 g', computeDaily(bel, 2.9).grams, 60);
-eq('Belcando 80 kg bez ostrzezenia', computeDaily(bel, 80).note, null);
-eq('Belcando 90 kg clamp-high 680', computeDaily(bel, 90).grams, 680);
-eq('Belcando 90 kg note', computeDaily(bel, 90).note, 'clamped-high');
-eq('Belcando 0.5 kg = 60 g', computeDaily(bel, 0.5).grams, 60);
+// Obie kolumny etykiety odwzorowane 1:1. Przypisanie do poziomow aktywnosci
+// wg ENERGII: "Normale" (~94 kcal/kg^0,75) = FEDIAF low, "Erhoehte" (~108) = normal.
+const BEL_LOW = [[3, 60], [5, 80], [10, 140], [15, 190], [20, 240], [25, 280], [35, 360], [50, 470], [65, 580], [80, 680]];
+const BEL_NORM = [[3, 70], [5, 100], [10, 160], [15, 220], [20, 275], [25, 325], [35, 420], [50, 550], [65, 665], [80, 780]];
+BEL_LOW.forEach(([kg, g]) => eq(`Belcando "Normale" ${kg} kg = ${g} g (low)`, computeDaily(bel, kg, 'low').grams, g));
+BEL_NORM.forEach(([kg, g]) => eq(`Belcando "Erhoehte" ${kg} kg = ${g} g (normal)`, computeDaily(bel, kg, 'normal').grams, g));
+eq('Belcando 18 kg low = 220 g (interpolacja 15-20)', computeDaily(bel, 18, 'low').grams, 220, 1e-9);
+eq('Belcando 16 kg low = 200 g', computeDaily(bel, 16, 'low').grams, 200, 1e-9);
+eq('Belcando 19.9 kg low = 239 g', computeDaily(bel, 19.9, 'low').grams, 239, 1e-9);
+eq('Belcando 12 kg low = 160 g', computeDaily(bel, 12, 'low').grams, 160, 1e-9);
+eq('Belcando 18 kg normal = 253 g', computeDaily(bel, 18, 'normal').grams, 253, 1e-9);
+eq('Belcando 2.9 kg clamp-low', computeDaily(bel, 2.9, 'low').note, 'clamped-low');
+eq('Belcando 2.9 kg = 60 g', computeDaily(bel, 2.9, 'low').grams, 60);
+eq('Belcando 80 kg bez ostrzezenia', computeDaily(bel, 80, 'low').note, null);
+eq('Belcando 90 kg clamp-high 680', computeDaily(bel, 90, 'low').grams, 680);
+eq('Belcando 90 kg note', computeDaily(bel, 90, 'low').note, 'clamped-high');
+eq('Belcando 0.5 kg = 60 g', computeDaily(bel, 0.5, 'low').grams, 60);
 // REGRESJA: bracket-step zaokraglal w gore do nastepnego punktu (18->240, 20->280)
-assert('Belcando 18 kg nie jest juz dawka dla 20 kg', computeDaily(bel, 18).grams !== 240);
-assert('Belcando 20 kg nie jest juz dawka dla 25 kg', computeDaily(bel, 20).grams !== 280);
-assert('computeDaily nie zwraca juz pola bracket', computeDaily(bel, 18).bracket === undefined);
+assert('Belcando 18 kg nie jest juz dawka dla 20 kg', computeDaily(bel, 18, 'low').grams !== 240);
+assert('Belcando 20 kg nie jest juz dawka dla 25 kg', computeDaily(bel, 20, 'low').grams !== 280);
+assert('computeDaily nie zwraca juz pola bracket', computeDaily(bel, 18, 'low').bracket === undefined);
+
+// ---- kolumna 'high': producent jej nie ma, przedluzamy jego wlasny krok ----
+BEL_LOW.forEach(([kg], i) => {
+  const expected = BEL_NORM[i][1] * BEL_NORM[i][1] / BEL_LOW[i][1];
+  eq(`Belcando high ${kg} kg = normal^2/low`, computeDaily(bel, kg, 'high').grams, expected, 1e-9);
+});
+eq('Belcando 20 kg high = 315.1 g', computeDaily(bel, 20, 'high').grams, 315.104, 0.01);
+assert('Belcando high oznaczone jako ekstrapolacja', computeDaily(bel, 20, 'high').activityExtrapolated === true);
+assert('Belcando low bez flagi ekstrapolacji', computeDaily(bel, 20, 'low').activityExtrapolated === false);
+// fallback: nieznana aktywnosc -> 'normal' (wzorzec z fediafKcal)
+eq('Belcando nieznana aktywnosc -> normal', computeDaily(bel, 20, 'bzdura').grams, computeDaily(bel, 20, 'normal').grams);
+eq('Belcando brak aktywnosci -> normal', computeDaily(bel, 20).grams, computeDaily(bel, 20, 'normal').grams);
+// tabela jednokolumnowa ignoruje aktywnosc
+['low', 'normal', 'high'].forEach(a =>
+  eq(`Brit sucha ignoruje aktywnosc (${a})`, computeDaily(britDry, 20, a).grams, 200));
 
 // ---- computeDaily: mokre (bracket-interp) ----
 const wetStd = WET_FOODS.brit_gastro_wet, wetLF = WET_FOODS.brit_gastro_lowfat_wet;
@@ -138,7 +157,7 @@ g = allocateGrams([1], 682.5);
 eq('alloc pojedynczy mokry: 683', g[0], 683);
 
 // ---- scenariusz: dom 3 posilki, Belcando 18 kg ----
-const belD = computeDaily(bel, 18).grams; // 220
+const belD = computeDaily(bel, 18, 'low').grams; // 220
 let bg = allocateGrams([1 / 3, 1 / 3, 1 / 3], belD);
 eq('Belcando dom: suma posilkow = 220', bg.reduce((a, b) => a + b, 0), 220);
 
@@ -212,7 +231,7 @@ eq('werdykt Brit sucha 18kg przy niskiej aktywnosci', energyVerdict(723.1, 18, '
 eq('werdykt Brit sucha 18kg low: ~13%', energyVerdict(723.1, 18, 'low').offPct, 13);
 eq('werdykt mokra tabela 18kg: ok', energyVerdict(933.3, 18, 'normal').level, 'ok');
 // Belcando 18 kg = 220 g x 3.72 = 818.4 kcal = 93.7 kcal/kg^0.75
-const belKcal18 = computeDaily(bel, 18).grams * bel.kcal;
+const belKcal18 = computeDaily(bel, 18, 'low').grams * bel.kcal;
 eq('Belcando 18 kg = 818 kcal', belKcal18, 818.4, 0.01);
 eq('werdykt Belcando 18kg: below', energyVerdict(belKcal18, 18, 'normal').level, 'below');
 eq('werdykt Belcando 18kg: ~15% ponizej', energyVerdict(belKcal18, 18, 'normal').offPct, 15);
@@ -227,21 +246,27 @@ eq('powyzej progu -> above', energyVerdict(tgt * 1.101, 18, 'normal').level, 'ab
 assert('werdykt bez planu -> null', energyVerdict(0, 18, 'normal') === null);
 
 // ---- kalibracja tabel producentow (kcal/kg^0.75) ----
-function tableKcalPerMetabolic(food, kg) {
-  return computeDaily(food, kg).grams * food.kcal / metabolicKg(kg);
+function tableKcalPerMetabolic(food, kg, activity) {
+  return computeDaily(food, kg, activity).grams * food.kcal / metabolicKg(kg);
 }
 eq('Brit sucha 20 kg = 83 kcal/kg^0.75', tableKcalPerMetabolic(britDry, 20), 83.1, 0.1);
 eq('Brit sucha 40 kg = 84 kcal/kg^0.75', tableKcalPerMetabolic(britDry, 40), 84.0, 0.1);
 eq('Brit mokra 10 kg = 110 kcal/kg^0.75', tableKcalPerMetabolic(wetStd, 10), 109.7, 0.1);
 eq('Brit mokra 30 kg = 110 kcal/kg^0.75', tableKcalPerMetabolic(wetStd, 30), 109.8, 0.1);
 eq('LowFat 30 kg = 110 kcal/kg^0.75', tableKcalPerMetabolic(wetLF, 30), 110.0, 0.1);
-eq('Belcando 17.5 kg = 93 kcal/kg^0.75', tableKcalPerMetabolic(bel, 17.5), 93.47, 0.1);
-eq('Belcando 20 kg = 94 kcal/kg^0.75', tableKcalPerMetabolic(bel, 20), 94.40, 0.1);
-// Tabela Belcando jest kalibrowana ~89-98 kcal/kg^0.75, czyli na poziomie
-// FEDIAF "malo aktywny" (95) — producent NIE zawyza dawek.
+eq('Belcando 17.5 kg low = 93 kcal/kg^0.75', tableKcalPerMetabolic(bel, 17.5, 'low'), 93.47, 0.1);
+eq('Belcando 20 kg low = 94 kcal/kg^0.75', tableKcalPerMetabolic(bel, 20, 'low'), 94.40, 0.1);
+eq('Belcando 20 kg normal = 108 kcal/kg^0.75', tableKcalPerMetabolic(bel, 20, 'normal'), 108.19, 0.1);
+eq('Belcando 20 kg high = 124 kcal/kg^0.75', tableKcalPerMetabolic(bel, 20, 'high'), 123.94, 0.1);
+// Kolumna "Normale" siedzi na ~89-98 kcal/kg^0.75 (FEDIAF low = 95),
+// a "Erhoehte" na ~105-115 (FEDIAF normal = 110) — stad mapowanie po energii,
+// nie po nazwach kolumn. Producent NIE zawyza dawek.
 [3, 5, 10, 15, 20, 25, 35, 50, 65, 80].forEach(kg => {
-  const v = tableKcalPerMetabolic(bel, kg);
-  assert(`Belcando kalibracja ${kg} kg w 88-98 kcal/kg^0.75 (${v.toFixed(1)})`, v >= 88 && v <= 98);
+  const lo = tableKcalPerMetabolic(bel, kg, 'low');
+  const no = tableKcalPerMetabolic(bel, kg, 'normal');
+  assert(`Belcando kolumna low ${kg} kg w 88-98 (${lo.toFixed(1)})`, lo >= 88 && lo <= 98);
+  assert(`Belcando kolumna normal ${kg} kg w 105-115 (${no.toFixed(1)})`, no >= 105 && no <= 115);
+  assert(`Belcando normal > low przy ${kg} kg`, no > lo);
 });
 
 // ---- poziomy redukcji wg AAHA ----
@@ -264,34 +289,73 @@ eq('stary plan 240 g -> deficyt tylko 14%', deficitVsMaintenance(240 * bel.kcal,
 assert('deficyt bez planu -> null', deficitVsMaintenance(0, 20, 'normal') === null);
 assert('deficyt bez wagi -> null', deficitVsMaintenance(612, 0, 'normal') === null);
 
-// ---- podstawa celu energetycznego: dry / wet / fediaf / redukcja ----
-function dailyKcalByBasis(basis, kg, dryFood, wetFood, activity, factor) {
-  if (basis === 'redukcja') return reductionKcal(kg, factor);
-  if (basis === 'fediaf') return fediafKcal(kg, activity);
-  if (basis === 'wet') return computeDaily(wetFood, kg).grams * wetFood.kcal;
-  return computeDaily(dryFood, kg).grams * dryFood.kcal;
+// ---- cel planu x zrodlo normy (odpowiednik dailyKcalTarget) ----
+// Dwa niezalezne pytania: JAKI cel i SKAD norma. 'tabela mokrej' juz nie jest
+// zrodlem dziennego celu — mokry posilek wychodzi z kotwicy kalorycznej.
+function dailyKcalByGoal(goal, source, kg, dryFood, activity, factor) {
+  if (goal === 'redukcja' && source === 'rer') return reductionKcal(kg, factor);
+  if (goal === 'utrzymanie' && source === 'fediaf') return fediafKcal(kg, activity);
+  return computeDaily(dryFood, kg, activity).grams * dryFood.kcal;
 }
-// REGRESJA: podstawa 'dry' daje dokladnie wartosc z tabeli suchej (zachowanie sprzed zmiany)
-let kc = dailyKcalByBasis('dry', 18, britDry, wetLF, 'normal');
-eq('basis dry 18kg -> 184 g suchej (regresja)', kc / britDry.kcal, 184, 1e-9);
-eq('basis dry 20kg -> 200 g suchej (regresja)', dailyKcalByBasis('dry', 20, britDry, wetLF, 'normal') / britDry.kcal, 200, 1e-9);
-eq('basis dry 18kg -> 723 kcal', kc, 723.12, 0.01);
-eq('basis wet 18kg -> 936 kcal', dailyKcalByBasis('wet', 18, britDry, wetLF, 'normal'), 936.2, 0.01);
-eq('basis fediaf 18kg -> 961 kcal', dailyKcalByBasis('fediaf', 18, britDry, wetLF, 'normal'), 961.27, 0.01);
-eq('basis redukcja 1.0 18kg -> 612 kcal', dailyKcalByBasis('redukcja', 18, britDry, wetLF, 'normal', 1.0), 611.72, 0.01);
-// scenariusz z pytania: pies 20 kg, cel 18 kg, Belcando, redukcja 1.0 -> 164 g/dzien
-eq('redukcja 1.0 na Belcando 18kg -> 164 g', reductionKcal(18, 1.0) / bel.kcal, 164.4, 0.1);
-eq('redukcja 1.2 na Belcando 18kg -> 197 g', reductionKcal(18, 1.2) / bel.kcal, 197.3, 0.1);
-// niezmiennik: obie gramatury niosa te sama energie, niezaleznie od podstawy
-['dry', 'wet', 'fediaf', 'redukcja'].forEach(basis => {
-  const k = dailyKcalByBasis(basis, 18, britDry, wetLF, 'normal', 1.0);
+// REGRESJA: zrodlo 'tabela' daje dokladnie wartosc z tabeli suchej
+let kc = dailyKcalByGoal('utrzymanie', 'tabela', 18, britDry, 'normal');
+eq('utrzymanie/tabela 18kg -> 184 g suchej (regresja)', kc / britDry.kcal, 184, 1e-9);
+eq('utrzymanie/tabela 20kg -> 200 g suchej (regresja)', dailyKcalByGoal('utrzymanie', 'tabela', 20, britDry, 'normal') / britDry.kcal, 200, 1e-9);
+eq('utrzymanie/tabela 18kg -> 723 kcal', kc, 723.12, 0.01);
+eq('utrzymanie/fediaf 18kg -> 961 kcal', dailyKcalByGoal('utrzymanie', 'fediaf', 18, britDry, 'normal'), 961.27, 0.01);
+eq('redukcja/rer 1.0 18kg -> 612 kcal', dailyKcalByGoal('redukcja', 'rer', 18, britDry, 'normal', 1.0), 611.72, 0.01);
+eq('redukcja/tabela 18kg -> 723 kcal (Brit)', dailyKcalByGoal('redukcja', 'tabela', 18, britDry, 'normal'), 723.12, 0.01);
+
+// scenariusz z pytania: pies 20 kg, cel 18 kg, Belcando
+eq('redukcja/rer 1.0 na Belcando 18kg -> 164 g', reductionKcal(18, 1.0) / bel.kcal, 164.4, 0.1);
+eq('redukcja/rer 1.2 na Belcando 18kg -> 197 g', reductionKcal(18, 1.2) / bel.kcal, 197.3, 0.1);
+eq('redukcja/tabela na Belcando 18kg normal -> 253 g',
+  dailyKcalByGoal('redukcja', 'tabela', 18, bel, 'normal') / bel.kcal, 253, 1e-9);
+// utrzymanie 20 kg na Belcando: aktywnosc RUSZA dawka (kolumny z worka)
+eq('utrzymanie/tabela Belcando 20kg low -> 240 g',
+  dailyKcalByGoal('utrzymanie', 'tabela', 20, bel, 'low') / bel.kcal, 240, 1e-9);
+eq('utrzymanie/tabela Belcando 20kg normal -> 275 g',
+  dailyKcalByGoal('utrzymanie', 'tabela', 20, bel, 'normal') / bel.kcal, 275, 1e-9);
+eq('utrzymanie/tabela Belcando 20kg high -> 315 g',
+  dailyKcalByGoal('utrzymanie', 'tabela', 20, bel, 'high') / bel.kcal, 315.104, 0.01);
+// przy RER aktywnosc NIE rusza dawka — kotwica AAHA jest z definicji spoczynkowa
+['low', 'normal', 'high'].forEach(a =>
+  eq(`redukcja/rer niezalezna od aktywnosci (${a})`,
+    dailyKcalByGoal('redukcja', 'rer', 18, bel, a, 1.0), 611.72, 0.01));
+// ...ale rusza ocena deficytu wzgledem utrzymania dla wagi AKTUALNEJ
+eq('deficyt 612 kcal vs utrzymanie 20 kg, low', deficitVsMaintenance(rerKcal(18), 20, 'low').pct, 32);
+eq('deficyt 612 kcal vs utrzymanie 20 kg, normal', deficitVsMaintenance(rerKcal(18), 20, 'normal').pct, 41);
+eq('deficyt 612 kcal vs utrzymanie 20 kg, high', deficitVsMaintenance(rerKcal(18), 20, 'high').pct, 50);
+
+// niezmiennik: obie gramatury niosa te sama energie, niezaleznie od celu i zrodla
+[['utrzymanie', 'tabela'], ['utrzymanie', 'fediaf'], ['redukcja', 'rer'], ['redukcja', 'tabela']].forEach(([goal, source]) => {
+  const k = dailyKcalByGoal(goal, source, 18, britDry, 'normal', 1.0);
   const dG = k / britDry.kcal, wG = k / wetLF.kcal;
-  assert('niezmiennik energii, basis ' + basis,
+  assert(`niezmiennik energii, ${goal}/${source}`,
     Math.abs(dG * britDry.kcal - k) < 1e-9 && Math.abs(wG * wetLF.kcal - k) < 1e-9);
 });
 
+// ---- migracja ustawien v6 -> v7 ----
+eq('migracja: redukcja -> goal redukcja', goalFromBasis('redukcja', true).goal, 'redukcja');
+eq('migracja: redukcja -> zrodlo rer', goalFromBasis('redukcja', true).reductionSource, 'rer');
+eq('migracja: dry bez celu -> utrzymanie', goalFromBasis('dry', false).goal, 'utrzymanie');
+eq('migracja: dry bez celu -> zrodlo tabela', goalFromBasis('dry', false).maintenanceSource, 'tabela');
+eq('migracja: fediaf bez celu -> zrodlo fediaf', goalFromBasis('fediaf', false).maintenanceSource, 'fediaf');
+// 'wet' znika jako zrodlo dziennego celu -> mapowane na tabele suchej
+eq('migracja: wet -> tabela', goalFromBasis('wet', false).maintenanceSource, 'tabela');
+// w v6 sama waga docelowa po cichu przelaczala dawkowanie -> w v7 to redukcja
+eq('migracja: dry z waga docelowa -> redukcja', goalFromBasis('dry', true).goal, 'redukcja');
+eq('migracja: dry z waga docelowa -> zrodlo tabela', goalFromBasis('dry', true).reductionSource, 'tabela');
+eq('migracja: fediaf z waga docelowa -> redukcja', goalFromBasis('fediaf', true).goal, 'redukcja');
+// walidatory
+assert('isGoal odrzuca smieci', isGoal('bzdura') === false);
+assert('isGoal przyjmuje utrzymanie', isGoal('utrzymanie') === true);
+assert('isMaintenanceSource odrzuca rer', isMaintenanceSource('rer') === false);
+assert('isReductionSource odrzuca fediaf', isReductionSource('fediaf') === false);
+assert('isReductionSource przyjmuje rer', isReductionSource('rer') === true);
+
 // ---- dzien bez mokrej ma te sama energie co mieszany ----
-const kcDay = dailyKcalByBasis('dry', 18, britDry, wetLF, 'normal');
+const kcDay = dailyKcalByGoal('utrzymanie', 'tabela', 18, britDry, 'normal');
 // tryb dom: 3 posilki suche, udzialy 1/3
 const domG = allocateGrams([1 / 3, 1 / 3, 1 / 3], kcDay / britDry.kcal);
 assert('dzien suchy = cel energetyczny (+/-2 kcal)',

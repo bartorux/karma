@@ -22,21 +22,20 @@ wychodzi do sieci.
 - **Dokładne gramy** — gramaturę posiłku można też wpisać z klawiatury
   (pole obok nazwy posiłku); wpisana wartość jest przeliczana na udział
   i bilansuje resztę dnia tak samo jak suwak.
-- **Ekstra posiłek** — dowolna gramatura, mokra lub sucha; liczy się jako
-  podany i proporcjonalnie pomniejsza posiłki jeszcze niepodane. Usunięcie
-  ekstra przywraca dokładnie odjęte udziały.
-- **Waga docelowa (odchudzanie)** — opcjonalne pole; gdy ustawione, wszystkie
-  dawki liczone są z tabel dla wagi docelowej zamiast aktualnej (patrz sekcja
-  „Odchudzanie" niżej).
-- **Kontrola kaloryczna** — cel dnia w kcal, przelicznik na kg^0,75, RER i norma
-  FEDIAF wg aktywności psa, z werdyktem „poniżej / w normie / powyżej"; do tego
-  wybór podstawy celu (tabela suchej, tabela mokrej, norma FEDIAF albo
-  redukcja masy wg AAHA). Przy aktywnym odchudzaniu karta pokazuje zamiast
-  werdyktu **deficyt względem utrzymania dla wagi aktualnej**.
+- **Ekstra posiłek** — dowolna gramatura, mokra lub sucha, z opcjonalną
+  etykietą („przysmak", „kość"); liczy się jako podany i proporcjonalnie
+  pomniejsza posiłki jeszcze niepodane. Usunięcie ekstra przywraca dokładnie
+  odjęte udziały.
+- **Cel planu** — jawny wybór **Utrzymanie / Redukcja**, a dopiero pod nim
+  pola pasujące do wyboru (patrz „Cel planu i źródło normy" niżej).
+- **Kontrola kaloryczna** — cel dnia w kcal, przelicznik na kg^0,75, RER
+  i norma FEDIAF, z werdyktem „poniżej / w normie / powyżej". Przy redukcji
+  werdykt zastępuje **deficyt względem utrzymania dla wagi aktualnej**.
 - **Dziennik dnia** — czas podania, sumy mokrej/suchej, postęp x/N,
   automatyczny reset o północy (ustawienia zostają).
 - **Tabelki referencyjne** wybranych karm z podświetleniem wiersza dla wagi,
-  z której liczone są dawki (docelowej, gdy jest ustawiona).
+  z której liczone są dawki (docelowej przy redukcji). Karma mokra — selektor
+  i tabelka — pokazuje się tylko wtedy, gdy dzień faktycznie jej używa.
 
 ## Model dawkowania
 
@@ -46,8 +45,7 @@ sucha Brit VD GI ≈ 723 kcal/dzień, mokre tabele ≈ 936 kcal — różnica ~3
 dlatego aplikacja nie miesza tabel, tylko wyprowadza obie gramatury z celu:
 
 ```
-dailyKcal = wg wybranej podstawy
-            (tabela suchej | tabela mokrej | norma FEDIAF | mnożnik × RER)
+dailyKcal = wg celu i źródła normy (patrz „Cel planu i źródło normy")
 gramySuchej = dailyKcal / kcalSuchej      gramyMokrej = dailyKcal / kcalMokrej
 gramy posiłku = udział × gramyDanegoTypu
 ```
@@ -56,11 +54,40 @@ Konsekwencja: **dzień czysto suchy i dzień mieszany niosą dokładnie tyle sam
 energii**. Pominięcie mokrej (tryb dom albo suwak mokrego posiłku na 0%) nie
 wymaga żadnej rekompensaty — pozostałe posiłki przejmują jego udział.
 
-Podstawa celu jest wybierana w karcie „Kontrola kaloryczna"; domyślnie to
-tabela suchej karmy. Tabele niewybrane jako podstawa pokazywane są
-informacyjnie w podsumowaniu i w tabelkach referencyjnych. Podstawa
-„redukcja masy" nie korzysta z żadnej tabeli — liczy `mnożnik × RER` z wagi
-docelowej (patrz „Odchudzanie").
+Wynika stąd też, że **tabela mokrej karmy nigdy nie wyznacza dziennego celu** —
+gramatura mokrego posiłku bierze się z gęstości energetycznej
+(`dailyKcal / kcalMokrej`). Tabela mokrej jest wyłącznie informacyjna.
+
+## Cel planu i źródło normy
+
+Karta „Cel planu" rozdziela dwa niezależne pytania: **jaki masz cel** i
+**skąd bierzemy normę**.
+
+```
+CEL:  [ Utrzymanie ]              [ Redukcja ]
+        │                           │
+        │                           ├─ Waga docelowa
+        ├─ Norma wg:                ├─ Poziom wg:
+        │   • tabela producenta     │   • RER wagi docelowej × 1,0–1,4 (AAHA)
+        │   • norma FEDIAF          │   • tabela producenta dla wagi docelowej
+        │                           │
+        └─ Aktywność ───────────────┴─ Aktywność
+```
+
+Waga docelowa działa **tylko** przy celu „Redukcja" — samo jej wpisanie nie
+zmienia po cichu dawkowania.
+
+### Rola aktywności
+
+| Źródło normy | Czy aktywność zmienia dawkę? |
+|---|---|
+| tabela producenta | **tak**, jeśli producent ma kolumny aktywności (Belcando) |
+| norma FEDIAF | **tak** — 95 / 110 / 130 kcal/kg^0,75 |
+| RER wagi docelowej | **nie** — RER jest z definicji energią spoczynkową |
+
+Przy redukcji opartej na RER aktywność nadal ma znaczenie, ale dla **oceny**,
+nie dla dawki: decyduje, jak głęboki jest deficyt względem utrzymania dla wagi
+aktualnej. Dla psa 20 kg na planie 612 kcal to kolejno 32% / 41% / 50%.
 
 Energie metaboliczne (dane producenta, [britvetdiets.com](https://britvetdiets.com/diets/31-gastrointestinal)):
 
@@ -127,20 +154,24 @@ odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
 | Karma | Rodzaj tabeli | Liczenie |
 |---|---|---|
 | Brit VD GF Gastrointestinal (sucha) | punkty wagowe 2–80 kg | interpolacja liniowa między punktami; poza zakresem wartość skrajna + ostrzeżenie |
-| Belcando Mastercraft Fresh Salmon | punkty wagowe 3–80 kg (kolumna „Normale Aktivität") | interpolacja liniowa między punktami; etykieta podaje **punkty** („Optimales Gewicht"), nie przedziały, więc 20 kg to wprost 240 g, a 18 kg → 220 g; poza zakresem wartość skrajna + ostrzeżenie |
+| Belcando Mastercraft Fresh Salmon | punkty wagowe 3–80 kg, **dwie kolumny aktywności** | interpolacja liniowa między punktami; etykieta podaje **punkty** („Optimales Gewicht"), nie przedziały, więc 20 kg to wprost 240 g (kolumna „Normale") albo 275 g („Erhöhte"); poza zakresem wartość skrajna + ostrzeżenie |
 | Brit VD mokre (obie) | przedziały 5–60 kg z zakresem gramatur | **tylko informacyjnie** — gramatura posiłków mokrych wynika z kotwicy kalorycznej, nie z tej tabeli; wartość informacyjna interpolowana liniowo wewnątrz przedziału, poza 5–60 kg ekstrapolowana i oznaczana „(poza tabelą)" |
 
 ## localStorage
 
 ```js
-// 'karma_settings_v6' — trwałe ustawienia
-{ v:6, weight, targetWeight,          // targetWeight: null = odchudzanie wyłączone
+// 'karma_settings_v7' — trwałe ustawienia
+{ v:7, weight, targetWeight,          // targetWeight liczy się tylko przy goal:'redukcja'
   dryFoodId, wetFoodId, mode:'dom'|'praca',
   activity:'low'|'normal'|'high',     // 95 | 110 | 130 kcal/kg^0,75
-  energyBasis:'dry'|'wet'|'fediaf'|'redukcja',  // podstawa dziennego celu energetycznego
-  reductionFactor:1.0|1.1|1.2|1.3|1.4,          // mnożnik RER dla podstawy 'redukcja'
+  goal:'utrzymanie'|'redukcja',       // cel planu
+  maintenanceSource:'tabela'|'fediaf',        // źródło normy przy utrzymaniu
+  reductionSource:'rer'|'tabela',             // źródło normy przy redukcji
+  reductionFactor:1.0|1.1|1.2|1.3|1.4,        // mnożnik RER dla źródła 'rer'
   dogCount:1..4,                      // tylko do zużycia karmy, nie zmienia porcji
   shares:{ dom:[⅓,⅓,⅓], praca:[.25,.25,.25,.25] } }
+// Oba źródła trzymane osobno, żeby przełączanie celu tam i z powrotem
+// nie gubiło wcześniejszego wyboru.
 
 // 'karma_day_v2' — dziennik bieżącego dnia (reset o północy)
 { date:'YYYY-MM-DD', mode,
@@ -150,8 +181,20 @@ odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
   // share = ułamek dziennego celu energetycznego w chwili dodania ekstra
 ```
 
-Przy pierwszym uruchomieniu nowej wersji stare klucze `brit_v5` (waga)
-i `brit_day_v1` (dzisiejszy dziennik) są migrowane i usuwane.
+Przy pierwszym uruchomieniu nowej wersji stare klucze są migrowane i usuwane:
+`brit_v5` (waga), `brit_day_v1` (dzisiejszy dziennik) oraz `karma_settings_v6`.
+
+Migracja v6 → v7 tłumaczy `energyBasis` na cel i źródło (`goalFromBasis`):
+
+| v6 `energyBasis` | waga docelowa | v7 |
+|---|---|---|
+| `'redukcja'` | — | `goal:'redukcja'`, `reductionSource:'rer'` |
+| `'dry'` / `'wet'` / `'fediaf'` | ustawiona | `goal:'redukcja'`, `reductionSource:'tabela'` |
+| `'fediaf'` | brak | `goal:'utrzymanie'`, `maintenanceSource:'fediaf'` |
+| `'dry'` / `'wet'` | brak | `goal:'utrzymanie'`, `maintenanceSource:'tabela'` |
+
+`'wet'` znika jako źródło dziennego celu. Sama waga docelowa w v6 po cichu
+przełączała dawkowanie, więc jej obecność oznacza w v7 jawną redukcję.
 Wszystkie odczyty są defensywne — uszkodzone dane wracają do wartości
 domyślnych zamiast psuć aplikację.
 
@@ -203,22 +246,38 @@ Kalibracja tabel użytych w aplikacji (kcal/kg^0,75):
 | Brit VD GI **sucha** | ~83 | poniżej dolnej granicy FEDIAF |
 | Brit VD GI mokra | 107–110 | norma FEDIAF |
 | Brit VD GI Low Fat mokra | 107–110 | norma FEDIAF |
-| Belcando Mastercraft (cała tabela 3–80 kg) | 89–98 | poziom „mało aktywny" |
+| Belcando „Normale Aktivität" (3–80 kg) | 89–98 | poziom „mało aktywny" |
+| Belcando „Erhöhte Aktivität" (3–80 kg) | 105–115 | norma FEDIAF |
 
 Obie mokre tabele Brit są wyskalowane dokładnie na 110 kcal/kg^0,75, a sucha
-tabela tego samego producenta leży ~25% niżej — stąd możliwość wyboru podstawy
-celu.
+tabela tego samego producenta leży ~25% niżej — stąd możliwość wyboru źródła
+normy.
 
-Tabela Belcando trzyma się w wąskim paśmie 89–98 kcal/kg^0,75 na całej długości
-(3–80 kg), czyli mniej więcej na poziomie FEDIAF „mało aktywny" (95) i wyraźnie
-poniżej „normalnej aktywności" (110) — **producent nie zawyża dawek, tabela jest
-zachowawcza**. Ta spójność jest zarazem kontrolą poprawności przyjętej ME:
-przy 3,56 kcal/g pasmo wyszłoby 85–94, przy 3,72 wypada dokładnie na 95.
+### Kolumny Belcando są przesunięte względem skali FEDIAF
+
+Obie kolumny z worka trzymają się bardzo wąskich pasm na całej długości tabeli,
+co pozwala je jednoznacznie przypisać do poziomów FEDIAF — i pokazuje, że
+**nazwy producenta są przesunięte o jeden stopień**:
+
+| Kolumna z worka | kcal/kg^0,75 | odpowiada FEDIAF |
+|---|---|---|
+| „Normale Aktivität" | 89–98 | **mało aktywny (95)** |
+| „Erhöhte Aktivität" | 105–115 | **normalna aktywność (110)** |
+
+Dlatego aplikacja mapuje kolumny **po energii, nie po nazwie**: `low` → kolumna
+„Normale", `normal` → „Erhöhte". Poziomu „dużo aktywny" producent nie podaje —
+aplikacja przedłuża jego własny krok między kolumnami (`normal²/low` na każdym
+punkcie), co daje ~124 kcal/kg^0,75 wobec 130 wg FEDIAF; wynik jest oznaczany
+jako ekstrapolacja. Dla psa 20 kg: **240 / 275 / 315 g**.
+
+Pas 89–98 dla kolumny bazowej jest zarazem kontrolą poprawności przyjętej ME:
+przy 3,56 kcal/g wyszłoby 85–94, przy 3,72 wypada dokładnie na 95. Producent
+nie zawyża dawek — jego „normalna" to w skali FEDIAF pies mało aktywny.
 
 Werdykt porównuje cel dnia z normą FEDIAF dla wybranej aktywności
-(tolerancja ±10%: `poniżej` / `w normie` / `powyżej`). Przy aktywnym
-odchudzaniu werdykt zastępuje **deficyt względem utrzymania dla wagi
-aktualnej** — patrz „Odchudzanie".
+(tolerancja ±10%: `poniżej` / `w normie` / `powyżej`). Przy redukcji werdykt
+zastępuje **deficyt względem utrzymania dla wagi aktualnej** — patrz
+„Odchudzanie".
 
 > **Werdykt „poniżej" nie jest poleceniem dokarmiania.** Normy to średnia
 > populacyjna, a indywidualne zapotrzebowanie waha się ±20–25%. Rozstrzyga
@@ -233,21 +292,22 @@ policzenia dziennego zużycia karmy.
 
 Zgodnie z wytycznymi weterynaryjnymi (AAHA, VCA, Cornell, APOP):
 
-1. **Dawkowanie na wagę docelową, nie aktualną** — po ustawieniu pola
-   „Waga docelowa" wszystkie dawki (i podświetlenie tabelek) liczone są
-   dla niej. To standardowe zalecenie producentów i lecznic.
-2. **Podstawa celu „Redukcja masy" = mnożnik × RER wagi docelowej** —
-   protokół AAHA startuje od `1,0 × RER(waga docelowa)`; dostępne mnożniki
-   1,0–1,4 (wyższe = wariant łagodny albo wyjście z plateau). To jedyna
-   podstawa, która wprowadza faktyczny deficyt — pozostałe (tabela suchej,
-   tabela mokrej, norma FEDIAF) to poziomy **utrzymaniowe**, tyle że
-   odczytane dla niższej wagi.
+1. **Dawkowanie na wagę docelową, nie aktualną** — po wybraniu celu „Redukcja"
+   i podaniu wagi docelowej wszystkie dawki (i podświetlenie tabelek) liczone
+   są dla niej. To standardowe zalecenie producentów i lecznic.
+2. **Źródło „RER wagi docelowej" = mnożnik × RER** — protokół AAHA startuje od
+   `1,0 × RER(waga docelowa)`; dostępne mnożniki 1,0–1,4 (wyższe = wariant
+   łagodny albo wyjście z plateau). To jedyne źródło, które wprowadza faktyczny
+   deficyt — tabela producenta i norma FEDIAF to poziomy **utrzymaniowe**, tyle
+   że odczytane dla niższej wagi. Drugie źródło („tabela producenta dla wagi
+   docelowej") zostaje dostępne jako wariant łagodniejszy.
 3. **Miarą planu jest deficyt wobec utrzymania dla wagi AKTUALNEJ** —
-   przy aktywnym odchudzaniu karta kaloryczna porównuje cel dnia z
-   `MER(waga aktualna)`, bo to on decyduje o tempie chudnięcia. Porównanie
-   z normą dla wagi docelowej zawsze wyszłoby „poniżej" i nic nie wnosi.
-   Deficyt 20–40% odpowiada mniej więcej zalecanym 1–2% masy tygodniowo;
-   poza tym zakresem aplikacja ostrzega.
+   przy redukcji karta kaloryczna porównuje cel dnia z `MER(waga aktualna)`,
+   bo to on decyduje o tempie chudnięcia. Porównanie z normą dla wagi docelowej
+   zawsze wyszłoby „poniżej" i nic nie wnosi. Deficyt 20–40% odpowiada mniej
+   więcej zalecanym 1–2% masy tygodniowo; poza tym zakresem aplikacja ostrzega.
+   Aktywność psa nie zmienia tu dawki, ale zmienia punkt odniesienia: ten sam
+   plan 612 kcal to dla psa 20 kg deficyt 32% / 41% / 50%.
 4. **Bezpieczne tempo: 1–2% masy ciała tygodniowo** — szybsza utrata wagi
    wymaga kontroli weterynaryjnej; aplikacja przypomina o tym w podsumowaniu
    i o cotygodniowym ważeniu o stałej porze.
@@ -259,14 +319,18 @@ Zgodnie z wytycznymi weterynaryjnymi (AAHA, VCA, Cornell, APOP):
 
 Przykład (pies 20 kg, cel 18 kg, Belcando Mastercraft):
 
-| Podstawa celu | g/dzień | kcal | × RER(18 kg) | Deficyt vs utrzymanie 20 kg (1040 kcal) |
+| Źródło normy | g/dzień | kcal | × RER(18 kg) | Deficyt vs utrzymanie 20 kg (1040 kcal) |
 |---|---|---|---|---|
-| tabela suchej | 220 | 818 | 1,34 | 21% |
-| redukcja 1,2 × RER | 197 | 734 | 1,20 | 29% |
-| redukcja 1,0 × RER | 164 | 612 | 1,00 | 41% |
+| tabela producenta, aktywność normalna | 253 | 941 | 1,54 | 10% |
+| tabela producenta, aktywność mała | 220 | 818 | 1,34 | 21% |
+| RER × 1,2 | 197 | 734 | 1,20 | 29% |
+| RER × 1,0 | 164 | 612 | 1,00 | 41% |
 
-Karma Brit VD GF Gastrointestinal **Low Fat** ma obniżoną kaloryczność
-(775 kcal/kg) i dobrze pasuje do planów redukcyjnych.
+Karma Brit VD GF Gastrointestinal **Low Fat** ma niższą gęstość energetyczną
+(775 kcal/kg). Przy kotwicy kalorycznej **nie obniża to kalorii planu** —
+zwiększa gramaturę: te same 612 kcal to 789 g Low Fat zamiast 600 g mokrej
+standardowej. Zaleta jest więc objętościowa (większa miska i sytość przy tej
+samej energii) oraz w niższej zawartości tłuszczu, a nie kaloryczna.
 
 Źródła: [FEDIAF Nutritional Guidelines](https://europeanpetfood.org/wp-content/uploads/2022/03/Updated-Nutritional-Guidelines.pdf),
 [Energy Requirements of Adult Dogs: A Meta-Analysis](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4196927/),
