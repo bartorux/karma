@@ -296,6 +296,44 @@ eq('Purizon 20 kg = 96.6 kcal/kg^0.75', tableKcalPerMetabolic(pur, 20), 96.64, 0
   const v = tableKcalPerMetabolic(pur, kg);
   assert(`Purizon ${kg} kg w 94-99 (${v.toFixed(1)})`, v >= 94 && v <= 99);
 });
+// ---- replanDay: podane posilki zamrozone, reszta dnia dla niepodanych ----
+{
+  let r = replanDay({ a: 1, b: 1 }, ['a', 'b'], 0, []);
+  eq('replan: bez podanych i ekstra = wagi', r.shares.a + r.shares.b, 1, 1e-12);
+  eq('replan: rowny podzial', r.shares.a, 0.5, 1e-12);
+  // zmiana trybu dom->praca po podaniu rano (1/3): reszta 2/3 na 3 niepodane
+  r = replanDay({ przedpoludnie: .25, popoludnie: .25, wieczor: .25 }, ['przedpoludnie', 'popoludnie', 'wieczor'], 1 / 3, []);
+  eq('replan: dom->praca po rano 1/3 -> suma dnia = 1', 1 / 3 + r.shares.przedpoludnie + r.shares.popoludnie + r.shares.wieczor, 1, 1e-12);
+  eq('replan: niepodane po 2/9', r.shares.wieczor, 2 / 9, 1e-12);
+  // proporcje wag zachowane
+  r = replanDay({ a: 3, b: 1 }, ['a', 'b'], 0.2, []);
+  eq('replan: proporcje 3:1 z budzetu 0.8', r.shares.a, 0.6, 1e-12);
+  // wagi zerowe -> rowno
+  r = replanDay({ a: 0, b: 0 }, ['a', 'b'], 0.5, []);
+  eq('replan: zerowe wagi -> po rowno', r.shares.b, 0.25, 1e-12);
+  // ekstra nakladane po kolei, overshoot liczony od nowa
+  r = replanDay({ a: 1, b: 1 }, ['a', 'b'], 0, [0.2]);
+  eq('replan: ekstra 0.2 -> niepodane 0.8', r.shares.a + r.shares.b, 0.8, 1e-12);
+  eq('replan: ekstra bez overshoot', r.extras[0].overshoot, 0);
+  eq('replan: deductions ekstra = 0.2', r.extras[0].deductions.reduce((s, d) => s + d.amount, 0), 0.2, 1e-12);
+  // REGRESJA: po usunieciu ekstra 1.0 pozostale 0.2 nie ma juz overshoot
+  r = replanDay({ a: 1, b: 1 }, ['a', 'b'], 0, [1.0, 0.2]);
+  eq('replan: 1.0 + 0.2 -> overshoot drugiego 0.2', r.extras[1].overshoot, 0.2, 1e-12);
+  r = replanDay({ a: 1, b: 1 }, ['a', 'b'], 0, [0.2]);
+  eq('replan: po usunieciu 1.0 overshoot 0', r.extras[0].overshoot, 0);
+  // wszystko podane: ekstra w calosci ponad budzet
+  r = replanDay({}, [], 1, [0.1]);
+  eq('replan: wszystko podane -> overshoot = ekstra', r.extras[0].overshoot, 0.1, 1e-12);
+  // podane ponad 1 -> budzet niepodanych 0
+  r = replanDay({ a: 1 }, ['a'], 1.2, []);
+  eq('replan: podane > 1 -> niepodane 0', r.shares.a, 0);
+}
+
+// ---- escHtml ----
+eq('escHtml: znaczniki', escHtml('<svg onload=x>'), '&lt;svg onload=x&gt;');
+eq('escHtml: cudzyslowy i &', escHtml(`a'b"c&d`), 'a&#39;b&quot;c&amp;d');
+eq('escHtml: zwykly tekst bez zmian', escHtml('kość 50 g'), 'kość 50 g');
+
 // ---- poziomy redukcji wg AAHA ----
 eq('redukcja 1.0 x RER(18) = 611.7', reductionKcal(18, 1.0), 611.72, 0.01);
 eq('redukcja 1.2 x RER(18) = 734.1', reductionKcal(18, 1.2), 734.06, 0.01);
