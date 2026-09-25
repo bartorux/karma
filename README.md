@@ -35,7 +35,7 @@ systemowe), więc działa offline po pierwszym wczytaniu.
   werdykt zastępuje **deficyt względem utrzymania dla wagi aktualnej**.
 - **Dziennik dnia** — czas podania, sumy mokrej/suchej, postęp x/N,
   automatyczny reset o północy (ustawienia zostają).
-  Cofnięcie „Podano" wymaga potwierdzenia.
+  Cofnięcie „Podano" i usunięcie ekstra wymagają potwierdzenia.
 - **Tabelki referencyjne** wybranych karm z podświetleniem wiersza dla wagi,
   z której liczone są dawki (docelowej przy redukcji). Karma mokra — selektor
   i tabelka — pokazuje się tylko wtedy, gdy dzień faktycznie jej używa.
@@ -232,11 +232,11 @@ osascript -l JavaScript tests/test-math-jxa.js        # macOS bez Node (z katalo
 osascript -l JavaScript tests/test-integrity-jxa.js
 ```
 
-`test-math` (348 asercji) pokrywa wartości referencyjne tabel, granice
+`test-math` (345 asercji) pokrywa wartości referencyjne tabel, granice
 przedziałów, bilansowanie suwaków (w tym suwak na 100% i z powrotem), ekstra
 posiłki z wiernym cofaniem, zaokrąglanie gramów, normy FEDIAF/AAHA, progi
 werdyktu, kalibrację tabel, niezmiennik energii dnia (mieszany = suchy),
-przeplanowanie dnia (`replanDay`) oraz escapowanie etykiet (`escHtml`).
+oraz przeplanowanie dnia (`replanDay`).
 
 `test-integrity` sprawdza sam plik: parsowanie `<script>`, spójność
 `getElementById` z markupem, istnienie funkcji z inline handlerów oraz brak

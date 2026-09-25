@@ -526,23 +526,16 @@ function applyExtra(shares,unfed,e){
    deductions i overshoot liczone od nowa, więc nie zostają nieaktualne.
    Zwraca {shares (tylko niepodane), extras:[{deductions, overshoot}]}. */
 function replanDay(base,unfed,fedSum,extraShares){
-  var shares={},i,W=0,budget=Math.max(0,1-(fedSum>0?fedSum:0)),res=[];
-  for(i=0;i<unfed.length;i++)W+=Math.max(0,base[unfed[i]]||0);
+  var shares={},w={},i,W=0,budget=Math.max(0,1-fedSum),res=[];
+  for(i=0;i<unfed.length;i++){w[unfed[i]]=Math.max(0,base[unfed[i]]||0);W+=w[unfed[i]];}
   for(i=0;i<unfed.length;i++)
-    shares[unfed[i]]=W>1e-12?budget*Math.max(0,base[unfed[i]]||0)/W:budget/unfed.length;
+    shares[unfed[i]]=W>1e-12?budget*w[unfed[i]]/W:budget/unfed.length;
   for(i=0;i<extraShares.length;i++){
     var r=applyExtra(shares,unfed,extraShares[i]||0);
     shares=r.shares;
     res.push({deductions:r.deductions,overshoot:r.overshoot});
   }
   return{shares:shares,extras:res};
-}
-
-/* Tekst użytkownika (etykiety ekstra) wstawiany do innerHTML. */
-function escHtml(s){
-  return String(s).replace(/[&<>"']/g,function(ch){
-    return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
-  });
 }
 
 /* Rozdział gramów metodą największych reszt: suma wyników = round(D * suma udziałów),
@@ -690,13 +683,20 @@ function nowTimeStr(){var d=new Date();return pad2(d.getHours())+':'+pad2(d.getM
 function genId(){return'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function num(v){return typeof v==='number'&&isFinite(v)?v:0}
 
+/* Domyślny podział bieżącego trybu z ustawień, jako mapa id -> udział. */
+function defaultShares(){
+  var ids=MODES[settings.mode].mealIds,out={};
+  for(var i=0;i<ids.length;i++)out[ids[i]]=settings.shares[settings.mode][i];
+  return out;
+}
 function newDay(){
-  var mode=MODES[settings.mode],d={date:todayStr(),mode:settings.mode,shares:{},meals:{},extras:[]};
-  for(var i=0;i<mode.mealIds.length;i++){
-    d.shares[mode.mealIds[i]]=settings.shares[settings.mode][i];
-    d.meals[mode.mealIds[i]]=null;
-  }
+  var ids=MODES[settings.mode].mealIds,d={date:todayStr(),mode:settings.mode,shares:defaultShares(),meals:{},extras:[]};
+  for(var i=0;i<ids.length;i++)d.meals[ids[i]]=null;
   return d;
+}
+/* Typ karmy posiłku w bieżącym trybie: jeden mokry posiłek, reszta sucha. */
+function mealTypeOf(id){
+  return id===MODES[settings.mode].wetMealId?'mokra':'sucha';
 }
 function unfedMealIds(){
   var ids=MODES[settings.mode].mealIds,out=[];
@@ -773,7 +773,7 @@ function loadDay(){
             if(dd&&typeof dd.mealId==='string'&&num(dd.amount)>0)ded.push({mealId:dd.mealId,amount:num(dd.amount)});
           }
         }
-        out.extras.push({id:(typeof e.id==='string'&&/^[a-z0-9]{1,32}$/i.test(e.id))?e.id:genId(),type:e.type,grams:num(e.grams),
+        out.extras.push({id:typeof e.id==='string'?e.id:genId(),type:e.type,grams:num(e.grams),
           time:String(e.time||'').slice(0,8),share:Math.max(0,num(e.share)),deductions:ded,
           overshoot:Math.max(0,num(e.overshoot)),label:typeof e.label==='string'?e.label.slice(0,24):null});
       }
@@ -846,7 +846,9 @@ function compute(){
   var rer=valid?rerKcal(kg):null;
   var fediafTarget=valid?fediafKcal(kg,settings.activity):null;
   var kcalPerMetabolic=(dailyKcal&&mKg)?dailyKcal/mKg:null;
-  var verdict=dailyKcal?energyVerdict(dailyKcal,kg,settings.activity):null;
+  /* Przy redukcji porównanie z normą dla wagi docelowej nic nie mówi —
+     miarą jest deficyt (niżej), więc werdykt tylko przy utrzymaniu. */
+  var verdict=(!diet&&dailyKcal)?energyVerdict(dailyKcal,kg,settings.activity):null;
   /* Przy odchudzaniu miarą planu jest deficyt wobec utrzymania dla wagi
      AKTUALNEJ, a nie normy dla docelowej (ta zawsze wyjdzie "poniżej"). */
   var deficit=(diet&&dailyKcal&&realKg>0)?deficitVsMaintenance(dailyKcal,realKg,settings.activity):null;
@@ -858,7 +860,7 @@ function compute(){
   var mealTypes={},mealGrams={},dryIds=[],wetIds=[],i,id;
   for(i=0;i<mode.mealIds.length;i++){
     id=mode.mealIds[i];
-    mealTypes[id]=(id===mode.wetMealId)?'mokra':'sucha';
+    mealTypes[id]=mealTypeOf(id);
     (mealTypes[id]==='mokra'?wetIds:dryIds).push(id);
   }
   if(valid&&dryDailyG){
@@ -1000,8 +1002,9 @@ function setMode(nm){
   renderAll();
 }
 /* Zmiana trybu w środku dnia: podane posiłki, których nie ma w nowym trybie,
-   stają się ekstra (żeby sumy dnia dalej się zgadzały); udziały nowego trybu
-   są odbudowywane z ustawień, a ekstra nakładane od nowa po kolei. */
+   stają się ekstra (żeby sumy dnia dalej się zgadzały). Podane posiłki obecne
+   w obu trybach zachowują swój udział, niepodane dzielą resztę dnia wg
+   domyślnego podziału nowego trybu, a ekstra są nakładane od nowa. */
 function reconcileDayToMode(nm){
   var oldIds=MODES[day.mode]?MODES[day.mode].mealIds:[],newIds=MODES[nm].mealIds,i,id,m;
   for(i=0;i<oldIds.length;i++){
@@ -1018,7 +1021,7 @@ function reconcileDayToMode(nm){
     meals[newIds[i]]=(m&&m.fed)?m:null;
   }
   day.meals=meals;
-  rebuildDayShares();
+  replanDayShares(defaultShares());
 }
 /* Czy plan jest planem redukcji: jawny cel + podana waga docelowa. */
 function dietActive(){
@@ -1051,38 +1054,24 @@ function orphanExtra(type,grams,time,label){
   return{id:genId(),type:type,grams:Math.round(grams),time:time||'',
     share:(daily&&daily>0)?grams/daily:0,deductions:[],overshoot:0,label:label};
 }
-/* Udział, z jakim podano posiłek (jego gramy są zamrożone). Zapasowo
-   z gramów, gdyby w dzienniku brakowało udziału. */
-function fedShare(id){
-  var v=day.shares[id],m=day.meals[id];
-  if(typeof v==='number'&&isFinite(v)&&v>=0)return v;
-  var t=MODES[settings.mode].wetMealId===id?'mokra':'sucha';
-  var daily=dailyAllowanceFor(t);
-  return(daily&&daily>0)?((t==='mokra'?m.wetG:m.dryG)||0)/daily:0;
+/* Gramy podane w posiłku oznaczonym jako podany. */
+function givenGrams(m){
+  return Math.round(m.wetG+m.dryG);
 }
-/* Przeplanowanie dzisiejszych udziałów: podane posiłki zostają na swoim
-   udziale, niepodane dzielą resztę proporcjonalnie do wag `base`, a ekstra
-   są nakładane od nowa (z przeliczeniem deductions i overshoot). */
+/* Przeplanowanie dzisiejszych udziałów: podane posiłki zostają na udziale,
+   z jakim je podano (ich gramy są zamrożone), niepodane dzielą resztę
+   proporcjonalnie do wag `base`, a ekstra są nakładane od nowa. */
 function replanDayShares(base){
-  var ids=MODES[settings.mode].mealIds,shares={},fedSum=0,i,id,m;
+  var ids=MODES[settings.mode].mealIds,shares={},unfed=[],fedSum=0,i,id,m;
   for(i=0;i<ids.length;i++){
     id=ids[i];m=day.meals[id];
-    if(m&&m.fed){shares[id]=fedShare(id);fedSum+=shares[id];}
+    if(m&&m.fed){shares[id]=day.shares[id]||0;fedSum+=shares[id];}
+    else unfed.push(id);
   }
-  var r=replanDay(base,unfedMealIds(),fedSum,day.extras.map(function(e){return e.share||0}));
+  var r=replanDay(base,unfed,fedSum,day.extras.map(function(e){return e.share||0}));
   for(id in r.shares)shares[id]=r.shares[id];
   day.shares=shares;
-  for(i=0;i<day.extras.length;i++){
-    day.extras[i].deductions=r.extras[i].deductions;
-    day.extras[i].overshoot=r.extras[i].overshoot;
-  }
-}
-/* Po zmianie trybu: niepodane posiłki dzielą resztę dnia wg domyślnego
-   podziału nowego trybu z ustawień. */
-function rebuildDayShares(){
-  var mode=MODES[settings.mode],base={},i;
-  for(i=0;i<mode.mealIds.length;i++)base[mode.mealIds[i]]=settings.shares[settings.mode][i];
-  replanDayShares(base);
+  day.extras.forEach(function(e,j){e.deductions=r.extras[j].deductions;e.overshoot=r.extras[j].overshoot;});
 }
 
 function onShareInput(id,val){
@@ -1131,12 +1120,16 @@ function onGramsCommit(id){
   onShareCommit(id);
 }
 
+/* Usunięcie czegokolwiek z dziennika dnia zmienia jego sumy — jedno
+   kliknięcie to za mało. Wspólne dla posiłków i ekstra. */
+function confirmLogRemoval(msg){
+  return confirm(msg);
+}
 function toggleFed(id){
   checkDayReset();
   var m=day.meals[id];
   if(m&&m.fed){
-    /* Cofnięcie "Podano" zmienia sumy dnia — jedno kliknięcie to za mało. */
-    if(!confirm('Cofnąć oznaczenie "Podano" dla posiłku '+MEAL_META[id].name+' ('+Math.round(m.wetG+m.dryG)+' g, '+(m.time||'')+')? Posiłek wróci do planu.'))return;
+    if(!confirmLogRemoval('Cofnąć oznaczenie "Podano" dla posiłku '+MEAL_META[id].name+' ('+givenGrams(m)+' g, '+(m.time||'')+')? Posiłek wróci do planu.'))return;
     day.meals[id]=null;
   }else{
     if(!computed||!computed.valid)return;
@@ -1178,17 +1171,18 @@ function removeExtra(id){
   for(var i=0;i<day.extras.length;i++){
     if(day.extras[i].id===id){
       var removed=day.extras[i];
-      day.extras.splice(i,1);
+      if(!confirmLogRemoval('Usunąć ekstra '+(removed.label?removed.label+' ':'')+'('+removed.grams+' g, '+(removed.time||'')+') z dziennika?'))return;
       /* Wagi niepodanych = obecne udziały + wszystko, co odjęły im ekstra
          (czyli podział sprzed ekstra, z ręcznymi zmianami suwaków). Odjęcia
          od posiłków już podanych przechodzą na niepodane, a overshoot
          pozostałych ekstra jest liczony od nowa. */
       var base={},unfed=unfedMealIds(),j,k,ded;
       for(j=0;j<unfed.length;j++)base[unfed[j]]=day.shares[unfed[j]]||0;
-      for(j=0;j<day.extras.length+1;j++){
-        ded=(j<day.extras.length?day.extras[j]:removed).deductions||[];
+      for(j=0;j<day.extras.length;j++){
+        ded=day.extras[j].deductions||[];
         for(k=0;k<ded.length;k++)if(ded[k].mealId in base)base[ded[k].mealId]+=ded[k].amount;
       }
+      day.extras.splice(i,1);
       replanDayShares(base);
       break;
     }
@@ -1251,7 +1245,7 @@ function buildMealCards(){
   var mode=MODES[settings.mode],html='',tiles='',i;
   for(i=0;i<mode.mealIds.length;i++){
     var id=mode.mealIds[i],meta=MEAL_META[id];
-    var isWet=(id===mode.wetMealId);
+    var isWet=mealTypeOf(id)==='mokra';
     html+='<div class="meal-card" id="meal-'+id+'">'
       +'<div class="meal-header">'
       +'<div class="meal-title">'+meta.icon+' '+meta.name
@@ -1299,7 +1293,7 @@ function updateMeals(){
       btn.classList.remove('disabled');
       btn.textContent='✓ '+(m.time||'');
       gramsEl.disabled=true;
-      if(id!==editingGramsId)gramsEl.value=Math.round(m.wetG+m.dryG);
+      if(id!==editingGramsId)gramsEl.value=givenGrams(m);
     }else{
       btn.classList.remove('done');
       btn.classList.toggle('disabled',!c.valid);
@@ -1391,23 +1385,20 @@ function renderEnergyCard(){
       html+='<div class="verdict v-below"><strong>⚠️ Żaden poziom nie mieści się w zalecanym pasmie</strong>'
         +'Przy '+Math.round(c.overPct)+'% ponad cel nawet najłagodniejszy poziom ('+fmtKg(REDUCTION_FACTORS[REDUCTION_FACTORS.length-1])+' × RER) '
         +'daje deficyt poza zakresem 20–40%. Taki plan prowadź pod kontrolą weterynarza — być może cel wymaga rozbicia na etapy.</div>';
-  }else if(c.dietActive&&!(c.realKg>0)){
-    /* Bez wagi aktualnej nie ma deficytu, a porównanie z normą dla wagi
-       docelowej zawsze wyjdzie "poniżej" — nic nie mówi o tempie chudnięcia. */
+  }else if(c.verdict){
+    var v=c.verdict;
+    var cls=v.level==='ok'?'v-ok':(v.level==='below'?'v-below':'v-above');
+    var head=v.level==='ok'?'✅ Plan w normie dla tej aktywności'
+      :(v.level==='below'?'🔽 Plan ~'+v.offPct+'% poniżej normy FEDIAF'
+      :'🔼 Plan ~'+v.offPct+'% powyżej normy FEDIAF');
+    var body=v.level==='ok'
+      ?'Cel dnia mieści się w zakresie ±10% normy dla psa o aktywności: '+ACTIVITY_LABEL[settings.activity]+'.'
+      :'To porównanie ze średnią populacyjną, nie zalecenie zmiany dawki. Jeśli pies utrzymuje masę i kondycję (żebra wyczuwalne, talia widoczna), obecny poziom jest dla niego właściwy.';
+    html+='<div class="verdict '+cls+'"><strong>'+head+'</strong>'+body+'</div>';
+  }else if(c.dietActive){
+    /* Redukcja bez wagi aktualnej: deficytu nie da się policzyć. */
     html+='<div class="verdict v-above"><strong>ℹ️ Podaj aktualną wagę psa</strong>'
       +'Przy redukcji plan ocenia się deficytem względem utrzymania dla wagi aktualnej — bez niej nie da się go policzyć.</div>';
-  }else{
-    var v=c.verdict;
-    if(v){
-      var cls=v.level==='ok'?'v-ok':(v.level==='below'?'v-below':'v-above');
-      var head=v.level==='ok'?'✅ Plan w normie dla tej aktywności'
-        :(v.level==='below'?'🔽 Plan ~'+v.offPct+'% poniżej normy FEDIAF'
-        :'🔼 Plan ~'+v.offPct+'% powyżej normy FEDIAF');
-      var body=v.level==='ok'
-        ?'Cel dnia mieści się w zakresie ±10% normy dla psa o aktywności: '+ACTIVITY_LABEL[settings.activity]+'.'
-        :'To porównanie ze średnią populacyjną, nie zalecenie zmiany dawki. Jeśli pies utrzymuje masę i kondycję (żebra wyczuwalne, talia widoczna), obecny poziom jest dla niego właściwy.';
-      html+='<div class="verdict '+cls+'"><strong>'+head+'</strong>'+body+'</div>';
-    }
   }
   el.innerHTML=html;
 }
@@ -1437,18 +1428,22 @@ function renderTracker(){
     var id=mode.mealIds[i],m=day.meals[id],fed=!!(m&&m.fed);
     document.getElementById('dt-m-'+id).classList.toggle('fed',fed);
     document.getElementById('dt-t-'+id).textContent=fed?(m.time||''):'';
-    document.getElementById('dt-g-'+id).textContent=fed?(Math.round(m.wetG+m.dryG)+' g'):'—';
+    document.getElementById('dt-g-'+id).textContent=fed?(givenGrams(m)+' g'):'—';
   }
-  var chips='';
-  for(i=0;i<day.extras.length;i++){
-    var ex=day.extras[i];
-    chips+='<div class="extra-chip">'+(ex.type==='mokra'?'💧':'🌾')+' '
-      +(ex.label?escHtml(ex.label)+' · ':'')+ex.grams+' g'+(ex.time?' · '+escHtml(ex.time):'')
-      +'<span class="chip-x" role="button" tabindex="0" onclick="removeExtra(\''+escHtml(ex.id)+'\')" title="Usuń">✕</span></div>';
-  }
+  /* Chipy budowane z DOM (textContent), bo etykieta to tekst użytkownika;
+     usuwanie obsługuje jeden delegowany listener na #extra-chips (init). */
   var cw=document.getElementById('extra-chips');
-  cw.innerHTML=chips;
-  cw.style.display=chips?'flex':'none';
+  cw.textContent='';
+  for(i=0;i<day.extras.length;i++){
+    var ex=day.extras[i],chip=document.createElement('div'),x=document.createElement('span');
+    chip.className='extra-chip';
+    chip.textContent=(ex.type==='mokra'?'💧':'🌾')+' '
+      +(ex.label?ex.label+' · ':'')+ex.grams+' g'+(ex.time?' · '+ex.time:'');
+    x.className='chip-x';x.setAttribute('role','button');x.tabIndex=0;x.title='Usuń';
+    x.dataset.id=ex.id;x.textContent='✕';
+    chip.appendChild(x);cw.appendChild(chip);
+  }
+  cw.style.display=day.extras.length?'flex':'none';
   document.getElementById('dt-wet').textContent=c.givenWet;
   document.getElementById('dt-dry').textContent=c.givenDry;
   document.getElementById('dt-prog-txt').textContent=c.fedCount+' / '+c.N+' posiłków';
@@ -1593,6 +1588,10 @@ function renderAll(){
   renderAll();
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden){checkDayReset();renderAll();}
+  });
+  document.getElementById('extra-chips').addEventListener('click',function(ev){
+    var x=ev.target.closest('.chip-x');
+    if(x)removeExtra(x.dataset.id);
   });
   document.addEventListener('keydown',function(ev){
     if((ev.key==='Enter'||ev.key===' ')&&ev.target&&ev.target.getAttribute&&ev.target.getAttribute('role')==='button'){
