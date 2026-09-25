@@ -395,7 +395,15 @@ var DRY_FOODS={
   belcando_salmon:{name:'Belcando Mastercraft Fresh Salmon (sucha)',shortName:'Belcando Mastercraft',kind:'points-interp',kcal:3.72,kcalEstimated:true,
     pointsByActivity:{
       low:   [[3,60],[5,80], [10,140],[15,190],[20,240],[25,280],[35,360],[50,470],[65,580],[80,680]],
-      normal:[[3,70],[5,100],[10,160],[15,220],[20,275],[25,325],[35,420],[50,550],[65,665],[80,780]]}}
+      normal:[[3,70],[5,100],[10,160],[15,220],[20,275],[25,325],[35,420],[50,550],[65,665],[80,780]]}},
+  /* ME z deklaracji producenta: ME (FEDIAF, 2016) 16,04 MJ / 3835 kcal/kg.
+     Tabela zooplus podana jako przedziały (1-5 kg: 28-85 g, 5-15 kg: 85-195 g, ...),
+     ale końce przedziałów się łączą, więc to ciągła krzywa — punkty = granice
+     przedziałów, interpolacja liniowa. "80 kg +: 670 g +" -> wartość skrajna.
+     Jedna kolumna (bez aktywności); kalibracja 5-80 kg: 96-98 kcal/kg^0,75,
+     czyli poziom FEDIAF "mało aktywny" (95). */
+  purizon_salmon:{name:'Purizon Single Meat Adult łosoś ze szpinakiem (sucha)',shortName:'Purizon Single Meat',kind:'points-interp',kcal:3.835,
+    points:[[1,28],[5,85],[15,195],[30,325],[40,400],[50,470],[60,540],[70,605],[80,670]]}
 };
 var WET_FOODS={
   brit_gastro_wet:{name:'Brit VD GF Gastrointestinal 400 g (mokra)',shortName:'Brit VD Gastro',kind:'bracket-interp',kcal:1.02,

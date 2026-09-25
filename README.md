@@ -14,7 +14,8 @@ wychodzi do sieci.
   💼 *Praca* — 4 posiłki (Rano / Przedpołudnie / Popołudnie / Wieczór), drugi
   zawsze mokry, pozostałe suche.
 - **Wybór karm** (zapamiętywany do następnej zmiany):
-  - sucha: Brit VD GF Gastrointestinal lub Belcando Mastercraft Fresh Salmon,
+  - sucha: Brit VD GF Gastrointestinal, Belcando Mastercraft Fresh Salmon
+    lub Purizon Single Meat Adult łosoś ze szpinakiem,
   - mokra: Brit VD GF Gastrointestinal 400 g lub Brit VD GF GI Low Fat 400 g.
 - **Suwaki udziału** — każdy posiłek ma udział w dziennej dawce; przesunięcie
   jednego suwaka proporcjonalnie bilansuje pozostałe (suma zawsze 100%).
@@ -102,6 +103,7 @@ Energie metaboliczne (dane producenta, [britvetdiets.com](https://britvetdiets.c
 | Brit VD GF Gastrointestinal mokra 400 g | 1020 kcal/kg |
 | Brit VD GF GI Low Fat mokra 400 g | 775 kcal/kg |
 | Belcando Mastercraft Fresh Salmon | ~3720 kcal/kg (szacunek — producent nie publikuje ME; aplikacja pokazuje wtedy notkę) |
+| Purizon Single Meat Adult łosoś ze szpinakiem | 3835 kcal/kg (deklaracja producenta: ME FEDIAF 2016, 16,04 MJ/kg) |
 
 Belcando liczone **równaniem predykcyjnym FEDIAF/NRC** ze składników
 analitycznych z opakowania (białko 27%, tłuszcz 15%, popiół 6,5%, włókno 3,3%,
@@ -160,6 +162,7 @@ odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
 |---|---|---|
 | Brit VD GF Gastrointestinal (sucha) | punkty wagowe 2–80 kg | interpolacja liniowa między punktami; poza zakresem wartość skrajna + ostrzeżenie |
 | Belcando Mastercraft Fresh Salmon | punkty wagowe 3–80 kg, **dwie kolumny aktywności** | interpolacja liniowa między punktami; etykieta podaje **punkty** („Optimales Gewicht"), nie przedziały, więc 20 kg to wprost 240 g (kolumna „Normale") albo 275 g („Erhöhte"); poza zakresem wartość skrajna + ostrzeżenie |
+| Purizon Single Meat Adult łosoś | przedziały 1–80 kg, których końce się łączą (1–5 kg: 28–85 g, 5–15 kg: 85–195 g, …) | traktowane jak **punkty** na granicach przedziałów i interpolowane liniowo (20 kg → 238 g); jedna kolumna, aktywność nie zmienia dawki z tabeli; „80 kg +: 670 g +" → wartość skrajna + ostrzeżenie |
 | Brit VD mokre (obie) | przedziały 5–60 kg z zakresem gramatur | **tylko informacyjnie** — gramatura posiłków mokrych wynika z kotwicy kalorycznej, nie z tej tabeli; wartość informacyjna interpolowana liniowo wewnątrz przedziału, poza 5–60 kg ekstrapolowana i oznaczana „(poza tabelą)" |
 
 ## localStorage
@@ -216,7 +219,7 @@ osascript -l JavaScript tests/test-math-jxa.js        # macOS bez Node (z katalo
 osascript -l JavaScript tests/test-integrity-jxa.js
 ```
 
-`test-math` (131 asercji) pokrywa wartości referencyjne tabel, granice
+`test-math` (332 asercje) pokrywa wartości referencyjne tabel, granice
 przedziałów, bilansowanie suwaków (w tym suwak na 100% i z powrotem), ekstra
 posiłki z wiernym cofaniem, zaokrąglanie gramów, normy FEDIAF/AAHA, progi
 werdyktu, kalibrację tabel oraz niezmiennik energii dnia (mieszany = suchy).
@@ -251,6 +254,7 @@ Kalibracja tabel użytych w aplikacji (kcal/kg^0,75):
 | Brit VD GI Low Fat mokra | 107–110 | norma FEDIAF |
 | Belcando „Normale Aktivität" (3–80 kg) | 89–98 | poziom „mało aktywny" |
 | Belcando „Erhöhte Aktivität" (3–80 kg) | 105–115 | norma FEDIAF |
+| Purizon Single Meat łosoś (5–80 kg) | 96–98 | poziom „mało aktywny" |
 
 Obie mokre tabele Brit są wyskalowane dokładnie na 110 kcal/kg^0,75, a sucha
 tabela tego samego producenta leży ~25% niżej — stąd możliwość wyboru źródła
