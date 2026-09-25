@@ -54,6 +54,23 @@ assert('Belcando 18 kg nie jest juz dawka dla 20 kg', computeDaily(bel, 18, 'low
 assert('Belcando 20 kg nie jest juz dawka dla 25 kg', computeDaily(bel, 20, 'low').grams !== 280);
 assert('computeDaily nie zwraca juz pola bracket', computeDaily(bel, 18, 'low').bracket === undefined);
 
+// ---- computeDaily: Purizon Single Meat losos (points-interp) ----
+// Tabela zooplus w przedzialach, ktorych konce sie lacza (1-5: 28-85, 5-15: 85-195...)
+// -> ciagla krzywa, punkty = granice przedzialow.
+const pur = DRY_FOODS.purizon_salmon;
+const PUR = [[1, 28], [5, 85], [15, 195], [30, 325], [40, 400], [50, 470], [60, 540], [70, 605], [80, 670]];
+PUR.forEach(([kg, g]) => eq(`Purizon ${kg} kg = ${g} g`, computeDaily(pur, kg).grams, g));
+eq('Purizon 10 kg = 140 g (srodek 5-15)', computeDaily(pur, 10).grams, 140, 1e-9);
+eq('Purizon 18 kg = 221 g', computeDaily(pur, 18).grams, 221, 1e-9);
+eq('Purizon 20 kg = 238.3 g', computeDaily(pur, 20).grams, 238.333, 0.001);
+eq('Purizon aktywnosc ignorowana (jedna kolumna)', computeDaily(pur, 20, 'high').grams, computeDaily(pur, 20, 'low').grams);
+assert('Purizon high nie jest ekstrapolacja', computeDaily(pur, 20, 'high').activityExtrapolated === false);
+eq('Purizon 0.5 kg clamp-low', computeDaily(pur, 0.5).note, 'clamped-low');
+eq('Purizon 0.5 kg = 28 g', computeDaily(pur, 0.5).grams, 28);
+eq('Purizon 80 kg bez ostrzezenia', computeDaily(pur, 80).note, null);
+eq('Purizon 90 kg clamp-high 670', computeDaily(pur, 90).grams, 670);
+eq('Purizon 90 kg note', computeDaily(pur, 90).note, 'clamped-high');
+
 // ---- kolumna 'high': producent jej nie ma, przedluzamy jego wlasny krok ----
 BEL_LOW.forEach(([kg], i) => {
   const expected = BEL_NORM[i][1] * BEL_NORM[i][1] / BEL_LOW[i][1];
@@ -177,6 +194,10 @@ assert('kcal: Belcando oznaczone jako szacunek', DRY_FOODS.belcando_salmon.kcalE
   eq('Belcando NFE = 38.2%', NFE, 38.2, 1e-9);
   eq('Belcando ME wg FEDIAF = 3.72 kcal/g', ME, DRY_FOODS.belcando_salmon.kcal, 0.005);
 }
+// Purizon: ME z deklaracji producenta (FEDIAF 2016: 16,04 MJ / 3835 kcal/kg)
+eq('kcal: Purizon 3.835 (producent)', DRY_FOODS.purizon_salmon.kcal, 3.835);
+assert('kcal: Purizon nie jest szacunkiem', !DRY_FOODS.purizon_salmon.kcalEstimated);
+eq('Purizon 16.04 MJ = 3835 kcal/kg (1 kcal = 4.184 kJ)', 16040 / 4.184, 3835, 2);
 eq('equiv: identycznosc', energyEquivGrams(100, 3.93, 3.93), 100, 1e-12);
 eq('equiv: 184g suchej -> LowFat', energyEquivGrams(184, 3.93, 0.775), 184 * 3.93 / 0.775, 1e-9);
 eq('equiv: 184g suchej -> mokra std ~709 g', energyEquivGrams(184, 3.93, 1.02), 708.94, 0.01);
@@ -269,6 +290,12 @@ eq('Belcando 20 kg high = 124 kcal/kg^0.75', tableKcalPerMetabolic(bel, 20, 'hig
   assert(`Belcando normal > low przy ${kg} kg`, no > lo);
 });
 
+// Purizon: jedna kolumna na ~96-98 kcal/kg^0.75 w 5-80 kg = FEDIAF low (95).
+eq('Purizon 20 kg = 96.6 kcal/kg^0.75', tableKcalPerMetabolic(pur, 20), 96.64, 0.1);
+[5, 10, 15, 20, 30, 40, 50, 60, 70, 80].forEach(kg => {
+  const v = tableKcalPerMetabolic(pur, kg);
+  assert(`Purizon ${kg} kg w 94-99 (${v.toFixed(1)})`, v >= 94 && v <= 99);
+});
 // ---- poziomy redukcji wg AAHA ----
 eq('redukcja 1.0 x RER(18) = 611.7', reductionKcal(18, 1.0), 611.72, 0.01);
 eq('redukcja 1.2 x RER(18) = 734.1', reductionKcal(18, 1.2), 734.06, 0.01);
