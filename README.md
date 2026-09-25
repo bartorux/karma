@@ -6,7 +6,8 @@ energii metabolicznych. Działa na GitHub Pages:
 **https://bartorux.github.io/karma/**
 
 Dane trzymane są wyłącznie lokalnie w przeglądarce (`localStorage`) — nic nie
-wychodzi do sieci.
+wychodzi do sieci. Strona nie pobiera też żadnych zasobów zewnętrznych (czcionki są
+systemowe), więc działa offline po pierwszym wczytaniu.
 
 ## Funkcje
 
@@ -34,6 +35,7 @@ wychodzi do sieci.
   werdykt zastępuje **deficyt względem utrzymania dla wagi aktualnej**.
 - **Dziennik dnia** — czas podania, sumy mokrej/suchej, postęp x/N,
   automatyczny reset o północy (ustawienia zostają).
+  Cofnięcie „Podano" wymaga potwierdzenia.
 - **Tabelki referencyjne** wybranych karm z podświetleniem wiersza dla wagi,
   z której liczone są dawki (docelowej przy redukcji). Karma mokra — selektor
   i tabelka — pokazuje się tylko wtedy, gdy dzień faktycznie jej używa.
