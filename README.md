@@ -150,11 +150,22 @@ od niepodanych odejmowane proporcjonalnie
 Nadwyżka ponad budżet dnia (`overshoot`) wyświetla ostrzeżenie o przekroczeniu
 dziennej dawki.
 
+Usunięcie ekstra przeplanowuje dzień (`replanDay`): wagi niepodanych posiłków
+to ich udziały plus wszystko, co odjęły im ekstra (czyli podział sprzed ekstra,
+razem z ręcznymi zmianami suwaków). Niepodane dostają budżet
+`1 − Σ udziałów podanych`, a pozostałe ekstra są nakładane od nowa, z nowymi
+`deductions` i `overshoot`. Odjęcie od posiłku, który w międzyczasie podano,
+przechodzi więc na niepodane, zamiast przepaść, a ostrzeżenie o przekroczeniu
+nie zostaje po usunięciu innego ekstra.
+
 ### Zmiana trybu w środku dnia
 
 Podane posiłki, których nie ma w nowym trybie (np. „Południe" z trybu dom),
-są konwertowane na wpisy ekstra (z gramaturą i czasem), a udziały nowego trybu
-odbudowywane z ustawień i ponownie pomniejszane o wszystkie ekstra.
+są konwertowane na wpisy ekstra (z gramaturą i czasem). Podane posiłki obecne
+w obu trybach (Rano, Wieczór) **zachowują udział, z jakim je podano** — ich gramy
+są zamrożone. Niepodane dzielą resztę dnia (`1 − Σ podanych`) proporcjonalnie
+do domyślnego podziału nowego trybu, a potem wszystkie ekstra są nakładane
+od nowa (`replanDay`). Energia dnia się zgadza: podane + plan = cel.
 
 ## Konwencje tabel dawkowania
 
@@ -219,10 +230,11 @@ osascript -l JavaScript tests/test-math-jxa.js        # macOS bez Node (z katalo
 osascript -l JavaScript tests/test-integrity-jxa.js
 ```
 
-`test-math` (332 asercje) pokrywa wartości referencyjne tabel, granice
+`test-math` (348 asercji) pokrywa wartości referencyjne tabel, granice
 przedziałów, bilansowanie suwaków (w tym suwak na 100% i z powrotem), ekstra
 posiłki z wiernym cofaniem, zaokrąglanie gramów, normy FEDIAF/AAHA, progi
-werdyktu, kalibrację tabel oraz niezmiennik energii dnia (mieszany = suchy).
+werdyktu, kalibrację tabel, niezmiennik energii dnia (mieszany = suchy),
+przeplanowanie dnia (`replanDay`) oraz escapowanie etykiet (`escHtml`).
 
 `test-integrity` sprawdza sam plik: parsowanie `<script>`, spójność
 `getElementById` z markupem, istnienie funkcji z inline handlerów oraz brak
