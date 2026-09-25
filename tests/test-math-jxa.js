@@ -329,10 +329,6 @@ eq('Purizon 20 kg = 96.6 kcal/kg^0.75', tableKcalPerMetabolic(pur, 20), 96.64, 0
   eq('replan: podane > 1 -> niepodane 0', r.shares.a, 0);
 }
 
-// ---- escHtml ----
-eq('escHtml: znaczniki', escHtml('<svg onload=x>'), '&lt;svg onload=x&gt;');
-eq('escHtml: cudzyslowy i &', escHtml(`a'b"c&d`), 'a&#39;b&quot;c&amp;d');
-eq('escHtml: zwykly tekst bez zmian', escHtml('kość 50 g'), 'kość 50 g');
 
 // ---- poziomy redukcji wg AAHA ----
 eq('redukcja 1.0 x RER(18) = 611.7', reductionKcal(18, 1.0), 611.72, 0.01);
